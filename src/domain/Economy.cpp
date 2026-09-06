@@ -681,9 +681,8 @@ Status Economy::abandon_contract(u64 instanceId) {
     return {};
 }
 
-std::vector<i32> Economy::settle_contracts(const Inventory& soldCargo, i64 depthReached, const RigState& rig,
-                                           const StatBlock& stats) {
-    (void)rig;
+std::vector<i32> Economy::settle_contracts(const Inventory& soldCargo, i64 depthReached,
+                                           const ExpeditionOutcome& outcome, const StatBlock& stats) {
     std::vector<i32> completed;
     for (auto& c : mProgress->contracts) {
         if (c.completed || c.templateIndex < 0) {
@@ -708,16 +707,35 @@ std::vector<i32> Economy::settle_contracts(const Inventory& soldCargo, i64 depth
                 }
                 break;
             case ContractKind::ScanAnomaly:
+                // An anomaly scan means finding an artifact chamber or set piece
+                // in the contracted band, with the scanner actually used.
+                if (depthReached >= t.depthMin && outcome.scanPulses > 0 &&
+                    (outcome.discovered(LandmarkKind::ArtifactChamber) > 0 ||
+                     outcome.discovered(LandmarkKind::SetPiece) > 0 ||
+                     outcome.discovered(LandmarkKind::CollapsedFacility) > 0)) {
+                    c.progress = 1;
+                    c.completed = true;
+                }
+                break;
             case ContractKind::RecoverCache:
+                if (depthReached >= t.depthMin && (outcome.activated(LandmarkKind::Cache) > 0 ||
+                                                   outcome.activated(LandmarkKind::CollapsedFacility) > 0)) {
+                    c.progress = 1;
+                    c.completed = true;
+                }
+                break;
             case ContractKind::ActivateInfrastructure:
+                if (outcome.activated(LandmarkKind::TransitNode) > 0 ||
+                    outcome.activated(LandmarkKind::RepairStation) > 0) {
+                    c.progress = 1;
+                    c.completed = true;
+                }
+                break;
             case ContractKind::RescueProspector:
-                // These complete through landmark discovery/activation, which is
-                // recorded during the expedition.
-                if (depthReached >= t.depthMin) {
-                    c.progress += 1;
-                    if (c.progress >= 1) {
-                        c.completed = true;
-                    }
+                if (outcome.activated(LandmarkKind::RescueBeacon) > 0 ||
+                    outcome.discovered(LandmarkKind::RescueBeacon) > 0) {
+                    c.progress = 1;
+                    c.completed = true;
                 }
                 break;
             case ContractKind::Count:

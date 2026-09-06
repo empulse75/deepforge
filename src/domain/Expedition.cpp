@@ -508,6 +508,7 @@ void ExpeditionSim::update_discovery(RigState& rig, const TickCommands& cmd, flo
         rig.scanCooldown = std::max(0.0f, rig.scanCooldown - dt);
         if (cmd.scan && rig.scanCooldown <= 0.0f) {
             rig.scanCooldown = kScanCooldownSeconds;
+            ++mRuntime.outcome.scanPulses;
             mMap->reveal_radius(centre, static_cast<i32>(mStats.scannerRange), true);
             events.push(DomainEvent{EventKind::ScanPulse, 0, 0, mStats.scannerRange, centre, {}});
         }
@@ -516,6 +517,8 @@ void ExpeditionSim::update_discovery(RigState& rig, const TickCommands& cmd, flo
     for (auto* lm : mMap->landmarks_near(centre, 14)) {
         if (mProgress->discoveredLandmarks.count(static_cast<i64>(lm->stableId)) == 0) {
             mProgress->discoveredLandmarks.insert(static_cast<i64>(lm->stableId));
+            const auto kind = mDb->landmarks()[static_cast<usize>(lm->definition)].kind;
+            ++mRuntime.outcome.landmarksDiscovered[static_cast<usize>(kind)];
             events.push(DomainEvent{EventKind::LandmarkDiscovered, lm->definition, 0, 0.0f, lm->origin,
                                     mDb->landmarks()[static_cast<usize>(lm->definition)].nameKey});
         }
@@ -529,6 +532,10 @@ void ExpeditionSim::update_discovery(RigState& rig, const TickCommands& cmd, flo
             continue;
         }
         lm->activated = true;
+        if (!def.lootMaterials.empty()) {
+            lm->looted = true;
+        }
+        ++mRuntime.outcome.landmarksActivated[static_cast<usize>(def.kind)];
         mMap->set_landmark_state(chunk_of(lm->origin), lm->stableId, true, lm->looted);
         events.push(
             DomainEvent{EventKind::LandmarkActivated, lm->definition, 0, 0.0f, lm->origin, def.nameKey});

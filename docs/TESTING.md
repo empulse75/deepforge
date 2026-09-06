@@ -28,7 +28,7 @@ cmake --preset tsan  && cmake --build --preset tsan  && ctest --preset tsan
 
 ## What is covered
 
-48 CTest cases across five suites.
+70 CTest cases across five suites.
 
 ### `tests/unit` — core, inventory, economy, saves
 
@@ -93,6 +93,10 @@ cmake --preset tsan  && cmake --build --preset tsan  && ctest --preset tsan
 - Transit nodes: activation records a launch point, launching starts the run at
   that depth (never inside rock), climbing back to the entry depth extracts, and
   the nodes survive a save round trip.
+- Landmark-driven contracts (cache recovery, infrastructure activation, rescue,
+  anomaly scan) do **not** complete on depth alone — the test drives an empty
+  expedition outcome and asserts they stay open, then supplies the real landmark
+  interactions and asserts they close.
 
 ### Content validation
 

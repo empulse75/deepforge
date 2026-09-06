@@ -11,6 +11,8 @@
 #include "domain/RigState.hpp"
 #include "world/WorldMap.hpp"
 
+#include <array>
+
 namespace df {
 
 /// Difficulty assists. All default to neutral and never shame the player.
@@ -32,6 +34,19 @@ struct MineQuote {
     bool mineable = false;
 };
 
+/// What actually happened during a run, used to settle objectives that are not
+/// about delivering material.
+struct ExpeditionOutcome {
+    std::array<i32, static_cast<usize>(LandmarkKind::Count)> landmarksActivated{};
+    std::array<i32, static_cast<usize>(LandmarkKind::Count)> landmarksDiscovered{};
+    i32 scanPulses = 0;
+    i64 deepestDepth = 0;
+
+    i32 activated(LandmarkKind k) const { return landmarksActivated[static_cast<usize>(k)]; }
+
+    i32 discovered(LandmarkKind k) const { return landmarksDiscovered[static_cast<usize>(k)]; }
+};
+
 struct ExpeditionRuntime {
     float elapsedSeconds = 0.0f;
     i64 startDepth = 0;
@@ -44,6 +59,7 @@ struct ExpeditionRuntime {
     u64 tickCount = 0;
     i64 tilesMined = 0;
     i64 creditsAtStart = 0;
+    ExpeditionOutcome outcome;
 };
 
 /// Pure simulation over a world map and a player state. Holds no rendering,

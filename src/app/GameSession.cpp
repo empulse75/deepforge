@@ -187,8 +187,8 @@ ExpeditionSummary GameSession::return_to_hub() {
     }
     mSamples.clear();
 
-    summary.contractsCompleted =
-        mEconomy->settle_contracts(soldSnapshot, summary.depthReached, mRig, mSim->stats());
+    summary.contractsCompleted = mEconomy->settle_contracts(soldSnapshot, summary.depthReached,
+                                                            mSim->runtime().outcome, mSim->stats());
 
     // Proficiency is granted for progress, not for repetition.
     if (summary.depthReached > 0) {

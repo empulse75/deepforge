@@ -94,8 +94,9 @@ public:
     Status accept_contract(usize offerIndex);
     Status abandon_contract(u64 instanceId);
     /// Applies delivery/depth progress after an expedition and claims rewards.
-    std::vector<i32> settle_contracts(const Inventory& soldCargo, i64 depthReached, const RigState& rig,
-                                      const StatBlock& stats);
+    /// Applies expedition results to active contracts and claims what completed.
+    std::vector<i32> settle_contracts(const Inventory& soldCargo, i64 depthReached,
+                                      const ExpeditionOutcome& outcome, const StatBlock& stats);
 
     bool contract_eligible(const ContractTemplate& t) const;
 

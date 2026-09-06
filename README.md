@@ -23,7 +23,7 @@ Playable and buildable end to end. What exists today:
 | Save | Versioned (schema 4), atomic, checksummed, backed up, with tested migrations |
 | Input | Keyboard, mouse and SDL gamepads, fully remappable |
 | Accessibility | Shake/flash/particle sliders, colour-vision palette, hold-vs-toggle, text scale, captions, difficulty assists |
-| Tests | 48 deterministic headless CTest cases, including a 1000-seed generation sweep |
+| Tests | 70 deterministic headless CTest cases, including a 1000-seed generation sweep |
 | Tools | Content validator, balance simulator, headless autopilot, screenshot capture |
 
 Known limitations are listed at the bottom of this file. Read them before
@@ -195,9 +195,6 @@ Stated honestly, because a build that oversells itself wastes your time:
 - **Transit lifts are new and lightly exercised.** Activated nodes persist and
   can launch and extract an expedition (covered by tests), but no long
   playthrough has leaned on them.
-- **Contract kinds are partially wired.** Delivery, depth and volatile contracts
-  track properly. Scan, cache, infrastructure and rescue contracts complete on a
-  depth proxy rather than on the specific landmark interaction.
 - **Localisation is keys-only.** The UI derives readable names from stable ids;
   there is no translation table yet.
 - **Audio is synthesised, not composed.** Every cue is generated from
