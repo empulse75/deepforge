@@ -81,6 +81,28 @@ if(DEEPFORGE_BUILD_TESTS)
     include(Catch)
 endif()
 
+# Third-party include directories are marked SYSTEM so their own warnings never
+# reach us. This is what makes DEEPFORGE_WARNINGS_AS_ERRORS usable in CI.
+function(deepforge_mark_system target)
+    if(NOT TARGET ${target})
+        return()
+    endif()
+    get_target_property(_aliased ${target} ALIASED_TARGET)
+    if(_aliased)
+        set(target ${_aliased})
+    endif()
+    get_target_property(_type ${target} TYPE)
+    if(_type STREQUAL "INTERFACE_LIBRARY")
+        get_target_property(_dirs ${target} INTERFACE_INCLUDE_DIRECTORIES)
+    else()
+        get_target_property(_dirs ${target} INTERFACE_INCLUDE_DIRECTORIES)
+    endif()
+    if(_dirs)
+        set_target_properties(${target} PROPERTIES
+            INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${_dirs}")
+    endif()
+endfunction()
+
 if(DEEPFORGE_BUILD_CLIENT)
     if(DEEPFORGE_USE_SYSTEM_SDL)
         find_package(SDL3 REQUIRED CONFIG)
@@ -91,6 +113,9 @@ if(DEEPFORGE_BUILD_CLIENT)
         set(SDL_EXAMPLES OFF CACHE BOOL "" FORCE)
         FetchContent_MakeAvailable(SDL3)
     endif()
+    foreach(_sdl_target SDL3::SDL3 SDL3::SDL3-shared SDL3::Headers SDL3::SDL3-static)
+        deepforge_mark_system(${_sdl_target})
+    endforeach()
 endif()
 
 # ---------------------------------------------------------------------------

@@ -126,8 +126,19 @@ Status GameSession::transition(GameStateId next) {
     return {};
 }
 
-void GameSession::start_expedition() {
+void GameSession::start_expedition(i32 transitNodeIndex) {
     refresh();
+    if (transitNodeIndex >= 0 && static_cast<usize>(transitNodeIndex) < mProgress.transitNodes.size()) {
+        const auto& node = mProgress.transitNodes[static_cast<usize>(transitNodeIndex)];
+        mRig.position = Vec2{static_cast<float>(node.x), static_cast<float>(node.y)};
+        // Nodes are carved rooms, but be defensive: never drop the rig inside
+        // rock because a delta changed the room after activation.
+        if (mWorld->is_solid(mRig.tile())) {
+            EventQueue scratch;
+            mSim->perform_unstuck(mRig, scratch);
+        }
+        DF_LOG_INFO("session", "launching from transit node at {} m", node.y);
+    }
     mSim->begin_expedition(mRig, mCargo, mSamples);
     mProgress.stats.expeditions += 1;
     mState = GameStateId::Expedition;

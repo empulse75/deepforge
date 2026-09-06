@@ -239,7 +239,20 @@ void Client::build_menu() {
             mMenuTitle = "SURFACE HUB";
             mMenuSubtitle = std::format("{} credits - {} insight - {} proficiency - deepest {} m", p.credits,
                                         p.insight, p.skill_points_available(), p.stats.deepestDepth);
-            mMenu.push_back({"Descend", "Begin an expedition", "", true, kIdDescend, palette::kAccent});
+            mMenu.push_back({"Descend", "Begin an expedition from the surface shaft", "", true, kIdDescend,
+                             palette::kAccent});
+            // Activated transit nodes become permanent launch points, deepest
+            // first, so late-game runs do not begin with a repeat of the climb.
+            for (usize i = 0; i < p.transitNodes.size(); ++i) {
+                const auto& node = p.transitNodes[p.transitNodes.size() - 1 - i];
+                const i32 biome = mSession->world().generator().biome_index_at(node.y);
+                mMenu.push_back({std::format("Transit lift to {} m", node.y),
+                                 std::format("Launch and extract at {}",
+                                             pretty(mDb.biomes()[static_cast<usize>(biome)].nameKey)),
+                                 "", true,
+                                 kIdDynamicBase + 900 + static_cast<int>(p.transitNodes.size() - 1 - i),
+                                 palette::kAccent});
+            }
             mMenu.push_back({"Garage", "Rig equipment tiers", "", true, kIdGarage});
             mMenu.push_back({"Modules", "Loadout and buildcraft", "", true, kIdModules});
             mMenu.push_back(
@@ -937,6 +950,14 @@ void Client::activate(int id) {
             mAwaitingRebind = true;
             mInput->begin_capture();
             build_menu();
+            break;
+        }
+        case Screen::Hub: {
+            if (index >= 900) {
+                mSession->start_expedition(index - 900);
+                mRenderer.invalidate_all();
+                set_screen(Screen::Expedition);
+            }
             break;
         }
         case Screen::Pause:

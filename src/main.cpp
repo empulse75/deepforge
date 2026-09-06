@@ -56,6 +56,17 @@ std::filesystem::path find_data_dir(const std::filesystem::path& override) {
 
 } // namespace
 
+namespace {
+
+/// Runs the client and returns its exit code. The client is destroyed when this
+/// returns, which is what guarantees every SDL resource is released before
+/// SDL_Quit runs in main.
+int run_client(df::ContentDatabase db, const std::filesystem::path& userDir, int headlessFrames,
+               const std::filesystem::path& screenshot, unsigned long long screenshotSeed,
+               int screenshotTicks, const std::string& screenshotScreen);
+
+} // namespace
+
 int main(int argc, char** argv) {
     std::filesystem::path dataOverride;
     std::filesystem::path userOverride;
@@ -112,12 +123,27 @@ int main(int argc, char** argv) {
         return 2;
     }
 
-    df::Client client(std::move(*db), userDir);
+    // run_client destroys the client before returning, which is what guarantees
+    // every SDL resource (window, renderer, gamepad, audio stream) is released
+    // before SDL_Quit tears the subsystems down.
+    const int result = run_client(std::move(*db), userDir, headlessFrames, screenshot, screenshotSeed,
+                                  screenshotTicks, screenshotScreen);
+
+    DF_LOG_INFO("boot", "shutting down");
+    SDL_Quit();
+    return result;
+}
+
+namespace {
+
+int run_client(df::ContentDatabase db, const std::filesystem::path& userDir, int headlessFrames,
+               const std::filesystem::path& screenshot, unsigned long long screenshotSeed,
+               int screenshotTicks, const std::string& screenshotScreen) {
+    df::Client client(std::move(db), userDir);
     auto init = client.initialise();
     if (!init) {
         std::fprintf(stderr, "Project Deepforge could not start: %s\n", init.error().to_string().c_str());
         DF_LOG_ERROR("boot", "{}", init.error().to_string());
-        SDL_Quit();
         return 3;
     }
 
@@ -145,7 +171,7 @@ int main(int argc, char** argv) {
     } else {
         result = headlessFrames > 0 ? client.run_headless_frames(headlessFrames) : client.run();
     }
-    DF_LOG_INFO("boot", "shutting down");
-    SDL_Quit();
     return result;
 }
+
+} // namespace

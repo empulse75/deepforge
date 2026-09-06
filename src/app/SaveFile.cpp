@@ -173,6 +173,15 @@ void migrate_2_to_3(json& payload) {
     }
 }
 
+void migrate_3_to_4(json& payload) {
+    // v4 records the position of each activated transit node so the hub can
+    // offer it as a launch point. Older saves keep their node ids; the nodes
+    // become selectable again the next time the player visits one.
+    if (!payload["progress"].contains("transit_node_positions")) {
+        payload["progress"]["transit_node_positions"] = json::array();
+    }
+}
+
 } // namespace
 
 u64 SaveSystem::checksum(std::string_view payload) {
@@ -271,6 +280,11 @@ Result<std::string> SaveSystem::serialise(const ContentDatabase& db, const SaveD
         transit.push_back(id);
     }
     jp["transit_nodes"] = std::move(transit);
+    json transitPositions = json::array();
+    for (const auto& n : p.transitNodes) {
+        transitPositions.push_back({{"id", n.stableId}, {"x", n.x}, {"y", n.y}});
+    }
+    jp["transit_node_positions"] = std::move(transitPositions);
 
     auto encode_contract = [&](const ActiveContract& c) {
         json jc;
@@ -384,6 +398,9 @@ Result<SaveData> SaveSystem::deserialise(const ContentDatabase& db, const std::s
                 break;
             case 2:
                 migrate_2_to_3(payload);
+                break;
+            case 3:
+                migrate_3_to_4(payload);
                 break;
             default:
                 return fail(Error{"no migration path from save schema " + std::to_string(version),
@@ -510,6 +527,12 @@ Result<SaveData> SaveSystem::deserialise(const ContentDatabase& db, const std::s
     if (jp.contains("transit_nodes")) {
         for (const auto& e : jp["transit_nodes"]) {
             p.activatedTransitNodes.insert(e.get<u64>());
+        }
+    }
+    if (jp.contains("transit_node_positions")) {
+        for (const auto& e : jp["transit_node_positions"]) {
+            p.add_transit_node(e.value("id", static_cast<u64>(0)), e.value("x", static_cast<i64>(0)),
+                               e.value("y", static_cast<i64>(0)));
         }
     }
     auto decode_contract = [&](const json& jc) {

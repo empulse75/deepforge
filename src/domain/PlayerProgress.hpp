@@ -26,6 +26,13 @@ struct ActiveContract {
     i32 forbiddenSlot = -1;
 };
 
+/// An activated transit node the player can launch an expedition from.
+struct TransitNode {
+    u64 stableId = 0;
+    i64 x = 0;
+    i64 y = 0; ///< Depth in tiles.
+};
+
 struct CodexEntry {
     i32 material = -1;
     i64 minedCount = 0;
@@ -77,6 +84,8 @@ struct PlayerProgress {
     std::unordered_set<i64> discoveredLandmarks;
     std::unordered_set<i32> unlockedBiomes;
     std::unordered_set<u64> activatedTransitNodes;
+    /// Positions of the activated nodes, so the hub can offer deep entry points.
+    std::vector<TransitNode> transitNodes;
 
     /// Surface storage: materials banked but not yet sold or refined.
     Inventory vault;
@@ -99,6 +108,9 @@ struct PlayerProgress {
     bool module_installed(i32 index) const;
 
     i32 used_utility_power(const ContentDatabase& db) const;
+
+    /// Records an activated transit node, ignoring duplicates.
+    void add_transit_node(u64 id, i64 x, i64 y);
 };
 
 } // namespace df

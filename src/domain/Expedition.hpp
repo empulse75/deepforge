@@ -35,6 +35,7 @@ struct MineQuote {
 struct ExpeditionRuntime {
     float elapsedSeconds = 0.0f;
     i64 startDepth = 0;
+    i64 entryDepth = 0; ///< Depth the run launched from; reaching it again extracts.
     i32 biomeIndex = 0;
     i32 lastBiomeIndex = -1;
     bool rescuePending = false;

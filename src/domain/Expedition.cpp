@@ -58,6 +58,7 @@ void ExpeditionSim::begin_expedition(RigState& rig, Inventory& cargo, Inventory&
     samples.set_capacity(static_cast<float>(mStats.protectedSampleSlots));
     mRuntime = ExpeditionRuntime{};
     mRuntime.startDepth = rig.depth_tiles();
+    mRuntime.entryDepth = std::max<i64>(0, rig.depth_tiles());
     mRuntime.creditsAtStart = mProgress->credits;
     mRuntime.biomeIndex = mMap->generator().biome_index_at(std::max<i64>(0, rig.depth_tiles()));
     mRuntime.lastBiomeIndex = mRuntime.biomeIndex;
@@ -537,7 +538,10 @@ void ExpeditionSim::update_discovery(RigState& rig, const TickCommands& cmd, flo
                 rig.fuel = std::min(mStats.fuelCapacity, rig.fuel + mStats.fuelCapacity * 0.35f);
                 break;
             case LandmarkKind::TransitNode:
-                mProgress->activatedTransitNodes.insert(lm->stableId);
+                // Activating a node makes it a permanent entry point, which is
+                // what keeps deep biomes reachable without a full climb.
+                mProgress->add_transit_node(lm->stableId, lm->origin.x + lm->width / 2,
+                                            lm->origin.y + lm->height / 2);
                 break;
             case LandmarkKind::CoolingPocket:
                 rig.heat = 0.0f;
@@ -618,12 +622,13 @@ void ExpeditionSim::tick(RigState& rig, Inventory& cargo, Inventory& samples, co
     if (rig.hull <= 0.0f) {
         mRuntime.rescuePending = true;
     }
-    if (depth > 6) {
+    if (depth > mRuntime.entryDepth + 6) {
         mRuntime.hasDescended = true;
     }
-    // Returning to the surface ends the expedition, but only once the rig has
-    // actually been underground.
-    if (depth <= 0 && mRuntime.hasDescended && !mRuntime.rescuePending) {
+    // Climbing back to the entry point ends the expedition. Launching from an
+    // activated transit node therefore also means extracting through it, which
+    // is what makes deep expeditions a round trip rather than a one-way climb.
+    if (depth <= mRuntime.entryDepth && mRuntime.hasDescended && !mRuntime.rescuePending) {
         mRuntime.returnedToSurface = true;
     }
 }

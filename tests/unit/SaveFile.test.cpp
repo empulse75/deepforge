@@ -36,7 +36,7 @@ SaveData sample_save(const ContentDatabase& db) {
     data.progress.samples.set_capacity(1e9f);
     data.progress.samples.add(db, db.material("material.echo_shard").index, 1, false);
     data.progress.discoveredLandmarks.insert(987654321);
-    data.progress.activatedTransitNodes.insert(112233ull);
+    data.progress.add_transit_node(112233ull, -37, 940);
     data.progress.stats.tilesMined = 999;
     data.progress.stats.deepestDepth = 812;
     data.progress.codex[db.material("material.ferrite").index] =
@@ -89,6 +89,10 @@ TEST_CASE("save round trips every field", "[save]") {
     CHECK(restored->progress.samples.stacks() == original.progress.samples.stacks());
     CHECK(restored->progress.discoveredLandmarks == original.progress.discoveredLandmarks);
     CHECK(restored->progress.activatedTransitNodes == original.progress.activatedTransitNodes);
+    REQUIRE(restored->progress.transitNodes.size() == original.progress.transitNodes.size());
+    CHECK(restored->progress.transitNodes[0].stableId == 112233ull);
+    CHECK(restored->progress.transitNodes[0].x == -37);
+    CHECK(restored->progress.transitNodes[0].y == 940);
     CHECK(restored->progress.stats.tilesMined == original.progress.stats.tilesMined);
     CHECK(restored->progress.stats.deepestDepth == original.progress.stats.deepestDepth);
     CHECK(restored->progress.codex.size() == original.progress.codex.size());
@@ -227,6 +231,9 @@ TEST_CASE("saves from every released schema version migrate", "[save][migration]
         CHECK(migrated->progress.loadoutPresets.size() >= 1);
         CHECK(migrated->progress.reputation.size() == db.factions().size());
         CHECK(migrated->progress.maxUtilityPower > 0);
+        // Schema 4 added transit node positions; an older save simply has none
+        // yet, and nothing it did contain is lost.
+        CHECK(migrated->progress.transitNodes.empty());
     }
 }
 

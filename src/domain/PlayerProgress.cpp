@@ -29,6 +29,18 @@ bool PlayerProgress::module_installed(i32 index) const {
     return std::find(installedModules.begin(), installedModules.end(), index) != installedModules.end();
 }
 
+void PlayerProgress::add_transit_node(u64 id, i64 x, i64 y) {
+    activatedTransitNodes.insert(id);
+    for (const auto& n : transitNodes) {
+        if (n.stableId == id) {
+            return;
+        }
+    }
+    transitNodes.push_back(TransitNode{id, x, y});
+    std::sort(transitNodes.begin(), transitNodes.end(),
+              [](const TransitNode& a, const TransitNode& b) { return a.y < b.y; });
+}
+
 i32 PlayerProgress::used_utility_power(const ContentDatabase& db) const {
     i32 total = 0;
     for (const i32 m : installedModules) {

@@ -218,7 +218,7 @@ must never depend on the roll.
 - **Contract rewards were authored, not solved.** They are in the right
   neighbourhood relative to sale value at the depth they unlock, but no
   simulation compares "take the contract" against "just sell the ore".
-- **The transit network is not yet a shortcut.** Transit nodes activate and
-  persist, but deep entry from an activated node is not implemented, so very
-  deep expeditions still start from the surface. This is the biggest structural
-  gap between the current build and the intended endgame pacing.
+- **Transit lift economics are unmeasured.** Deep entry from an activated node
+  is implemented and tested, but no simulation yet compares the value of a run
+  launched from 1200 m against one from the surface, so the depth spacing of
+  transit nodes (one per 400-tile region) is authored rather than solved.

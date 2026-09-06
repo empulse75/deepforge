@@ -54,9 +54,32 @@ if(DEEPFORGE_BUILD_CLIENT)
     add_executable(deepforge_game main.cpp)
     target_link_libraries(deepforge_game PRIVATE deepforge_presentation deepforge_app SDL3::SDL3)
     deepforge_set_warnings(deepforge_game)
-    set_target_properties(deepforge_game PROPERTIES OUTPUT_NAME "deepforge")
+    set_target_properties(deepforge_game PROPERTIES
+        OUTPUT_NAME "deepforge"
+        # Packaged builds find SDL next to (Windows) or one directory up from
+        # (Unix) the executable, so the release archive is self-contained.
+        INSTALL_RPATH "$ORIGIN;$ORIGIN/../lib"
+        BUILD_WITH_INSTALL_RPATH FALSE)
     install(TARGETS deepforge_game RUNTIME DESTINATION bin)
-    if(TARGET SDL3-shared)
-        install(IMPORTED_RUNTIME_ARTIFACTS SDL3::SDL3 RUNTIME DESTINATION bin LIBRARY DESTINATION bin)
+
+    if(DEEPFORGE_USE_SYSTEM_SDL)
+        # An installed SDL3 is a real imported target, so its runtime artifact
+        # can be copied straight into the package.
+        install(IMPORTED_RUNTIME_ARTIFACTS SDL3::SDL3
+                RUNTIME DESTINATION bin
+                LIBRARY DESTINATION lib)
+    elseif(TARGET SDL3-shared)
+        # A fetched SDL3 is built as a subproject: SDL3::SDL3 is an alias, which
+        # install(IMPORTED_RUNTIME_ARTIFACTS) rejects. Install the built files
+        # (and the SONAME symlink on Unix) directly instead.
+        install(FILES $<TARGET_FILE:SDL3-shared>
+                DESTINATION $<IF:$<BOOL:${WIN32}>,bin,lib>)
+        if(NOT WIN32)
+            install(FILES $<TARGET_SONAME_FILE:SDL3-shared> DESTINATION lib OPTIONAL)
+        endif()
+        install(FILES "${SDL3_SOURCE_DIR}/LICENSE.txt"
+                DESTINATION share/deepforge/licenses
+                RENAME SDL3-LICENSE.txt
+                OPTIONAL)
     endif()
 endif()

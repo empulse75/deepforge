@@ -77,7 +77,9 @@ public:
 
     Status transition(GameStateId next);
 
-    void start_expedition();
+    /// Launches an expedition. `transitNodeIndex` selects an activated transit
+    /// node from PlayerProgress::transitNodes; -1 launches from the surface.
+    void start_expedition(i32 transitNodeIndex = -1);
     /// Ends the run: banks cargo, sells, settles contracts, autosaves.
     ExpeditionSummary return_to_hub();
     ExpeditionSummary resolve_failure();

@@ -28,7 +28,7 @@ cmake --preset tsan  && cmake --build --preset tsan  && ctest --preset tsan
 
 ## What is covered
 
-45 CTest cases across five suites.
+48 CTest cases across five suites.
 
 ### `tests/unit` — core, inventory, economy, saves
 
@@ -90,6 +90,9 @@ cmake --preset tsan  && cmake --build --preset tsan  && ctest --preset tsan
 - An autosave exists and is loadable after an expedition.
 - Twenty simulated minutes of play across many expeditions with no crash, no
   stall, no negative credits and no error state.
+- Transit nodes: activation records a launch point, launching starts the run at
+  that depth (never inside rock), climbing back to the entry depth extracts, and
+  the nodes survive a save round trip.
 
 ### Content validation
 
@@ -179,6 +182,20 @@ implemented. What has been executed and verified, headlessly and repeatedly:
 
 Recorded for the runs that were performed: build 0.4.0 (RelWithDebInfo, GCC
 13.3, Linux x86-64), save schema 3, world gen version 1, content schema 1.
+
+## Shutdown ordering
+
+The client owns SDL resources, so it must be destroyed before `SDL_Quit`. That
+ordering bug segfaulted at exit and was invisible to the unit suite because the
+suite never constructs a client. The guard is the CI step:
+
+```sh
+SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy \
+  ./build/ci/src/deepforge --data data --user-dir "$TMPDIR/dfuser" --headless-frames 300
+```
+
+It runs the real client loop and exits, so a resource released in the wrong
+order fails the build.
 
 ## Adding a test
 

@@ -10,7 +10,7 @@ inline constexpr const char* kBuildDate = "@DEEPFORGE_BUILD_DATE@";
 
 /// Bumped whenever the persisted save layout changes. Every released value must
 /// have a migration path (see docs/SAVE_FORMAT.md).
-inline constexpr int kSaveSchemaVersion = 3;
+inline constexpr int kSaveSchemaVersion = 4;
 
 /// Bumped when generation output changes for an existing seed.
 inline constexpr int kWorldGenVersion = 1;

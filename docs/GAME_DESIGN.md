@@ -132,6 +132,14 @@ ends at a capstone.
 ### Surface base (6 facilities, 4 tiers each)
 
 Garage, refinery, research lab, contract terminal, recovery bay, logistics lift.
+
+**Transit lifts.** Activating a transit node underground makes it a permanent
+launch point. The hub then offers "Transit lift to 1240 m" alongside the surface
+shaft, and an expedition launched from a node also *extracts* through it —
+climbing back to the depth you launched from ends the run. This is what keeps
+the deep biomes a round trip rather than a one-way climb, and it is the reward
+for exploring laterally rather than only downward.
+
 Facilities change what actions are available and improve rates. There are no
 waiting timers and nothing to babysit.
 

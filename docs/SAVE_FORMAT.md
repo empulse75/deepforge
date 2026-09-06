@@ -32,7 +32,7 @@ UTF-8 JSON, one space of indentation.
 
 ```jsonc
 {
-  "save_schema_version": 3,      // bumped whenever the payload layout changes
+  "save_schema_version": 4,      // bumped whenever the payload layout changes
   "content_schema_version": 1,   // shape of data/*.json when written
   "world_gen_version": 1,        // bumped when generation output changes
   "build_version": "0.4.0",
@@ -61,6 +61,7 @@ the header can be read and displayed without trusting the body.
 | `progress.loadout_presets` | Array of arrays of module ids |
 | `progress.codex` | `[{id, mined, first_depth}]` |
 | `progress.discovered_landmarks`, `.transit_nodes` | Arrays of stable 64-bit ids |
+| `progress.transit_node_positions` | `[{id, x, y}]` for activated nodes, so the hub can offer them as launch points |
 | `progress.contracts`, `.completed_contracts` | Contract instances with template id, target, progress, claim state |
 | `progress.vault`, `.samples` | `[{id, amount}]` |
 | `progress.stats` | Playtime statistics |
@@ -124,13 +125,14 @@ Autosaves always target slot 0.
 
 ## Migration
 
-`kSaveSchemaVersion` is the current version (3). Loading applies migration steps
+`kSaveSchemaVersion` is the current version (4). Loading applies migration steps
 in sequence until the payload reaches the current version:
 
 | From | To | What changes |
 | --- | --- | --- |
 | 1 | 2 | Adds the protected sample containers (`payload.samples`, `progress.samples`) |
 | 2 | 3 | Adds loadout presets, faction reputation, codex entries and the utility power budget, each with a working default |
+| 3 | 4 | Adds transit node positions. Older saves keep their node ids; a node becomes selectable again the next time the player visits it, so nothing is lost |
 
 A save from a **newer** schema is refused with an explicit message telling the
 player to update, rather than being loaded partially.
