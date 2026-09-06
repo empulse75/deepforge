@@ -1,0 +1,719 @@
+{
+  "schema_version": 1,
+  "skills": [
+    {
+      "id": "skill.keen_eye",
+      "name_key": "skill.keen_eye.name",
+      "description_key": "skill.keen_eye.description",
+      "branch": "prospector",
+      "row": 0,
+      "cost": 1,
+      "effects": [
+        {
+          "type": "scanner_range_add",
+          "value": 2
+        }
+      ],
+      "prerequisites": []
+    },
+    {
+      "id": "skill.rich_seams",
+      "name_key": "skill.rich_seams.name",
+      "description_key": "skill.rich_seams.description",
+      "branch": "prospector",
+      "row": 1,
+      "cost": 1,
+      "effects": [
+        {
+          "type": "yield_mul",
+          "value": 1.08
+        }
+      ],
+      "prerequisites": [
+        "skill.keen_eye"
+      ]
+    },
+    {
+      "id": "skill.assayer",
+      "name_key": "skill.assayer.name",
+      "description_key": "skill.assayer.description",
+      "branch": "prospector",
+      "row": 1,
+      "cost": 1,
+      "effects": [
+        {
+          "type": "sale_value_mul",
+          "value": 1.06
+        }
+      ],
+      "prerequisites": [
+        "skill.keen_eye"
+      ]
+    },
+    {
+      "id": "skill.vein_reader",
+      "name_key": "skill.vein_reader.name",
+      "description_key": "skill.vein_reader.description",
+      "branch": "prospector",
+      "row": 2,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "vein_reveal_add",
+          "value": 0.25
+        },
+        {
+          "type": "grant_flag",
+          "flag": "see_vein_direction"
+        }
+      ],
+      "prerequisites": [
+        "skill.rich_seams"
+      ]
+    },
+    {
+      "id": "skill.deep_pockets",
+      "name_key": "skill.deep_pockets.name",
+      "description_key": "skill.deep_pockets.description",
+      "branch": "prospector",
+      "row": 2,
+      "cost": 1,
+      "effects": [
+        {
+          "type": "cargo_capacity_add",
+          "value": 12
+        }
+      ],
+      "prerequisites": [
+        "skill.rich_seams"
+      ]
+    },
+    {
+      "id": "skill.negotiator",
+      "name_key": "skill.negotiator.name",
+      "description_key": "skill.negotiator.description",
+      "branch": "prospector",
+      "row": 2,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "contract_reward_mul",
+          "value": 1.15
+        }
+      ],
+      "prerequisites": [
+        "skill.assayer"
+      ]
+    },
+    {
+      "id": "skill.clean_extraction",
+      "name_key": "skill.clean_extraction.name",
+      "description_key": "skill.clean_extraction.description",
+      "branch": "prospector",
+      "row": 3,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "yield_mul",
+          "value": 1.12
+        },
+        {
+          "type": "volatile_stability_add",
+          "value": 0.15
+        }
+      ],
+      "prerequisites": [
+        "skill.vein_reader"
+      ]
+    },
+    {
+      "id": "skill.curator",
+      "name_key": "skill.curator.name",
+      "description_key": "skill.curator.description",
+      "branch": "prospector",
+      "row": 3,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "insight_gain_mul",
+          "value": 1.2
+        },
+        {
+          "type": "protected_sample_slots",
+          "value": 1
+        }
+      ],
+      "prerequisites": [
+        "skill.negotiator"
+      ]
+    },
+    {
+      "id": "skill.market_sense",
+      "name_key": "skill.market_sense.name",
+      "description_key": "skill.market_sense.description",
+      "branch": "prospector",
+      "row": 3,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "sale_value_mul",
+          "value": 1.1
+        }
+      ],
+      "prerequisites": [
+        "skill.assayer"
+      ]
+    },
+    {
+      "id": "skill.prospector_mastery",
+      "name_key": "skill.prospector_mastery.name",
+      "description_key": "skill.prospector_mastery.description",
+      "branch": "prospector",
+      "row": 4,
+      "cost": 3,
+      "effects": [
+        {
+          "type": "yield_mul",
+          "value": 1.2
+        },
+        {
+          "type": "grant_flag",
+          "flag": "auto_mark_valuables"
+        }
+      ],
+      "prerequisites": [
+        "skill.clean_extraction",
+        "skill.deep_pockets"
+      ]
+    },
+    {
+      "id": "skill.keystone_lodefinder",
+      "name_key": "skill.keystone_lodefinder.name",
+      "description_key": "skill.keystone_lodefinder.description",
+      "branch": "prospector",
+      "row": 5,
+      "cost": 4,
+      "effects": [
+        {
+          "type": "scanner_range_add",
+          "value": 14
+        },
+        {
+          "type": "grant_flag",
+          "flag": "scan_through_rock"
+        },
+        {
+          "type": "yield_mul",
+          "value": 0.94
+        }
+      ],
+      "prerequisites": [
+        "skill.prospector_mastery"
+      ],
+      "keystone": true,
+      "exclusive_group": "prospector_keystone"
+    },
+    {
+      "id": "skill.keystone_highgrader",
+      "name_key": "skill.keystone_highgrader.name",
+      "description_key": "skill.keystone_highgrader.description",
+      "branch": "prospector",
+      "row": 5,
+      "cost": 4,
+      "effects": [
+        {
+          "type": "sale_value_mul",
+          "value": 1.25
+        },
+        {
+          "type": "yield_mul",
+          "value": 1.15
+        },
+        {
+          "type": "scanner_range_add",
+          "value": -4
+        }
+      ],
+      "prerequisites": [
+        "skill.prospector_mastery"
+      ],
+      "keystone": true,
+      "exclusive_group": "prospector_keystone"
+    },
+    {
+      "id": "skill.tinkerer",
+      "name_key": "skill.tinkerer.name",
+      "description_key": "skill.tinkerer.description",
+      "branch": "engineer",
+      "row": 0,
+      "cost": 1,
+      "effects": [
+        {
+          "type": "drill_efficiency_mul",
+          "value": 0.95
+        }
+      ],
+      "prerequisites": []
+    },
+    {
+      "id": "skill.coolant_routing",
+      "name_key": "skill.coolant_routing.name",
+      "description_key": "skill.coolant_routing.description",
+      "branch": "engineer",
+      "row": 1,
+      "cost": 1,
+      "effects": [
+        {
+          "type": "cooling_mul",
+          "value": 1.12
+        }
+      ],
+      "prerequisites": [
+        "skill.tinkerer"
+      ]
+    },
+    {
+      "id": "skill.field_repairs",
+      "name_key": "skill.field_repairs.name",
+      "description_key": "skill.field_repairs.description",
+      "branch": "engineer",
+      "row": 1,
+      "cost": 1,
+      "effects": [
+        {
+          "type": "repair_cost_mul",
+          "value": 0.85
+        }
+      ],
+      "prerequisites": [
+        "skill.tinkerer"
+      ]
+    },
+    {
+      "id": "skill.torque_tuning",
+      "name_key": "skill.torque_tuning.name",
+      "description_key": "skill.torque_tuning.description",
+      "branch": "engineer",
+      "row": 2,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "drill_power_mul",
+          "value": 1.12
+        }
+      ],
+      "prerequisites": [
+        "skill.coolant_routing"
+      ]
+    },
+    {
+      "id": "skill.fuel_chemistry",
+      "name_key": "skill.fuel_chemistry.name",
+      "description_key": "skill.fuel_chemistry.description",
+      "branch": "engineer",
+      "row": 2,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "refuel_cost_mul",
+          "value": 0.82
+        },
+        {
+          "type": "drill_efficiency_mul",
+          "value": 0.94
+        }
+      ],
+      "prerequisites": [
+        "skill.field_repairs"
+      ]
+    },
+    {
+      "id": "skill.heat_exchange",
+      "name_key": "skill.heat_exchange.name",
+      "description_key": "skill.heat_exchange.description",
+      "branch": "engineer",
+      "row": 2,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "heat_generation_mul",
+          "value": 0.88
+        }
+      ],
+      "prerequisites": [
+        "skill.coolant_routing"
+      ]
+    },
+    {
+      "id": "skill.refining_theory",
+      "name_key": "skill.refining_theory.name",
+      "description_key": "skill.refining_theory.description",
+      "branch": "engineer",
+      "row": 3,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "refine_yield_mul",
+          "value": 1.18
+        }
+      ],
+      "prerequisites": [
+        "skill.fuel_chemistry"
+      ]
+    },
+    {
+      "id": "skill.hardened_frame",
+      "name_key": "skill.hardened_frame.name",
+      "description_key": "skill.hardened_frame.description",
+      "branch": "engineer",
+      "row": 3,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "hull_max_add",
+          "value": 24
+        },
+        {
+          "type": "impact_damage_mul",
+          "value": 0.88
+        }
+      ],
+      "prerequisites": [
+        "skill.field_repairs"
+      ]
+    },
+    {
+      "id": "skill.power_budgeting",
+      "name_key": "skill.power_budgeting.name",
+      "description_key": "skill.power_budgeting.description",
+      "branch": "engineer",
+      "row": 3,
+      "cost": 3,
+      "effects": [
+        {
+          "type": "drill_power_mul",
+          "value": 1.08
+        },
+        {
+          "type": "cooling_mul",
+          "value": 1.08
+        }
+      ],
+      "prerequisites": [
+        "skill.torque_tuning",
+        "skill.heat_exchange"
+      ]
+    },
+    {
+      "id": "skill.engineer_mastery",
+      "name_key": "skill.engineer_mastery.name",
+      "description_key": "skill.engineer_mastery.description",
+      "branch": "engineer",
+      "row": 4,
+      "cost": 3,
+      "effects": [
+        {
+          "type": "drill_power_mul",
+          "value": 1.15
+        },
+        {
+          "type": "drill_efficiency_mul",
+          "value": 0.9
+        }
+      ],
+      "prerequisites": [
+        "skill.power_budgeting"
+      ]
+    },
+    {
+      "id": "skill.keystone_overclock",
+      "name_key": "skill.keystone_overclock.name",
+      "description_key": "skill.keystone_overclock.description",
+      "branch": "engineer",
+      "row": 5,
+      "cost": 4,
+      "effects": [
+        {
+          "type": "drill_power_mul",
+          "value": 1.35
+        },
+        {
+          "type": "heat_generation_mul",
+          "value": 1.3
+        },
+        {
+          "type": "cooling_mul",
+          "value": 0.92
+        }
+      ],
+      "prerequisites": [
+        "skill.engineer_mastery"
+      ],
+      "keystone": true,
+      "exclusive_group": "engineer_keystone"
+    },
+    {
+      "id": "skill.keystone_thermal_symbiosis",
+      "name_key": "skill.keystone_thermal_symbiosis.name",
+      "description_key": "skill.keystone_thermal_symbiosis.description",
+      "branch": "engineer",
+      "row": 5,
+      "cost": 4,
+      "effects": [
+        {
+          "type": "convert_heat_to_fuel",
+          "threshold": 0.55,
+          "rate": 0.7
+        },
+        {
+          "type": "cooling_mul",
+          "value": 1.2
+        },
+        {
+          "type": "drill_power_mul",
+          "value": 0.95
+        }
+      ],
+      "prerequisites": [
+        "skill.engineer_mastery"
+      ],
+      "keystone": true,
+      "exclusive_group": "engineer_keystone"
+    },
+    {
+      "id": "skill.sure_footing",
+      "name_key": "skill.sure_footing.name",
+      "description_key": "skill.sure_footing.description",
+      "branch": "pathfinder",
+      "row": 0,
+      "cost": 1,
+      "effects": [
+        {
+          "type": "impact_damage_mul",
+          "value": 0.9
+        }
+      ],
+      "prerequisites": []
+    },
+    {
+      "id": "skill.thrust_control",
+      "name_key": "skill.thrust_control.name",
+      "description_key": "skill.thrust_control.description",
+      "branch": "pathfinder",
+      "row": 1,
+      "cost": 1,
+      "effects": [
+        {
+          "type": "thrust_mul",
+          "value": 1.08
+        }
+      ],
+      "prerequisites": [
+        "skill.sure_footing"
+      ]
+    },
+    {
+      "id": "skill.light_touch",
+      "name_key": "skill.light_touch.name",
+      "description_key": "skill.light_touch.description",
+      "branch": "pathfinder",
+      "row": 1,
+      "cost": 1,
+      "effects": [
+        {
+          "type": "hover_fuel_mul",
+          "value": 0.92
+        }
+      ],
+      "prerequisites": [
+        "skill.sure_footing"
+      ]
+    },
+    {
+      "id": "skill.hazard_sense",
+      "name_key": "skill.hazard_sense.name",
+      "description_key": "skill.hazard_sense.description",
+      "branch": "pathfinder",
+      "row": 2,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "hazard_damage_mul",
+          "value": 0.85
+        }
+      ],
+      "prerequisites": [
+        "skill.thrust_control"
+      ]
+    },
+    {
+      "id": "skill.long_haul",
+      "name_key": "skill.long_haul.name",
+      "description_key": "skill.long_haul.description",
+      "branch": "pathfinder",
+      "row": 2,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "fuel_capacity_add",
+          "value": 45
+        }
+      ],
+      "prerequisites": [
+        "skill.light_touch"
+      ]
+    },
+    {
+      "id": "skill.emergency_protocols",
+      "name_key": "skill.emergency_protocols.name",
+      "description_key": "skill.emergency_protocols.description",
+      "branch": "pathfinder",
+      "row": 2,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "rescue_fee_mul",
+          "value": 0.75
+        },
+        {
+          "type": "wreck_recovery_add",
+          "value": 0.2
+        }
+      ],
+      "prerequisites": [
+        "skill.sure_footing"
+      ]
+    },
+    {
+      "id": "skill.shaft_runner",
+      "name_key": "skill.shaft_runner.name",
+      "description_key": "skill.shaft_runner.description",
+      "branch": "pathfinder",
+      "row": 3,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "thrust_mul",
+          "value": 1.12
+        },
+        {
+          "type": "brake_mul",
+          "value": 1.12
+        }
+      ],
+      "prerequisites": [
+        "skill.hazard_sense"
+      ]
+    },
+    {
+      "id": "skill.ballast_master",
+      "name_key": "skill.ballast_master.name",
+      "description_key": "skill.ballast_master.description",
+      "branch": "pathfinder",
+      "row": 3,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "cargo_mass_mul",
+          "value": 0.82
+        }
+      ],
+      "prerequisites": [
+        "skill.long_haul"
+      ]
+    },
+    {
+      "id": "skill.deep_acclimation",
+      "name_key": "skill.deep_acclimation.name",
+      "description_key": "skill.deep_acclimation.description",
+      "branch": "pathfinder",
+      "row": 3,
+      "cost": 2,
+      "effects": [
+        {
+          "type": "depth_heat_mul",
+          "value": 0.85
+        }
+      ],
+      "prerequisites": [
+        "skill.hazard_sense"
+      ]
+    },
+    {
+      "id": "skill.pathfinder_mastery",
+      "name_key": "skill.pathfinder_mastery.name",
+      "description_key": "skill.pathfinder_mastery.description",
+      "branch": "pathfinder",
+      "row": 4,
+      "cost": 3,
+      "effects": [
+        {
+          "type": "thrust_mul",
+          "value": 1.15
+        },
+        {
+          "type": "grant_flag",
+          "flag": "free_unstuck"
+        }
+      ],
+      "prerequisites": [
+        "skill.shaft_runner",
+        "skill.ballast_master"
+      ]
+    },
+    {
+      "id": "skill.keystone_deep_diver",
+      "name_key": "skill.keystone_deep_diver.name",
+      "description_key": "skill.keystone_deep_diver.description",
+      "branch": "pathfinder",
+      "row": 5,
+      "cost": 4,
+      "effects": [
+        {
+          "type": "depth_heat_mul",
+          "value": 0.6
+        },
+        {
+          "type": "hazard_damage_mul",
+          "value": 0.75
+        },
+        {
+          "type": "thrust_mul",
+          "value": 0.92
+        }
+      ],
+      "prerequisites": [
+        "skill.pathfinder_mastery"
+      ],
+      "keystone": true,
+      "exclusive_group": "pathfinder_keystone"
+    },
+    {
+      "id": "skill.keystone_sprinter",
+      "name_key": "skill.keystone_sprinter.name",
+      "description_key": "skill.keystone_sprinter.description",
+      "branch": "pathfinder",
+      "row": 5,
+      "cost": 4,
+      "effects": [
+        {
+          "type": "thrust_mul",
+          "value": 1.4
+        },
+        {
+          "type": "hover_fuel_mul",
+          "value": 0.75
+        },
+        {
+          "type": "hull_max_add",
+          "value": -25
+        }
+      ],
+      "prerequisites": [
+        "skill.pathfinder_mastery"
+      ],
+      "keystone": true,
+      "exclusive_group": "pathfinder_keystone"
+    }
+  ]
+}

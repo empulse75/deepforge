@@ -1,0 +1,157 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    name: Linux (${{ matrix.preset }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [ci, asan, ubsan]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            ninja-build \
+            libx11-dev libxext-dev libxrandr-dev libxi-dev libxcursor-dev \
+            libxfixes-dev libxss-dev libxtst-dev libxinerama-dev libxxf86vm-dev \
+            libwayland-dev libxkbcommon-dev libegl1-mesa-dev libgl1-mesa-dev \
+            libasound2-dev libpulse-dev libudev-dev pkg-config
+
+      - name: Cache fetched dependencies
+        uses: actions/cache@v4
+        with:
+          path: build/${{ matrix.preset }}/_deps
+          key: deps-${{ runner.os }}-${{ matrix.preset }}-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: deps-${{ runner.os }}-${{ matrix.preset }}-
+
+      - name: Configure
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Validate content
+        run: |
+          BIN=build/${{ matrix.preset }}/tools/deepforge-validate
+          if [ -x "$BIN" ]; then "$BIN" --data data; fi
+
+      - name: Test
+        run: ctest --preset ${{ matrix.preset }}
+
+      - name: Balance regression gate
+        if: matrix.preset == 'ci'
+        run: |
+          ./build/ci/tools/deepforge-balance --data data --seeds 16 --pacing
+          ./build/ci/tools/deepforge-balance --data data --seeds 8 --depth 240
+
+      - name: Client smoke test
+        if: matrix.preset == 'ci'
+        env:
+          SDL_VIDEODRIVER: offscreen
+          SDL_AUDIODRIVER: dummy
+        run: |
+          ./build/ci/src/deepforge --version
+          mkdir -p artifacts
+          ./build/ci/src/deepforge --data data --user-dir "$RUNNER_TEMP/dfuser" \
+            --screenshot artifacts/expedition.bmp --screenshot-seed 20260905
+          test -s artifacts/expedition.bmp
+
+      - name: Upload logs and screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.preset }}-logs
+          path: |
+            build/${{ matrix.preset }}/Testing/Temporary/LastTest.log
+            build/${{ matrix.preset }}/CMakeFiles/CMakeConfigureLog.yaml
+            artifacts/
+          if-no-files-found: ignore
+
+  windows:
+    name: Windows (ci)
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Cache fetched dependencies
+        uses: actions/cache@v4
+        with:
+          path: build/ci/_deps
+          key: deps-windows-ci-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: deps-windows-ci-
+
+      - name: Configure
+        run: cmake --preset ci
+
+      - name: Build
+        run: cmake --build --preset ci
+
+      - name: Validate content
+        run: .\build\ci\tools\deepforge-validate.exe --data data
+
+      - name: Test
+        run: ctest --preset ci
+
+      - name: Client smoke test
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+        run: |
+          .\build\ci\src\deepforge.exe --version
+          .\build\ci\src\deepforge.exe --data data --user-dir "$env:RUNNER_TEMP\dfuser" --headless-frames 120
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-ci-logs
+          path: |
+            build/ci/Testing/Temporary/LastTest.log
+            build/ci/CMakeFiles/CMakeConfigureLog.yaml
+          if-no-files-found: ignore
+
+  package:
+    name: Package (Linux)
+    runs-on: ubuntu-24.04
+    needs: linux
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            ninja-build \
+            libx11-dev libxext-dev libxrandr-dev libxi-dev libxcursor-dev \
+            libxfixes-dev libxss-dev libxtst-dev libxinerama-dev libxxf86vm-dev \
+            libwayland-dev libxkbcommon-dev libegl1-mesa-dev libgl1-mesa-dev \
+            libasound2-dev libpulse-dev libudev-dev pkg-config
+
+      - name: Build and package
+        run: |
+          cmake --preset release
+          cmake --build --preset release
+          cmake --build --preset release --target package
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deepforge-linux
+          path: build/release/deepforge-*.zip
+          if-no-files-found: error

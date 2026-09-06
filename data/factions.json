@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "factions": [
+    {
+      "id": "faction.shelf_cooperative",
+      "name_key": "faction.shelf_cooperative.name",
+      "description_key": "faction.shelf_cooperative.description",
+      "tier_thresholds": [
+        0,
+        40,
+        110,
+        240
+      ],
+      "tier_unlocks_modules": [
+        "module.stabiliser_gyros",
+        "module.ballast_trim",
+        "module.assay_uplink"
+      ]
+    },
+    {
+      "id": "faction.deepline_survey",
+      "name_key": "faction.deepline_survey.name",
+      "description_key": "faction.deepline_survey.description",
+      "tier_thresholds": [
+        0,
+        60,
+        150,
+        320
+      ],
+      "tier_unlocks_modules": [
+        "module.material_filter",
+        "module.hazard_imager",
+        "module.landmark_triangulator"
+      ]
+    },
+    {
+      "id": "faction.emberworks_guild",
+      "name_key": "faction.emberworks_guild.name",
+      "description_key": "faction.emberworks_guild.description",
+      "tier_thresholds": [
+        0,
+        80,
+        190,
+        400
+      ],
+      "tier_unlocks_modules": [
+        "module.heat_sink",
+        "module.cryo_manifold",
+        "module.containment_field"
+      ]
+    }
+  ]
+}

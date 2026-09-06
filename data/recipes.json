@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "recipes": [
+    {
+      "id": "recipe.refined_plate",
+      "name_key": "recipe.refined_plate.name",
+      "facility": "facility.refinery",
+      "facility_tier": 0,
+      "inputs": [
+        {
+          "material": "material.ferrite",
+          "amount": 8
+        },
+        {
+          "material": "material.cuprite",
+          "amount": 3
+        }
+      ],
+      "outputs": [
+        {
+          "material": "material.refined_plate",
+          "amount": 1
+        }
+      ],
+      "credit_cost": 20,
+      "unlock": "research.field_metallurgy"
+    },
+    {
+      "id": "recipe.circuit_lattice",
+      "name_key": "recipe.circuit_lattice.name",
+      "facility": "facility.refinery",
+      "facility_tier": 1,
+      "inputs": [
+        {
+          "material": "material.prismite",
+          "amount": 5
+        },
+        {
+          "material": "material.cuprite",
+          "amount": 6
+        }
+      ],
+      "outputs": [
+        {
+          "material": "material.circuit_lattice",
+          "amount": 1
+        }
+      ],
+      "credit_cost": 45,
+      "byproducts": [
+        {
+          "material": "material.ferrite",
+          "amount": 1
+        }
+      ],
+      "unlock": "research.crystal_optics"
+    },
+    {
+      "id": "recipe.thermal_core",
+      "name_key": "recipe.thermal_core.name",
+      "facility": "facility.refinery",
+      "facility_tier": 2,
+      "inputs": [
+        {
+          "material": "material.emberglass",
+          "amount": 4
+        },
+        {
+          "material": "material.mycelith",
+          "amount": 3
+        },
+        {
+          "material": "material.refined_plate",
+          "amount": 1
+        }
+      ],
+      "outputs": [
+        {
+          "material": "material.thermal_core",
+          "amount": 1
+        }
+      ],
+      "credit_cost": 90,
+      "unlock": "research.thermal_recovery"
+    },
+    {
+      "id": "recipe.drive_cell",
+      "name_key": "recipe.drive_cell.name",
+      "facility": "facility.refinery",
+      "facility_tier": 3,
+      "inputs": [
+        {
+          "material": "material.cogsteel",
+          "amount": 4
+        },
+        {
+          "material": "material.circuit_lattice",
+          "amount": 2
+        },
+        {
+          "material": "material.aurelite",
+          "amount": 3
+        }
+      ],
+      "outputs": [
+        {
+          "material": "material.drive_cell",
+          "amount": 1
+        }
+      ],
+      "credit_cost": 180,
+      "unlock": "research.alloy_forging"
+    },
+    {
+      "id": "recipe.emberglass_ingot",
+      "name_key": "recipe.emberglass_ingot.name",
+      "facility": "facility.refinery",
+      "facility_tier": 2,
+      "inputs": [
+        {
+          "material": "material.emberglass",
+          "amount": 6
+        }
+      ],
+      "outputs": [
+        {
+          "material": "material.refined_plate",
+          "amount": 2
+        }
+      ],
+      "credit_cost": 30,
+      "unlock": "research.alloy_forging"
+    },
+    {
+      "id": "recipe.lattice_press",
+      "name_key": "recipe.lattice_press.name",
+      "facility": "facility.refinery",
+      "facility_tier": 3,
+      "inputs": [
+        {
+          "material": "material.riftalloy",
+          "amount": 2
+        },
+        {
+          "material": "material.circuit_lattice",
+          "amount": 2
+        }
+      ],
+      "outputs": [
+        {
+          "material": "material.drive_cell",
+          "amount": 1
+        },
+        {
+          "material": "material.circuit_lattice",
+          "amount": 1
+        }
+      ],
+      "credit_cost": 150,
+      "unlock": "research.lattice_engineering"
+    }
+  ]
+}

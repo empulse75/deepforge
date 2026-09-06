@@ -1,0 +1,175 @@
+{
+  "_comment": "Calibrated by tools/content_gen/calibrate_veins.py. target_density_pct is the share of tiles inside the material's own depth band.",
+  "materials": {
+    "material.ferrite": {
+      "field_period": 11,
+      "rarity_weight_bp": 7395,
+      "field_threshold_bp": 1800,
+      "vein_size": [
+        4,
+        12
+      ],
+      "target_density_pct": 3.2
+    },
+    "material.cuprite": {
+      "field_period": 11,
+      "rarity_weight_bp": 6931,
+      "field_threshold_bp": 3000,
+      "vein_size": [
+        3,
+        10
+      ],
+      "target_density_pct": 2.2
+    },
+    "material.argentine": {
+      "field_period": 11,
+      "rarity_weight_bp": 7732,
+      "field_threshold_bp": 4200,
+      "vein_size": [
+        3,
+        9
+      ],
+      "target_density_pct": 1.5
+    },
+    "material.aurelite": {
+      "field_period": 10,
+      "rarity_weight_bp": 6060,
+      "field_threshold_bp": 5200,
+      "vein_size": [
+        2,
+        8
+      ],
+      "target_density_pct": 1.0
+    },
+    "material.platinex": {
+      "field_period": 10,
+      "rarity_weight_bp": 8019,
+      "field_threshold_bp": 6000,
+      "vein_size": [
+        2,
+        7
+      ],
+      "target_density_pct": 0.7
+    },
+    "material.starmetal": {
+      "field_period": 6,
+      "rarity_weight_bp": 4310,
+      "field_threshold_bp": 6800,
+      "vein_size": [
+        2,
+        6
+      ],
+      "target_density_pct": 0.45
+    },
+    "material.prismite": {
+      "field_period": 13,
+      "rarity_weight_bp": 6599,
+      "field_threshold_bp": 3600,
+      "vein_size": [
+        4,
+        14
+      ],
+      "target_density_pct": 1.6
+    },
+    "material.mycelith": {
+      "field_period": 14,
+      "rarity_weight_bp": 7589,
+      "field_threshold_bp": 3800,
+      "vein_size": [
+        4,
+        12
+      ],
+      "target_density_pct": 1.4
+    },
+    "material.emberglass": {
+      "field_period": 13,
+      "rarity_weight_bp": 7536,
+      "field_threshold_bp": 4600,
+      "vein_size": [
+        3,
+        10
+      ],
+      "target_density_pct": 1.1
+    },
+    "material.cogsteel": {
+      "field_period": 12,
+      "rarity_weight_bp": 6594,
+      "field_threshold_bp": 5000,
+      "vein_size": [
+        3,
+        9
+      ],
+      "target_density_pct": 0.9
+    },
+    "material.riftalloy": {
+      "field_period": 13,
+      "rarity_weight_bp": 6804,
+      "field_threshold_bp": 5200,
+      "vein_size": [
+        3,
+        8
+      ],
+      "target_density_pct": 0.7
+    },
+    "material.fulmenite": {
+      "field_period": 10,
+      "rarity_weight_bp": 6296,
+      "field_threshold_bp": 6200,
+      "vein_size": [
+        2,
+        5
+      ],
+      "target_density_pct": 0.35
+    },
+    "material.voidcell": {
+      "field_period": 8,
+      "rarity_weight_bp": 6239,
+      "field_threshold_bp": 6900,
+      "vein_size": [
+        2,
+        4
+      ],
+      "target_density_pct": 0.25
+    },
+    "material.echo_shard": {
+      "field_period": 12,
+      "rarity_weight_bp": 6000,
+      "field_threshold_bp": 8600,
+      "vein_size": [
+        1,
+        1
+      ],
+      "target_density_pct": 0.005
+    },
+    "material.spore_codex": {
+      "field_period": 13,
+      "rarity_weight_bp": 6000,
+      "field_threshold_bp": 8600,
+      "vein_size": [
+        1,
+        1
+      ],
+      "target_density_pct": 0.004
+    },
+    "material.relic_core": {
+      "field_period": 17,
+      "rarity_weight_bp": 6000,
+      "field_threshold_bp": 8700,
+      "vein_size": [
+        1,
+        1
+      ],
+      "target_density_pct": 0.0035
+    },
+    "material.fracture_seed": {
+      "field_period": 14,
+      "rarity_weight_bp": 6000,
+      "field_threshold_bp": 8800,
+      "vein_size": [
+        1,
+        1
+      ],
+      "target_density_pct": 0.005
+    }
+  }
+}

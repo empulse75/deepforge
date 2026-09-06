@@ -1,0 +1,346 @@
+{
+  "schema_version": 1,
+  "research": [
+    {
+      "id": "research.field_metallurgy",
+      "name_key": "research.field_metallurgy.name",
+      "description_key": "research.field_metallurgy.description",
+      "insight_cost": 1,
+      "prerequisites": [],
+      "unlocks_modules": [
+        "module.focused_cutter"
+      ],
+      "unlocks_recipes": [
+        "recipe.refined_plate"
+      ]
+    },
+    {
+      "id": "research.crystal_optics",
+      "name_key": "research.crystal_optics.name",
+      "description_key": "research.crystal_optics.description",
+      "insight_cost": 2,
+      "prerequisites": [
+        "research.field_metallurgy"
+      ],
+      "requires_sample": "material.echo_shard",
+      "requires_sample_amount": 1,
+      "unlocks_modules": [
+        "module.directional_scanner",
+        "module.material_filter"
+      ],
+      "unlocks_recipes": [
+        "recipe.circuit_lattice"
+      ]
+    },
+    {
+      "id": "research.deep_survey",
+      "name_key": "research.deep_survey.name",
+      "description_key": "research.deep_survey.description",
+      "insight_cost": 3,
+      "prerequisites": [
+        "research.crystal_optics"
+      ],
+      "unlocks_modules": [
+        "module.hazard_imager"
+      ],
+      "unlocks_biomes": [
+        "biome.mycelial_deeps"
+      ],
+      "effects": [
+        {
+          "type": "scanner_range_add",
+          "value": 3
+        }
+      ]
+    },
+    {
+      "id": "research.symbiotic_shielding",
+      "name_key": "research.symbiotic_shielding.name",
+      "description_key": "research.symbiotic_shielding.description",
+      "insight_cost": 3,
+      "prerequisites": [
+        "research.deep_survey"
+      ],
+      "requires_sample": "material.spore_codex",
+      "requires_sample_amount": 1,
+      "unlocks_modules": [
+        "module.spore_filter",
+        "module.bio_regenerator"
+      ],
+      "effects": [
+        {
+          "type": "grant_flag",
+          "flag": "spore_immunity"
+        }
+      ]
+    },
+    {
+      "id": "research.thermal_recovery",
+      "name_key": "research.thermal_recovery.name",
+      "description_key": "research.thermal_recovery.description",
+      "insight_cost": 4,
+      "prerequisites": [
+        "research.deep_survey"
+      ],
+      "unlocks_modules": [
+        "module.thermal_reclaimer",
+        "module.heat_sink"
+      ],
+      "unlocks_recipes": [
+        "recipe.thermal_core"
+      ],
+      "unlocks_biomes": [
+        "biome.ember_mantle"
+      ]
+    },
+    {
+      "id": "research.volatile_handling",
+      "name_key": "research.volatile_handling.name",
+      "description_key": "research.volatile_handling.description",
+      "insight_cost": 4,
+      "prerequisites": [
+        "research.thermal_recovery"
+      ],
+      "unlocks_modules": [
+        "module.precision_extractor",
+        "module.kinetic_buffer"
+      ],
+      "effects": [
+        {
+          "type": "volatile_stability_add",
+          "value": 0.35
+        }
+      ]
+    },
+    {
+      "id": "research.alloy_forging",
+      "name_key": "research.alloy_forging.name",
+      "description_key": "research.alloy_forging.description",
+      "insight_cost": 5,
+      "prerequisites": [
+        "research.thermal_recovery"
+      ],
+      "unlocks_modules": [
+        "module.insulated_plating"
+      ],
+      "unlocks_recipes": [
+        "recipe.drive_cell",
+        "recipe.emberglass_ingot"
+      ],
+      "unlocks_biomes": [
+        "biome.machine_strata"
+      ]
+    },
+    {
+      "id": "research.ancient_mechanisms",
+      "name_key": "research.ancient_mechanisms.name",
+      "description_key": "research.ancient_mechanisms.description",
+      "insight_cost": 6,
+      "prerequisites": [
+        "research.alloy_forging"
+      ],
+      "requires_sample": "material.relic_core",
+      "requires_sample_amount": 1,
+      "unlocks_modules": [
+        "module.landmark_triangulator",
+        "module.grappling_anchor"
+      ],
+      "effects": [
+        {
+          "type": "grant_flag",
+          "flag": "transit_access"
+        }
+      ]
+    },
+    {
+      "id": "research.magnetic_damping",
+      "name_key": "research.magnetic_damping.name",
+      "description_key": "research.magnetic_damping.description",
+      "insight_cost": 5,
+      "prerequisites": [
+        "research.ancient_mechanisms"
+      ],
+      "unlocks_modules": [
+        "module.field_stabiliser"
+      ],
+      "effects": [
+        {
+          "type": "grant_flag",
+          "flag": "magnetic_stabiliser"
+        }
+      ]
+    },
+    {
+      "id": "research.lattice_engineering",
+      "name_key": "research.lattice_engineering.name",
+      "description_key": "research.lattice_engineering.description",
+      "insight_cost": 6,
+      "prerequisites": [
+        "research.ancient_mechanisms"
+      ],
+      "unlocks_modules": [
+        "module.cargo_compactor",
+        "module.auto_collector"
+      ],
+      "unlocks_recipes": [
+        "recipe.lattice_press"
+      ]
+    },
+    {
+      "id": "research.rift_analysis",
+      "name_key": "research.rift_analysis.name",
+      "description_key": "research.rift_analysis.description",
+      "insight_cost": 8,
+      "prerequisites": [
+        "research.magnetic_damping",
+        "research.lattice_engineering"
+      ],
+      "requires_sample": "material.fracture_seed",
+      "requires_sample_amount": 1,
+      "unlocks_modules": [
+        "module.rift_lens"
+      ],
+      "unlocks_biomes": [
+        "biome.the_fracture"
+      ]
+    },
+    {
+      "id": "research.pulse_drilling",
+      "name_key": "research.pulse_drilling.name",
+      "description_key": "research.pulse_drilling.description",
+      "insight_cost": 5,
+      "prerequisites": [
+        "research.volatile_handling"
+      ],
+      "unlocks_modules": [
+        "module.pulse_drill",
+        "module.wide_fracture_head"
+      ]
+    },
+    {
+      "id": "research.expedition_logistics",
+      "name_key": "research.expedition_logistics.name",
+      "description_key": "research.expedition_logistics.description",
+      "insight_cost": 4,
+      "prerequisites": [
+        "research.field_metallurgy"
+      ],
+      "unlocks_modules": [
+        "module.deployable_beacon",
+        "module.portable_refinery",
+        "module.low_fuel_hover"
+      ],
+      "effects": [
+        {
+          "type": "grant_flag",
+          "flag": "deployable_beacon"
+        }
+      ]
+    },
+    {
+      "id": "research.salvage_protocols",
+      "name_key": "research.salvage_protocols.name",
+      "description_key": "research.salvage_protocols.description",
+      "insight_cost": 3,
+      "prerequisites": [
+        "research.expedition_logistics"
+      ],
+      "unlocks_modules": [
+        "module.emergency_seal",
+        "module.afterburner"
+      ],
+      "effects": [
+        {
+          "type": "wreck_recovery_add",
+          "value": 0.25
+        },
+        {
+          "type": "rescue_fee_mul",
+          "value": 0.8
+        }
+      ]
+    },
+    {
+      "id": "research.deep_cooling",
+      "name_key": "research.deep_cooling.name",
+      "description_key": "research.deep_cooling.description",
+      "insight_cost": 6,
+      "prerequisites": [
+        "research.thermal_recovery",
+        "research.salvage_protocols"
+      ],
+      "unlocks_modules": [
+        "module.cryo_manifold"
+      ],
+      "effects": [
+        {
+          "type": "cooling_mul",
+          "value": 1.15
+        }
+      ]
+    },
+    {
+      "id": "research.resonance_mapping",
+      "name_key": "research.resonance_mapping.name",
+      "description_key": "research.resonance_mapping.description",
+      "insight_cost": 7,
+      "prerequisites": [
+        "research.crystal_optics",
+        "research.ancient_mechanisms"
+      ],
+      "unlocks_modules": [
+        "module.resonance_array"
+      ],
+      "effects": [
+        {
+          "type": "grant_flag",
+          "flag": "scan_through_rock"
+        }
+      ]
+    },
+    {
+      "id": "research.fracture_containment",
+      "name_key": "research.fracture_containment.name",
+      "description_key": "research.fracture_containment.description",
+      "insight_cost": 10,
+      "prerequisites": [
+        "research.rift_analysis"
+      ],
+      "unlocks_modules": [
+        "module.containment_field"
+      ],
+      "effects": [
+        {
+          "type": "hazard_damage_mul",
+          "value": 0.85
+        }
+      ]
+    },
+    {
+      "id": "research.deepforge_protocol",
+      "name_key": "research.deepforge_protocol.name",
+      "description_key": "research.deepforge_protocol.description",
+      "insight_cost": 14,
+      "prerequisites": [
+        "research.fracture_containment",
+        "research.resonance_mapping",
+        "research.deep_cooling"
+      ],
+      "effects": [
+        {
+          "type": "drill_power_mul",
+          "value": 1.2
+        },
+        {
+          "type": "hull_max_mul",
+          "value": 1.15
+        },
+        {
+          "type": "grant_flag",
+          "flag": "lava_shielding"
+        }
+      ],
+      "capstone": true
+    }
+  ]
+}

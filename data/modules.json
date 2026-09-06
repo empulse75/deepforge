@@ -1,0 +1,930 @@
+{
+  "schema_version": 1,
+  "modules": [
+    {
+      "id": "module.focused_cutter",
+      "name_key": "module.focused_cutter.name",
+      "description_key": "module.focused_cutter.description",
+      "slot": "drill",
+      "power_cost": 1,
+      "cost_credits": 220,
+      "effects": [
+        {
+          "type": "drill_power_mul",
+          "value": 1.3
+        }
+      ],
+      "tags": [
+        "drill",
+        "precision"
+      ],
+      "tradeoffs": [
+        {
+          "type": "mine_radius_add",
+          "value": 0
+        }
+      ],
+      "unlock": "research.field_metallurgy"
+    },
+    {
+      "id": "module.wide_fracture_head",
+      "name_key": "module.wide_fracture_head.name",
+      "description_key": "module.wide_fracture_head.description",
+      "slot": "drill",
+      "power_cost": 3,
+      "cost_credits": 900,
+      "effects": [
+        {
+          "type": "mine_radius_add",
+          "value": 1
+        },
+        {
+          "type": "yield_mul",
+          "value": 1.1
+        }
+      ],
+      "tags": [
+        "drill",
+        "area"
+      ],
+      "tradeoffs": [
+        {
+          "type": "drill_efficiency_mul",
+          "value": 1.35
+        },
+        {
+          "type": "drill_power_mul",
+          "value": 0.85
+        }
+      ],
+      "unlock": "research.pulse_drilling",
+      "cost_components": [
+        {
+          "material": "material.refined_plate",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "id": "module.pulse_drill",
+      "name_key": "module.pulse_drill.name",
+      "description_key": "module.pulse_drill.description",
+      "slot": "drill",
+      "power_cost": 3,
+      "cost_credits": 1050,
+      "effects": [
+        {
+          "type": "drill_power_mul",
+          "value": 1.75
+        },
+        {
+          "type": "heat_generation_mul",
+          "value": 1.4
+        }
+      ],
+      "tags": [
+        "drill",
+        "thermal"
+      ],
+      "tradeoffs": [
+        {
+          "type": "cooling_mul",
+          "value": 0.9
+        }
+      ],
+      "unlock": "research.pulse_drilling",
+      "cost_components": [
+        {
+          "material": "material.thermal_core",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "module.precision_extractor",
+      "name_key": "module.precision_extractor.name",
+      "description_key": "module.precision_extractor.description",
+      "slot": "drill",
+      "power_cost": 2,
+      "cost_credits": 780,
+      "effects": [
+        {
+          "type": "yield_mul",
+          "value": 1.35
+        },
+        {
+          "type": "volatile_stability_add",
+          "value": 0.4
+        }
+      ],
+      "tags": [
+        "drill",
+        "volatile"
+      ],
+      "tradeoffs": [
+        {
+          "type": "drill_power_mul",
+          "value": 0.9
+        }
+      ],
+      "unlock": "research.volatile_handling"
+    },
+    {
+      "id": "module.harmonic_bit",
+      "name_key": "module.harmonic_bit.name",
+      "description_key": "module.harmonic_bit.description",
+      "slot": "drill",
+      "power_cost": 2,
+      "cost_credits": 640,
+      "effects": [
+        {
+          "type": "drill_power_mul",
+          "value": 1.22
+        },
+        {
+          "type": "drill_efficiency_mul",
+          "value": 0.85
+        }
+      ],
+      "tags": [
+        "drill",
+        "crystal"
+      ],
+      "tradeoffs": [
+        {
+          "type": "impact_damage_mul",
+          "value": 1.15
+        }
+      ],
+      "unlock": "research.crystal_optics"
+    },
+    {
+      "id": "module.afterburner",
+      "name_key": "module.afterburner.name",
+      "description_key": "module.afterburner.description",
+      "slot": "mobility",
+      "power_cost": 2,
+      "cost_credits": 480,
+      "effects": [
+        {
+          "type": "thrust_mul",
+          "value": 1.4
+        }
+      ],
+      "tags": [
+        "mobility",
+        "speed"
+      ],
+      "tradeoffs": [
+        {
+          "type": "hover_fuel_mul",
+          "value": 1.3
+        },
+        {
+          "type": "heat_generation_mul",
+          "value": 1.15
+        }
+      ],
+      "unlock": "research.salvage_protocols"
+    },
+    {
+      "id": "module.stabiliser_gyros",
+      "name_key": "module.stabiliser_gyros.name",
+      "description_key": "module.stabiliser_gyros.description",
+      "slot": "mobility",
+      "power_cost": 1,
+      "cost_credits": 320,
+      "effects": [
+        {
+          "type": "brake_mul",
+          "value": 1.45
+        },
+        {
+          "type": "impact_damage_mul",
+          "value": 0.8
+        }
+      ],
+      "tags": [
+        "mobility",
+        "safety"
+      ],
+      "tradeoffs": [
+        {
+          "type": "thrust_mul",
+          "value": 0.95
+        }
+      ]
+    },
+    {
+      "id": "module.grappling_anchor",
+      "name_key": "module.grappling_anchor.name",
+      "description_key": "module.grappling_anchor.description",
+      "slot": "mobility",
+      "power_cost": 2,
+      "cost_credits": 860,
+      "effects": [
+        {
+          "type": "grant_flag",
+          "flag": "grapple_anchor"
+        },
+        {
+          "type": "hover_fuel_mul",
+          "value": 0.9
+        }
+      ],
+      "tags": [
+        "mobility",
+        "traversal"
+      ],
+      "tradeoffs": [
+        {
+          "type": "cargo_capacity_add",
+          "value": -6
+        }
+      ],
+      "unlock": "research.ancient_mechanisms"
+    },
+    {
+      "id": "module.low_fuel_hover",
+      "name_key": "module.low_fuel_hover.name",
+      "description_key": "module.low_fuel_hover.description",
+      "slot": "mobility",
+      "power_cost": 2,
+      "cost_credits": 540,
+      "effects": [
+        {
+          "type": "grant_flag",
+          "flag": "hover_assist"
+        },
+        {
+          "type": "hover_fuel_mul",
+          "value": 0.72
+        }
+      ],
+      "tags": [
+        "mobility",
+        "efficiency"
+      ],
+      "tradeoffs": [
+        {
+          "type": "thrust_mul",
+          "value": 0.9
+        }
+      ],
+      "unlock": "research.expedition_logistics"
+    },
+    {
+      "id": "module.ballast_trim",
+      "name_key": "module.ballast_trim.name",
+      "description_key": "module.ballast_trim.description",
+      "slot": "mobility",
+      "power_cost": 1,
+      "cost_credits": 400,
+      "effects": [
+        {
+          "type": "cargo_mass_mul",
+          "value": 0.75
+        }
+      ],
+      "tags": [
+        "mobility",
+        "cargo"
+      ],
+      "tradeoffs": [
+        {
+          "type": "brake_mul",
+          "value": 0.9
+        }
+      ]
+    },
+    {
+      "id": "module.heat_sink",
+      "name_key": "module.heat_sink.name",
+      "description_key": "module.heat_sink.description",
+      "slot": "survival",
+      "power_cost": 2,
+      "cost_credits": 560,
+      "effects": [
+        {
+          "type": "cooling_mul",
+          "value": 1.4
+        }
+      ],
+      "tags": [
+        "thermal",
+        "survival"
+      ],
+      "tradeoffs": [
+        {
+          "type": "cargo_capacity_add",
+          "value": -8
+        }
+      ],
+      "unlock": "research.thermal_recovery"
+    },
+    {
+      "id": "module.kinetic_buffer",
+      "name_key": "module.kinetic_buffer.name",
+      "description_key": "module.kinetic_buffer.description",
+      "slot": "survival",
+      "power_cost": 2,
+      "cost_credits": 620,
+      "effects": [
+        {
+          "type": "impact_damage_mul",
+          "value": 0.55
+        }
+      ],
+      "tags": [
+        "survival",
+        "armor"
+      ],
+      "tradeoffs": [
+        {
+          "type": "thrust_mul",
+          "value": 0.92
+        }
+      ],
+      "unlock": "research.volatile_handling"
+    },
+    {
+      "id": "module.emergency_seal",
+      "name_key": "module.emergency_seal.name",
+      "description_key": "module.emergency_seal.description",
+      "slot": "survival",
+      "power_cost": 1,
+      "cost_credits": 380,
+      "effects": [
+        {
+          "type": "hull_max_add",
+          "value": 30
+        },
+        {
+          "type": "rescue_fee_mul",
+          "value": 0.7
+        }
+      ],
+      "tags": [
+        "survival",
+        "recovery"
+      ],
+      "tradeoffs": [
+        {
+          "type": "cargo_mass_mul",
+          "value": 1.08
+        }
+      ],
+      "unlock": "research.salvage_protocols"
+    },
+    {
+      "id": "module.insulated_plating",
+      "name_key": "module.insulated_plating.name",
+      "description_key": "module.insulated_plating.description",
+      "slot": "survival",
+      "power_cost": 3,
+      "cost_credits": 1180,
+      "effects": [
+        {
+          "type": "hazard_damage_mul",
+          "value": 0.6
+        },
+        {
+          "type": "depth_heat_mul",
+          "value": 0.75
+        }
+      ],
+      "tags": [
+        "survival",
+        "thermal"
+      ],
+      "tradeoffs": [
+        {
+          "type": "thrust_mul",
+          "value": 0.88
+        },
+        {
+          "type": "cargo_mass_mul",
+          "value": 1.12
+        }
+      ],
+      "unlock": "research.alloy_forging",
+      "cost_components": [
+        {
+          "material": "material.refined_plate",
+          "amount": 2
+        },
+        {
+          "material": "material.thermal_core",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "module.spore_filter",
+      "name_key": "module.spore_filter.name",
+      "description_key": "module.spore_filter.description",
+      "slot": "survival",
+      "power_cost": 1,
+      "cost_credits": 470,
+      "effects": [
+        {
+          "type": "grant_flag",
+          "flag": "spore_immunity"
+        }
+      ],
+      "tags": [
+        "survival",
+        "bio"
+      ],
+      "tradeoffs": [
+        {
+          "type": "cooling_mul",
+          "value": 0.92
+        }
+      ],
+      "unlock": "research.symbiotic_shielding"
+    },
+    {
+      "id": "module.bio_regenerator",
+      "name_key": "module.bio_regenerator.name",
+      "description_key": "module.bio_regenerator.description",
+      "slot": "survival",
+      "power_cost": 2,
+      "cost_credits": 900,
+      "effects": [
+        {
+          "type": "hull_max_mul",
+          "value": 1.12
+        },
+        {
+          "type": "repair_cost_mul",
+          "value": 0.75
+        }
+      ],
+      "tags": [
+        "survival",
+        "bio"
+      ],
+      "tradeoffs": [
+        {
+          "type": "cargo_capacity_add",
+          "value": -6
+        }
+      ],
+      "unlock": "research.symbiotic_shielding"
+    },
+    {
+      "id": "module.cryo_manifold",
+      "name_key": "module.cryo_manifold.name",
+      "description_key": "module.cryo_manifold.description",
+      "slot": "survival",
+      "power_cost": 3,
+      "cost_credits": 1450,
+      "effects": [
+        {
+          "type": "cooling_mul",
+          "value": 1.7
+        },
+        {
+          "type": "heat_capacity_add",
+          "value": 40
+        }
+      ],
+      "tags": [
+        "thermal",
+        "survival"
+      ],
+      "tradeoffs": [
+        {
+          "type": "drill_power_mul",
+          "value": 0.92
+        }
+      ],
+      "unlock": "research.deep_cooling",
+      "cost_components": [
+        {
+          "material": "material.thermal_core",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "id": "module.field_stabiliser",
+      "name_key": "module.field_stabiliser.name",
+      "description_key": "module.field_stabiliser.description",
+      "slot": "survival",
+      "power_cost": 2,
+      "cost_credits": 1150,
+      "effects": [
+        {
+          "type": "grant_flag",
+          "flag": "magnetic_stabiliser"
+        },
+        {
+          "type": "hazard_damage_mul",
+          "value": 0.85
+        }
+      ],
+      "tags": [
+        "survival",
+        "machine"
+      ],
+      "tradeoffs": [
+        {
+          "type": "scanner_range_add",
+          "value": -3
+        }
+      ],
+      "unlock": "research.magnetic_damping"
+    },
+    {
+      "id": "module.containment_field",
+      "name_key": "module.containment_field.name",
+      "description_key": "module.containment_field.description",
+      "slot": "survival",
+      "power_cost": 4,
+      "cost_credits": 2200,
+      "effects": [
+        {
+          "type": "volatile_stability_add",
+          "value": 0.6
+        },
+        {
+          "type": "hazard_damage_mul",
+          "value": 0.7
+        }
+      ],
+      "tags": [
+        "survival",
+        "volatile"
+      ],
+      "tradeoffs": [
+        {
+          "type": "thrust_mul",
+          "value": 0.85
+        }
+      ],
+      "unlock": "research.fracture_containment",
+      "cost_components": [
+        {
+          "material": "material.drive_cell",
+          "amount": 1
+        },
+        {
+          "material": "material.thermal_core",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "module.directional_scanner",
+      "name_key": "module.directional_scanner.name",
+      "description_key": "module.directional_scanner.description",
+      "slot": "survey",
+      "power_cost": 2,
+      "cost_credits": 520,
+      "effects": [
+        {
+          "type": "scanner_range_add",
+          "value": 6
+        },
+        {
+          "type": "grant_flag",
+          "flag": "see_vein_direction"
+        }
+      ],
+      "tags": [
+        "survey",
+        "scanner"
+      ],
+      "tradeoffs": [
+        {
+          "type": "drill_efficiency_mul",
+          "value": 1.06
+        }
+      ],
+      "unlock": "research.crystal_optics"
+    },
+    {
+      "id": "module.material_filter",
+      "name_key": "module.material_filter.name",
+      "description_key": "module.material_filter.description",
+      "slot": "survey",
+      "power_cost": 1,
+      "cost_credits": 340,
+      "effects": [
+        {
+          "type": "scanner_detail_add",
+          "value": 0.6
+        },
+        {
+          "type": "grant_flag",
+          "flag": "auto_mark_valuables"
+        }
+      ],
+      "tags": [
+        "survey",
+        "scanner"
+      ],
+      "unlock": "research.crystal_optics"
+    },
+    {
+      "id": "module.hazard_imager",
+      "name_key": "module.hazard_imager.name",
+      "description_key": "module.hazard_imager.description",
+      "slot": "survey",
+      "power_cost": 2,
+      "cost_credits": 700,
+      "effects": [
+        {
+          "type": "scanner_detail_add",
+          "value": 0.5
+        },
+        {
+          "type": "hazard_damage_mul",
+          "value": 0.82
+        }
+      ],
+      "tags": [
+        "survey",
+        "safety"
+      ],
+      "tradeoffs": [
+        {
+          "type": "scanner_range_add",
+          "value": -2
+        }
+      ],
+      "unlock": "research.deep_survey"
+    },
+    {
+      "id": "module.landmark_triangulator",
+      "name_key": "module.landmark_triangulator.name",
+      "description_key": "module.landmark_triangulator.description",
+      "slot": "survey",
+      "power_cost": 2,
+      "cost_credits": 980,
+      "effects": [
+        {
+          "type": "scanner_range_add",
+          "value": 10
+        },
+        {
+          "type": "contract_reward_mul",
+          "value": 1.12
+        }
+      ],
+      "tags": [
+        "survey",
+        "contracts"
+      ],
+      "tradeoffs": [
+        {
+          "type": "cooling_mul",
+          "value": 0.94
+        }
+      ],
+      "unlock": "research.ancient_mechanisms"
+    },
+    {
+      "id": "module.resonance_array",
+      "name_key": "module.resonance_array.name",
+      "description_key": "module.resonance_array.description",
+      "slot": "survey",
+      "power_cost": 3,
+      "cost_credits": 1600,
+      "effects": [
+        {
+          "type": "grant_flag",
+          "flag": "scan_through_rock"
+        },
+        {
+          "type": "scanner_range_add",
+          "value": 12
+        },
+        {
+          "type": "insight_gain_mul",
+          "value": 1.2
+        }
+      ],
+      "tags": [
+        "survey",
+        "research"
+      ],
+      "tradeoffs": [
+        {
+          "type": "hull_max_add",
+          "value": -20
+        }
+      ],
+      "unlock": "research.resonance_mapping",
+      "cost_components": [
+        {
+          "material": "material.circuit_lattice",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "id": "module.rift_lens",
+      "name_key": "module.rift_lens.name",
+      "description_key": "module.rift_lens.description",
+      "slot": "survey",
+      "power_cost": 3,
+      "cost_credits": 2100,
+      "effects": [
+        {
+          "type": "scanner_detail_add",
+          "value": 1.0
+        },
+        {
+          "type": "insight_gain_mul",
+          "value": 1.35
+        }
+      ],
+      "tags": [
+        "survey",
+        "exotic"
+      ],
+      "tradeoffs": [
+        {
+          "type": "heat_generation_mul",
+          "value": 1.2
+        }
+      ],
+      "unlock": "research.rift_analysis",
+      "cost_components": [
+        {
+          "material": "material.circuit_lattice",
+          "amount": 2
+        },
+        {
+          "material": "material.drive_cell",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "module.cargo_compactor",
+      "name_key": "module.cargo_compactor.name",
+      "description_key": "module.cargo_compactor.description",
+      "slot": "utility",
+      "power_cost": 2,
+      "cost_credits": 880,
+      "effects": [
+        {
+          "type": "cargo_capacity_add",
+          "value": 28
+        }
+      ],
+      "tags": [
+        "utility",
+        "cargo"
+      ],
+      "tradeoffs": [
+        {
+          "type": "cargo_mass_mul",
+          "value": 1.15
+        }
+      ],
+      "unlock": "research.lattice_engineering"
+    },
+    {
+      "id": "module.auto_collector",
+      "name_key": "module.auto_collector.name",
+      "description_key": "module.auto_collector.description",
+      "slot": "utility",
+      "power_cost": 1,
+      "cost_credits": 620,
+      "effects": [
+        {
+          "type": "auto_collect_radius",
+          "value": 4.5
+        }
+      ],
+      "tags": [
+        "utility",
+        "quality"
+      ],
+      "tradeoffs": [
+        {
+          "type": "drill_efficiency_mul",
+          "value": 1.05
+        }
+      ],
+      "unlock": "research.lattice_engineering"
+    },
+    {
+      "id": "module.deployable_beacon",
+      "name_key": "module.deployable_beacon.name",
+      "description_key": "module.deployable_beacon.description",
+      "slot": "utility",
+      "power_cost": 1,
+      "cost_credits": 420,
+      "effects": [
+        {
+          "type": "grant_flag",
+          "flag": "deployable_beacon"
+        },
+        {
+          "type": "wreck_recovery_add",
+          "value": 0.2
+        }
+      ],
+      "tags": [
+        "utility",
+        "recovery"
+      ],
+      "unlock": "research.expedition_logistics"
+    },
+    {
+      "id": "module.portable_refinery",
+      "name_key": "module.portable_refinery.name",
+      "description_key": "module.portable_refinery.description",
+      "slot": "utility",
+      "power_cost": 3,
+      "cost_credits": 1350,
+      "effects": [
+        {
+          "type": "grant_flag",
+          "flag": "portable_refinery"
+        },
+        {
+          "type": "refine_yield_mul",
+          "value": 1.1
+        }
+      ],
+      "tags": [
+        "utility",
+        "economy"
+      ],
+      "tradeoffs": [
+        {
+          "type": "cargo_capacity_add",
+          "value": -12
+        }
+      ],
+      "unlock": "research.expedition_logistics",
+      "cost_components": [
+        {
+          "material": "material.refined_plate",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "id": "module.thermal_reclaimer",
+      "name_key": "module.thermal_reclaimer.name",
+      "description_key": "module.thermal_reclaimer.description",
+      "slot": "utility",
+      "power_cost": 2,
+      "cost_credits": 940,
+      "effects": [
+        {
+          "type": "convert_heat_to_fuel",
+          "threshold": 0.7,
+          "rate": 0.55
+        }
+      ],
+      "tags": [
+        "thermal",
+        "efficiency"
+      ],
+      "tradeoffs": [
+        {
+          "type": "cooling_mul",
+          "value": 0.88
+        }
+      ],
+      "unlock": "research.thermal_recovery"
+    },
+    {
+      "id": "module.assay_uplink",
+      "name_key": "module.assay_uplink.name",
+      "description_key": "module.assay_uplink.description",
+      "slot": "utility",
+      "power_cost": 1,
+      "cost_credits": 760,
+      "effects": [
+        {
+          "type": "sale_value_mul",
+          "value": 1.12
+        },
+        {
+          "type": "contract_reward_mul",
+          "value": 1.1
+        }
+      ],
+      "tags": [
+        "utility",
+        "economy"
+      ],
+      "tradeoffs": [
+        {
+          "type": "cargo_capacity_add",
+          "value": -5
+        }
+      ]
+    }
+  ]
+}

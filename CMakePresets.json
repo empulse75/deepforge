@@ -1,0 +1,108 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 28, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "DEEPFORGE_BUILD_TESTS": "ON",
+        "DEEPFORGE_BUILD_TOOLS": "ON"
+      }
+    },
+    {
+      "name": "dev-debug",
+      "inherits": "base",
+      "displayName": "Developer debug (client + tests + tools)",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "dev-release",
+      "inherits": "base",
+      "displayName": "Developer release",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+    },
+    {
+      "name": "release",
+      "inherits": "base",
+      "displayName": "Optimised packaging build",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "headless",
+      "inherits": "base",
+      "displayName": "Headless: simulation, world, content, tests only (no SDL)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "DEEPFORGE_BUILD_CLIENT": "OFF"
+      }
+    },
+    {
+      "name": "asan",
+      "inherits": "base",
+      "displayName": "AddressSanitizer + LeakSanitizer",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "DEEPFORGE_SANITIZER": "address",
+        "DEEPFORGE_BUILD_CLIENT": "OFF"
+      }
+    },
+    {
+      "name": "ubsan",
+      "inherits": "base",
+      "displayName": "UndefinedBehaviorSanitizer",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "DEEPFORGE_SANITIZER": "undefined",
+        "DEEPFORGE_BUILD_CLIENT": "OFF"
+      }
+    },
+    {
+      "name": "tsan",
+      "inherits": "base",
+      "displayName": "ThreadSanitizer (headless world jobs)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "DEEPFORGE_SANITIZER": "thread",
+        "DEEPFORGE_BUILD_CLIENT": "OFF"
+      }
+    },
+    {
+      "name": "ci",
+      "inherits": "base",
+      "displayName": "CI build with warnings as errors",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "DEEPFORGE_WARNINGS_AS_ERRORS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "dev-debug", "configurePreset": "dev-debug" },
+    { "name": "dev-release", "configurePreset": "dev-release" },
+    { "name": "release", "configurePreset": "release" },
+    { "name": "headless", "configurePreset": "headless" },
+    { "name": "asan", "configurePreset": "asan" },
+    { "name": "ubsan", "configurePreset": "ubsan" },
+    { "name": "tsan", "configurePreset": "tsan" },
+    { "name": "ci", "configurePreset": "ci" }
+  ],
+  "testPresets": [
+    {
+      "name": "default",
+      "hidden": true,
+      "output": { "outputOnFailure": true, "verbosity": "default" },
+      "execution": { "noTestsAction": "error", "stopOnFailure": false }
+    },
+    { "name": "dev-debug", "inherits": "default", "configurePreset": "dev-debug" },
+    { "name": "dev-release", "inherits": "default", "configurePreset": "dev-release" },
+    { "name": "headless", "inherits": "default", "configurePreset": "headless" },
+    { "name": "asan", "inherits": "default", "configurePreset": "asan" },
+    { "name": "ubsan", "inherits": "default", "configurePreset": "ubsan" },
+    { "name": "tsan", "inherits": "default", "configurePreset": "tsan" },
+    { "name": "ci", "inherits": "default", "configurePreset": "ci" }
+  ]
+}

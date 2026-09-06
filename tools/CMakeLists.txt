@@ -1,0 +1,9 @@
+add_executable(deepforge_content_validator content_validator/main.cpp)
+target_link_libraries(deepforge_content_validator PRIVATE deepforge_content deepforge_world)
+deepforge_set_warnings(deepforge_content_validator)
+set_target_properties(deepforge_content_validator PROPERTIES OUTPUT_NAME "deepforge-validate")
+
+add_executable(deepforge_balance_sim balance/main.cpp)
+target_link_libraries(deepforge_balance_sim PRIVATE deepforge_app deepforge_domain deepforge_world)
+deepforge_set_warnings(deepforge_balance_sim)
+set_target_properties(deepforge_balance_sim PROPERTIES OUTPUT_NAME "deepforge-balance")

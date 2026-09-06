@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "biomes": [
+    {
+      "id": "biome.weathered_shelf",
+      "name_key": "biome.weathered_shelf.name",
+      "description_key": "biome.weathered_shelf.description",
+      "min_depth": 0,
+      "max_depth": 250,
+      "transition_band": 40,
+      "base_material": "material.loam",
+      "soft_material": "material.loam",
+      "structural_material": "material.granite_spur",
+      "cave_threshold_bp": 2600,
+      "cave_period": 22,
+      "ambient_heat": 0.0,
+      "hardness_scale": 1.0,
+      "sky_color": [
+        40,
+        36,
+        46
+      ],
+      "fog_color": [
+        16,
+        15,
+        20
+      ],
+      "music_id": "audio.music.weathered_shelf",
+      "gate_research": "",
+      "gate_depth_proof": 0,
+      "hazards": [
+        {
+          "id": "hazard.unstable_ceiling",
+          "weight_bp": 7000
+        },
+        {
+          "id": "hazard.gas_vent",
+          "weight_bp": 3000
+        }
+      ],
+      "landmarks": [
+        "landmark.supply_cache",
+        "landmark.collapsed_survey_post",
+        "landmark.open_cavern",
+        "landmark.crumbly_seam",
+        "landmark.rescue_beacon"
+      ]
+    },
+    {
+      "id": "biome.prism_faults",
+      "name_key": "biome.prism_faults.name",
+      "description_key": "biome.prism_faults.description",
+      "min_depth": 250,
+      "max_depth": 650,
+      "transition_band": 40,
+      "base_material": "material.shale",
+      "soft_material": "material.loam",
+      "structural_material": "material.granite_spur",
+      "cave_threshold_bp": 3000,
+      "cave_period": 18,
+      "ambient_heat": 1.6,
+      "hardness_scale": 1.25,
+      "sky_color": [
+        30,
+        34,
+        54
+      ],
+      "fog_color": [
+        12,
+        14,
+        24
+      ],
+      "music_id": "audio.music.prism_faults",
+      "gate_research": "",
+      "gate_depth_proof": 200,
+      "hazards": [
+        {
+          "id": "hazard.shard_burst",
+          "weight_bp": 4500
+        },
+        {
+          "id": "hazard.unstable_ceiling",
+          "weight_bp": 3000
+        },
+        {
+          "id": "hazard.electric_arc",
+          "weight_bp": 2500
+        }
+      ],
+      "landmarks": [
+        "landmark.supply_cache",
+        "landmark.prism_geode",
+        "landmark.transit_node",
+        "landmark.repair_station",
+        "landmark.open_cavern",
+        "landmark.challenge_shaft",
+        "landmark.artifact_chamber"
+      ]
+    },
+    {
+      "id": "biome.mycelial_deeps",
+      "name_key": "biome.mycelial_deeps.name",
+      "description_key": "biome.mycelial_deeps.description",
+      "min_depth": 650,
+      "max_depth": 1050,
+      "transition_band": 40,
+      "base_material": "material.myco_chalk",
+      "soft_material": "material.loam",
+      "structural_material": "material.granite_spur",
+      "cave_threshold_bp": 3600,
+      "cave_period": 16,
+      "ambient_heat": 2.4,
+      "hardness_scale": 1.5,
+      "sky_color": [
+        28,
+        44,
+        36
+      ],
+      "fog_color": [
+        10,
+        20,
+        15
+      ],
+      "music_id": "audio.music.mycelial_deeps",
+      "gate_research": "research.deep_survey",
+      "gate_depth_proof": 600,
+      "hazards": [
+        {
+          "id": "hazard.spore_cloud",
+          "weight_bp": 4500
+        },
+        {
+          "id": "hazard.corrosive_seep",
+          "weight_bp": 3500
+        },
+        {
+          "id": "hazard.unstable_ceiling",
+          "weight_bp": 2000
+        }
+      ],
+      "landmarks": [
+        "landmark.mycelial_hollow",
+        "landmark.supply_cache",
+        "landmark.transit_node",
+        "landmark.repair_station",
+        "landmark.collapsed_survey_post",
+        "landmark.artifact_chamber",
+        "landmark.rescue_beacon"
+      ]
+    },
+    {
+      "id": "biome.ember_mantle",
+      "name_key": "biome.ember_mantle.name",
+      "description_key": "biome.ember_mantle.description",
+      "min_depth": 1050,
+      "max_depth": 1650,
+      "transition_band": 40,
+      "base_material": "material.basalt",
+      "soft_material": "material.shale",
+      "structural_material": "material.granite_spur",
+      "cave_threshold_bp": 2800,
+      "cave_period": 17,
+      "ambient_heat": 7.5,
+      "hardness_scale": 1.85,
+      "sky_color": [
+        56,
+        30,
+        24
+      ],
+      "fog_color": [
+        26,
+        12,
+        10
+      ],
+      "music_id": "audio.music.ember_mantle",
+      "gate_research": "research.thermal_recovery",
+      "gate_depth_proof": 1000,
+      "hazards": [
+        {
+          "id": "hazard.lava_pocket",
+          "weight_bp": 5000
+        },
+        {
+          "id": "hazard.gas_vent",
+          "weight_bp": 3000
+        },
+        {
+          "id": "hazard.shard_burst",
+          "weight_bp": 2000
+        }
+      ],
+      "landmarks": [
+        "landmark.thermal_vent",
+        "landmark.cooling_pocket",
+        "landmark.repair_station",
+        "landmark.transit_node",
+        "landmark.supply_cache",
+        "landmark.challenge_shaft",
+        "landmark.artifact_chamber"
+      ]
+    },
+    {
+      "id": "biome.machine_strata",
+      "name_key": "biome.machine_strata.name",
+      "description_key": "biome.machine_strata.description",
+      "min_depth": 1650,
+      "max_depth": 2400,
+      "transition_band": 40,
+      "base_material": "material.slagcrete",
+      "soft_material": "material.basalt",
+      "structural_material": "material.granite_spur",
+      "cave_threshold_bp": 3200,
+      "cave_period": 19,
+      "ambient_heat": 5.0,
+      "hardness_scale": 2.3,
+      "sky_color": [
+        38,
+        40,
+        48
+      ],
+      "fog_color": [
+        14,
+        16,
+        22
+      ],
+      "music_id": "audio.music.machine_strata",
+      "gate_research": "research.alloy_forging",
+      "gate_depth_proof": 1600,
+      "hazards": [
+        {
+          "id": "hazard.sentry_turret",
+          "weight_bp": 3500
+        },
+        {
+          "id": "hazard.crushing_piston",
+          "weight_bp": 3000
+        },
+        {
+          "id": "hazard.magnetic_field",
+          "weight_bp": 2000
+        },
+        {
+          "id": "hazard.electric_arc",
+          "weight_bp": 1500
+        }
+      ],
+      "landmarks": [
+        "landmark.foundry_ruin",
+        "landmark.transit_node",
+        "landmark.repair_station",
+        "landmark.artifact_chamber",
+        "landmark.challenge_shaft",
+        "landmark.supply_cache"
+      ]
+    },
+    {
+      "id": "biome.the_fracture",
+      "name_key": "biome.the_fracture.name",
+      "description_key": "biome.the_fracture.description",
+      "min_depth": 2400,
+      "max_depth": 4200,
+      "transition_band": 40,
+      "base_material": "material.voidshale",
+      "soft_material": "material.slagcrete",
+      "structural_material": "material.granite_spur",
+      "cave_threshold_bp": 3400,
+      "cave_period": 15,
+      "ambient_heat": 9.0,
+      "hardness_scale": 2.9,
+      "sky_color": [
+        44,
+        26,
+        56
+      ],
+      "fog_color": [
+        18,
+        10,
+        24
+      ],
+      "music_id": "audio.music.the_fracture",
+      "gate_research": "research.rift_analysis",
+      "gate_depth_proof": 2350,
+      "hazards": [
+        {
+          "id": "hazard.lava_pocket",
+          "weight_bp": 2500
+        },
+        {
+          "id": "hazard.electric_arc",
+          "weight_bp": 2500
+        },
+        {
+          "id": "hazard.magnetic_field",
+          "weight_bp": 2500
+        },
+        {
+          "id": "hazard.shard_burst",
+          "weight_bp": 2500
+        }
+      ],
+      "landmarks": [
+        "landmark.fracture_gate",
+        "landmark.artifact_chamber",
+        "landmark.transit_node",
+        "landmark.thermal_vent",
+        "landmark.challenge_shaft",
+        "landmark.repair_station"
+      ]
+    }
+  ]
+}

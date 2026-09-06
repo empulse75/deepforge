@@ -1,0 +1,547 @@
+{
+  "schema_version": 1,
+  "contracts": [
+    {
+      "id": "contract.shelf_ferrite_run",
+      "name_key": "contract.shelf_ferrite_run.name",
+      "description_key": "contract.shelf_ferrite_run.description",
+      "kind": "deliver_materials",
+      "faction": "faction.shelf_cooperative",
+      "reward_credits": 90,
+      "reward_credits_per_unit": 5,
+      "reward_reputation": 6,
+      "material_pool": [
+        "material.ferrite"
+      ],
+      "amount_min": 12,
+      "amount_max": 26,
+      "min_depth_unlocked": 0
+    },
+    {
+      "id": "contract.shelf_copper_order",
+      "name_key": "contract.shelf_copper_order.name",
+      "description_key": "contract.shelf_copper_order.description",
+      "kind": "deliver_materials",
+      "faction": "faction.shelf_cooperative",
+      "reward_credits": 140,
+      "reward_credits_per_unit": 9,
+      "reward_reputation": 8,
+      "material_pool": [
+        "material.cuprite"
+      ],
+      "amount_min": 8,
+      "amount_max": 18,
+      "min_depth_unlocked": 120
+    },
+    {
+      "id": "contract.survey_prismite_batch",
+      "name_key": "contract.survey_prismite_batch.name",
+      "description_key": "contract.survey_prismite_batch.description",
+      "kind": "deliver_materials",
+      "faction": "faction.deepline_survey",
+      "reward_credits": 240,
+      "reward_credits_per_unit": 22,
+      "reward_insight": 1,
+      "reward_reputation": 10,
+      "material_pool": [
+        "material.prismite"
+      ],
+      "amount_min": 6,
+      "amount_max": 14,
+      "min_depth_unlocked": 280
+    },
+    {
+      "id": "contract.survey_silver_consignment",
+      "name_key": "contract.survey_silver_consignment.name",
+      "description_key": "contract.survey_silver_consignment.description",
+      "kind": "deliver_materials",
+      "faction": "faction.deepline_survey",
+      "reward_credits": 320,
+      "reward_credits_per_unit": 20,
+      "reward_reputation": 10,
+      "material_pool": [
+        "material.argentine"
+      ],
+      "amount_min": 8,
+      "amount_max": 16,
+      "min_depth_unlocked": 400
+    },
+    {
+      "id": "contract.guild_mycelith_cultures",
+      "name_key": "contract.guild_mycelith_cultures.name",
+      "description_key": "contract.guild_mycelith_cultures.description",
+      "kind": "deliver_materials",
+      "faction": "faction.deepline_survey",
+      "reward_credits": 380,
+      "reward_credits_per_unit": 28,
+      "reward_insight": 1,
+      "reward_reputation": 12,
+      "material_pool": [
+        "material.mycelith"
+      ],
+      "amount_min": 6,
+      "amount_max": 12,
+      "min_depth_unlocked": 680
+    },
+    {
+      "id": "contract.guild_emberglass_order",
+      "name_key": "contract.guild_emberglass_order.name",
+      "description_key": "contract.guild_emberglass_order.description",
+      "kind": "deliver_materials",
+      "faction": "faction.emberworks_guild",
+      "reward_credits": 560,
+      "reward_credits_per_unit": 44,
+      "reward_reputation": 14,
+      "material_pool": [
+        "material.emberglass"
+      ],
+      "amount_min": 5,
+      "amount_max": 12,
+      "min_depth_unlocked": 1080
+    },
+    {
+      "id": "contract.guild_gold_tithe",
+      "name_key": "contract.guild_gold_tithe.name",
+      "description_key": "contract.guild_gold_tithe.description",
+      "kind": "deliver_materials",
+      "faction": "faction.emberworks_guild",
+      "reward_credits": 520,
+      "reward_credits_per_unit": 38,
+      "reward_reputation": 12,
+      "material_pool": [
+        "material.aurelite"
+      ],
+      "amount_min": 6,
+      "amount_max": 14,
+      "min_depth_unlocked": 800
+    },
+    {
+      "id": "contract.strata_cogsteel_demand",
+      "name_key": "contract.strata_cogsteel_demand.name",
+      "description_key": "contract.strata_cogsteel_demand.description",
+      "kind": "deliver_materials",
+      "faction": "faction.emberworks_guild",
+      "reward_credits": 880,
+      "reward_credits_per_unit": 70,
+      "reward_insight": 2,
+      "reward_reputation": 16,
+      "material_pool": [
+        "material.cogsteel"
+      ],
+      "amount_min": 5,
+      "amount_max": 11,
+      "min_depth_unlocked": 1700
+    },
+    {
+      "id": "contract.fracture_riftalloy_pact",
+      "name_key": "contract.fracture_riftalloy_pact.name",
+      "description_key": "contract.fracture_riftalloy_pact.description",
+      "kind": "deliver_materials",
+      "faction": "faction.deepline_survey",
+      "reward_credits": 1400,
+      "reward_credits_per_unit": 120,
+      "reward_insight": 3,
+      "reward_reputation": 20,
+      "material_pool": [
+        "material.riftalloy"
+      ],
+      "amount_min": 4,
+      "amount_max": 9,
+      "min_depth_unlocked": 2450
+    },
+    {
+      "id": "contract.mixed_metals_manifest",
+      "name_key": "contract.mixed_metals_manifest.name",
+      "description_key": "contract.mixed_metals_manifest.description",
+      "kind": "deliver_materials",
+      "faction": "faction.shelf_cooperative",
+      "reward_credits": 300,
+      "reward_credits_per_unit": 11,
+      "reward_reputation": 10,
+      "material_pool": [
+        "material.ferrite",
+        "material.cuprite",
+        "material.argentine"
+      ],
+      "amount_min": 14,
+      "amount_max": 30,
+      "min_depth_unlocked": 300
+    },
+    {
+      "id": "contract.component_supply_plates",
+      "name_key": "contract.component_supply_plates.name",
+      "description_key": "contract.component_supply_plates.description",
+      "kind": "deliver_materials",
+      "faction": "faction.shelf_cooperative",
+      "reward_credits": 340,
+      "reward_credits_per_unit": 110,
+      "reward_reputation": 12,
+      "material_pool": [
+        "material.refined_plate"
+      ],
+      "amount_min": 2,
+      "amount_max": 5,
+      "min_depth_unlocked": 250
+    },
+    {
+      "id": "contract.component_supply_cores",
+      "name_key": "contract.component_supply_cores.name",
+      "description_key": "contract.component_supply_cores.description",
+      "kind": "deliver_materials",
+      "faction": "faction.emberworks_guild",
+      "reward_credits": 700,
+      "reward_credits_per_unit": 290,
+      "reward_reputation": 16,
+      "material_pool": [
+        "material.thermal_core"
+      ],
+      "amount_min": 1,
+      "amount_max": 3,
+      "min_depth_unlocked": 1100
+    },
+    {
+      "id": "contract.first_descent",
+      "name_key": "contract.first_descent.name",
+      "description_key": "contract.first_descent.description",
+      "kind": "reach_depth",
+      "reward_credits": 120,
+      "reward_insight": 1,
+      "depth_min": 150,
+      "depth_max": 200,
+      "min_depth_unlocked": 0
+    },
+    {
+      "id": "contract.faults_probe",
+      "name_key": "contract.faults_probe.name",
+      "description_key": "contract.faults_probe.description",
+      "kind": "reach_depth",
+      "faction": "faction.deepline_survey",
+      "reward_credits": 260,
+      "reward_reputation": 8,
+      "depth_min": 420,
+      "depth_max": 520,
+      "min_depth_unlocked": 250
+    },
+    {
+      "id": "contract.deeps_probe",
+      "name_key": "contract.deeps_probe.name",
+      "description_key": "contract.deeps_probe.description",
+      "kind": "reach_depth",
+      "faction": "faction.deepline_survey",
+      "reward_credits": 420,
+      "reward_insight": 1,
+      "reward_reputation": 10,
+      "depth_min": 820,
+      "depth_max": 950,
+      "min_depth_unlocked": 650
+    },
+    {
+      "id": "contract.mantle_probe",
+      "name_key": "contract.mantle_probe.name",
+      "description_key": "contract.mantle_probe.description",
+      "kind": "reach_depth",
+      "faction": "faction.emberworks_guild",
+      "reward_credits": 700,
+      "reward_insight": 2,
+      "reward_reputation": 12,
+      "depth_min": 1300,
+      "depth_max": 1500,
+      "min_depth_unlocked": 1050
+    },
+    {
+      "id": "contract.strata_probe",
+      "name_key": "contract.strata_probe.name",
+      "description_key": "contract.strata_probe.description",
+      "kind": "reach_depth",
+      "faction": "faction.emberworks_guild",
+      "reward_credits": 1100,
+      "reward_insight": 2,
+      "reward_reputation": 14,
+      "depth_min": 1900,
+      "depth_max": 2200,
+      "min_depth_unlocked": 1650
+    },
+    {
+      "id": "contract.fracture_probe",
+      "name_key": "contract.fracture_probe.name",
+      "description_key": "contract.fracture_probe.description",
+      "kind": "reach_depth",
+      "faction": "faction.deepline_survey",
+      "reward_credits": 1800,
+      "reward_insight": 4,
+      "reward_reputation": 20,
+      "depth_min": 2700,
+      "depth_max": 3100,
+      "min_depth_unlocked": 2400
+    },
+    {
+      "id": "contract.scan_fault_anomaly",
+      "name_key": "contract.scan_fault_anomaly.name",
+      "description_key": "contract.scan_fault_anomaly.description",
+      "kind": "scan_anomaly",
+      "faction": "faction.deepline_survey",
+      "reward_credits": 200,
+      "reward_insight": 1,
+      "reward_reputation": 8,
+      "min_depth_unlocked": 300,
+      "depth_min": 300,
+      "depth_max": 650
+    },
+    {
+      "id": "contract.scan_hollow_anomaly",
+      "name_key": "contract.scan_hollow_anomaly.name",
+      "description_key": "contract.scan_hollow_anomaly.description",
+      "kind": "scan_anomaly",
+      "faction": "faction.deepline_survey",
+      "reward_credits": 340,
+      "reward_insight": 1,
+      "reward_reputation": 10,
+      "min_depth_unlocked": 700,
+      "depth_min": 700,
+      "depth_max": 1050
+    },
+    {
+      "id": "contract.scan_forge_anomaly",
+      "name_key": "contract.scan_forge_anomaly.name",
+      "description_key": "contract.scan_forge_anomaly.description",
+      "kind": "scan_anomaly",
+      "faction": "faction.deepline_survey",
+      "reward_credits": 760,
+      "reward_insight": 2,
+      "reward_reputation": 14,
+      "min_depth_unlocked": 1700,
+      "depth_min": 1700,
+      "depth_max": 2400
+    },
+    {
+      "id": "contract.recover_shelf_cache",
+      "name_key": "contract.recover_shelf_cache.name",
+      "description_key": "contract.recover_shelf_cache.description",
+      "kind": "recover_cache",
+      "faction": "faction.shelf_cooperative",
+      "reward_credits": 180,
+      "reward_reputation": 8,
+      "min_depth_unlocked": 100,
+      "depth_min": 100,
+      "depth_max": 250
+    },
+    {
+      "id": "contract.recover_faults_cache",
+      "name_key": "contract.recover_faults_cache.name",
+      "description_key": "contract.recover_faults_cache.description",
+      "kind": "recover_cache",
+      "faction": "faction.shelf_cooperative",
+      "reward_credits": 300,
+      "reward_reputation": 10,
+      "min_depth_unlocked": 300,
+      "depth_min": 300,
+      "depth_max": 650
+    },
+    {
+      "id": "contract.recover_strata_cache",
+      "name_key": "contract.recover_strata_cache.name",
+      "description_key": "contract.recover_strata_cache.description",
+      "kind": "recover_cache",
+      "faction": "faction.emberworks_guild",
+      "reward_credits": 900,
+      "reward_reputation": 14,
+      "min_depth_unlocked": 1700,
+      "depth_min": 1700,
+      "depth_max": 2400
+    },
+    {
+      "id": "contract.stable_fulmenite",
+      "name_key": "contract.stable_fulmenite.name",
+      "description_key": "contract.stable_fulmenite.description",
+      "kind": "extract_volatile",
+      "faction": "faction.emberworks_guild",
+      "reward_credits": 820,
+      "reward_insight": 1,
+      "reward_reputation": 14,
+      "min_depth_unlocked": 1100,
+      "material_pool": [
+        "material.fulmenite"
+      ],
+      "amount_min": 3,
+      "amount_max": 7
+    },
+    {
+      "id": "contract.stable_voidcell",
+      "name_key": "contract.stable_voidcell.name",
+      "description_key": "contract.stable_voidcell.description",
+      "kind": "extract_volatile",
+      "faction": "faction.emberworks_guild",
+      "reward_credits": 1600,
+      "reward_insight": 3,
+      "reward_reputation": 18,
+      "min_depth_unlocked": 2450,
+      "material_pool": [
+        "material.voidcell"
+      ],
+      "amount_min": 2,
+      "amount_max": 5
+    },
+    {
+      "id": "contract.restore_transit_faults",
+      "name_key": "contract.restore_transit_faults.name",
+      "description_key": "contract.restore_transit_faults.description",
+      "kind": "activate_infrastructure",
+      "faction": "faction.deepline_survey",
+      "reward_credits": 420,
+      "reward_insight": 1,
+      "reward_reputation": 12,
+      "min_depth_unlocked": 300,
+      "depth_min": 280,
+      "depth_max": 1050
+    },
+    {
+      "id": "contract.restore_transit_deep",
+      "name_key": "contract.restore_transit_deep.name",
+      "description_key": "contract.restore_transit_deep.description",
+      "kind": "activate_infrastructure",
+      "faction": "faction.emberworks_guild",
+      "reward_credits": 1050,
+      "reward_insight": 2,
+      "reward_reputation": 16,
+      "min_depth_unlocked": 1650,
+      "depth_min": 1650,
+      "depth_max": 2400
+    },
+    {
+      "id": "contract.locate_lost_shelf_crew",
+      "name_key": "contract.locate_lost_shelf_crew.name",
+      "description_key": "contract.locate_lost_shelf_crew.description",
+      "kind": "rescue_prospector",
+      "faction": "faction.shelf_cooperative",
+      "reward_credits": 220,
+      "reward_reputation": 12,
+      "min_depth_unlocked": 80,
+      "depth_min": 80,
+      "depth_max": 250
+    },
+    {
+      "id": "contract.locate_lost_deeps_crew",
+      "name_key": "contract.locate_lost_deeps_crew.name",
+      "description_key": "contract.locate_lost_deeps_crew.description",
+      "kind": "rescue_prospector",
+      "faction": "faction.shelf_cooperative",
+      "reward_credits": 520,
+      "reward_reputation": 14,
+      "min_depth_unlocked": 680,
+      "depth_min": 680,
+      "depth_max": 1050
+    },
+    {
+      "id": "contract.austere_run_shelf",
+      "name_key": "contract.austere_run_shelf.name",
+      "description_key": "contract.austere_run_shelf.description",
+      "kind": "no_module_class",
+      "faction": "faction.shelf_cooperative",
+      "reward_credits": 260,
+      "reward_insight": 1,
+      "reward_reputation": 12,
+      "min_depth_unlocked": 200,
+      "depth_min": 250,
+      "depth_max": 650
+    },
+    {
+      "id": "contract.austere_run_deep",
+      "name_key": "contract.austere_run_deep.name",
+      "description_key": "contract.austere_run_deep.description",
+      "kind": "no_module_class",
+      "faction": "faction.emberworks_guild",
+      "reward_credits": 880,
+      "reward_insight": 2,
+      "reward_reputation": 16,
+      "min_depth_unlocked": 1050,
+      "depth_min": 1050,
+      "depth_max": 1650
+    },
+    {
+      "id": "contract.story_first_haul",
+      "name_key": "contract.story_first_haul.name",
+      "description_key": "contract.story_first_haul.description",
+      "kind": "deliver_materials",
+      "reward_credits": 150,
+      "reward_insight": 1,
+      "min_depth_unlocked": 0,
+      "material_pool": [
+        "material.ferrite"
+      ],
+      "amount_min": 10,
+      "amount_max": 10,
+      "authored": true,
+      "repeatable": false
+    },
+    {
+      "id": "contract.story_echo_recovery",
+      "name_key": "contract.story_echo_recovery.name",
+      "description_key": "contract.story_echo_recovery.description",
+      "kind": "deliver_materials",
+      "faction": "faction.deepline_survey",
+      "reward_credits": 400,
+      "reward_insight": 2,
+      "reward_reputation": 15,
+      "min_depth_unlocked": 280,
+      "material_pool": [
+        "material.echo_shard"
+      ],
+      "amount_min": 1,
+      "amount_max": 1,
+      "authored": true,
+      "repeatable": false
+    },
+    {
+      "id": "contract.story_relic_recovery",
+      "name_key": "contract.story_relic_recovery.name",
+      "description_key": "contract.story_relic_recovery.description",
+      "kind": "deliver_materials",
+      "faction": "faction.deepline_survey",
+      "reward_credits": 1200,
+      "reward_insight": 4,
+      "reward_reputation": 25,
+      "min_depth_unlocked": 1700,
+      "material_pool": [
+        "material.relic_core"
+      ],
+      "amount_min": 1,
+      "amount_max": 1,
+      "authored": true,
+      "repeatable": false,
+      "requires_research": "research.ancient_mechanisms"
+    },
+    {
+      "id": "contract.story_fracture_seed",
+      "name_key": "contract.story_fracture_seed.name",
+      "description_key": "contract.story_fracture_seed.description",
+      "kind": "deliver_materials",
+      "faction": "faction.deepline_survey",
+      "reward_credits": 2400,
+      "reward_insight": 6,
+      "reward_reputation": 30,
+      "min_depth_unlocked": 2450,
+      "material_pool": [
+        "material.fracture_seed"
+      ],
+      "amount_min": 1,
+      "amount_max": 1,
+      "authored": true,
+      "repeatable": false,
+      "requires_research": "research.rift_analysis"
+    },
+    {
+      "id": "contract.story_final_descent",
+      "name_key": "contract.story_final_descent.name",
+      "description_key": "contract.story_final_descent.description",
+      "kind": "reach_depth",
+      "reward_credits": 4000,
+      "reward_insight": 8,
+      "min_depth_unlocked": 2600,
+      "depth_min": 3600,
+      "depth_max": 3600,
+      "authored": true,
+      "repeatable": false,
+      "requires_research": "research.deepforge_protocol"
+    }
+  ]
+}

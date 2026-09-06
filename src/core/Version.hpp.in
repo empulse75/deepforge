@@ -1,0 +1,21 @@
+#pragma once
+
+namespace df {
+
+inline constexpr const char* kProjectName = "Project Deepforge";
+inline constexpr const char* kBuildVersion = "@DEEPFORGE_VERSION@";
+inline constexpr const char* kBuildConfig = "@CMAKE_BUILD_TYPE@";
+inline constexpr const char* kBuildCompiler = "@CMAKE_CXX_COMPILER_ID@ @CMAKE_CXX_COMPILER_VERSION@";
+inline constexpr const char* kBuildDate = "@DEEPFORGE_BUILD_DATE@";
+
+/// Bumped whenever the persisted save layout changes. Every released value must
+/// have a migration path (see docs/SAVE_FORMAT.md).
+inline constexpr int kSaveSchemaVersion = 3;
+
+/// Bumped when generation output changes for an existing seed.
+inline constexpr int kWorldGenVersion = 1;
+
+/// Bumped when the shape of data/*.json changes incompatibly.
+inline constexpr int kContentSchemaVersion = 1;
+
+} // namespace df

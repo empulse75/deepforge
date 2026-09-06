@@ -1,0 +1,24 @@
+# High-value, low-noise ruleset. Third-party headers are excluded via
+# HeaderFilterRegex so only project code is analysed.
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-narrowing-conversions,
+  cppcoreguidelines-pro-type-member-init,
+  cppcoreguidelines-slicing,
+  misc-unused-parameters,
+  misc-misplaced-const,
+  modernize-use-nullptr,
+  modernize-use-override,
+  modernize-use-emplace,
+  performance-*,
+  -performance-avoid-endl,
+  readability-container-size-empty,
+  readability-misleading-indentation,
+  readability-redundant-smartptr-get,
+  readability-simplify-boolean-expr
+
+WarningsAsErrors: ''
+HeaderFilterRegex: '.*/src/.*'
+FormatStyle: file
