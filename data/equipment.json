@@ -1183,14 +1183,24 @@
           "cost_credits": 350,
           "name_key": "equipment.power_core.tier1",
           "summary_key": "equipment.power_core.tier1.summary",
-          "effects": []
+          "effects": [
+            {
+              "type": "utility_power_add",
+              "value": 1
+            }
+          ]
         },
         {
           "tier": 2,
           "cost_credits": 425,
           "name_key": "equipment.power_core.tier2",
           "summary_key": "equipment.power_core.tier2.summary",
-          "effects": []
+          "effects": [
+            {
+              "type": "utility_power_add",
+              "value": 2
+            }
+          ]
         },
         {
           "tier": 3,
@@ -1198,6 +1208,10 @@
           "name_key": "equipment.power_core.tier3",
           "summary_key": "equipment.power_core.tier3.summary",
           "effects": [
+            {
+              "type": "utility_power_add",
+              "value": 3
+            },
             {
               "type": "protected_sample_slots",
               "value": 1
@@ -1209,7 +1223,12 @@
           "cost_credits": 1520,
           "name_key": "equipment.power_core.tier4",
           "summary_key": "equipment.power_core.tier4.summary",
-          "effects": [],
+          "effects": [
+            {
+              "type": "utility_power_add",
+              "value": 4
+            }
+          ],
           "cost_components": [
             {
               "material": "material.drive_cell",
@@ -1222,7 +1241,12 @@
           "cost_credits": 1835,
           "name_key": "equipment.power_core.tier5",
           "summary_key": "equipment.power_core.tier5.summary",
-          "effects": [],
+          "effects": [
+            {
+              "type": "utility_power_add",
+              "value": 5
+            }
+          ],
           "cost_components": [
             {
               "material": "material.drive_cell",
@@ -1236,6 +1260,10 @@
           "name_key": "equipment.power_core.tier6",
           "summary_key": "equipment.power_core.tier6.summary",
           "effects": [
+            {
+              "type": "utility_power_add",
+              "value": 7
+            },
             {
               "type": "protected_sample_slots",
               "value": 1

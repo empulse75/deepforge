@@ -23,7 +23,9 @@ Playable and buildable end to end. What exists today:
 | Save | Versioned (schema 4), atomic, checksummed, backed up, with tested migrations |
 | Input | Keyboard, mouse and SDL gamepads, fully remappable |
 | Accessibility | Shake/flash/particle sliders, colour-vision palette, hold-vs-toggle, text scale, captions, difficulty assists |
-| Tests | 70 deterministic headless CTest cases, including a 1000-seed generation sweep |
+| Interface | Instrument-panel UI drawn entirely from rectangles: two original bitmap faces, procedural icons, segmented gauges, live before/after stat previews |
+| Text | Every player-facing name and description is authored content in `data/strings.en.json`, checked at load and by test |
+| Tests | 76 deterministic headless CTest cases, including a 1000-seed generation sweep |
 | Tools | Content validator, balance simulator, headless autopilot, screenshot capture |
 
 Known limitations are listed at the bottom of this file. Read them before
@@ -139,6 +141,11 @@ and controller. Every screen and flow is completable with a controller alone.
 | Pause | `Esc` | `Start` |
 | Menu select / back | `Enter` / `Backspace` | `A` / `B` |
 | Developer overlay | `F3` | — |
+
+Menus also take the mouse: hovering a row moves the highlight, clicking selects,
+the wheel scrolls a long list, and settings sliders drag. Mouse, keyboard and
+controller all drive the same focus, so nothing is reachable by only one of
+them, and the pointer stays invisible until it is actually moved.
 
 Two things are worth knowing before your first descent:
 

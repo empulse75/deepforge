@@ -4,6 +4,7 @@
     {
       "id": "material.air",
       "name_key": "material.air.name",
+      "description_key": "material.air.description",
       "category": "empty",
       "hardness": 0.0,
       "base_value": 0,
@@ -20,6 +21,7 @@
     {
       "id": "material.bedrock",
       "name_key": "material.bedrock.name",
+      "description_key": "material.bedrock.description",
       "category": "boundary",
       "hardness": 999.0,
       "base_value": 0,
@@ -35,6 +37,7 @@
     {
       "id": "material.loam",
       "name_key": "material.loam.name",
+      "description_key": "material.loam.description",
       "category": "rock",
       "hardness": 0.55,
       "base_value": 0,
@@ -50,6 +53,7 @@
     {
       "id": "material.shale",
       "name_key": "material.shale.name",
+      "description_key": "material.shale.description",
       "category": "rock",
       "hardness": 1.05,
       "base_value": 0,
@@ -64,6 +68,7 @@
     {
       "id": "material.myco_chalk",
       "name_key": "material.myco_chalk.name",
+      "description_key": "material.myco_chalk.description",
       "category": "rock",
       "hardness": 1.45,
       "base_value": 0,
@@ -78,6 +83,7 @@
     {
       "id": "material.basalt",
       "name_key": "material.basalt.name",
+      "description_key": "material.basalt.description",
       "category": "rock",
       "hardness": 2.5,
       "base_value": 0,
@@ -93,6 +99,7 @@
     {
       "id": "material.slagcrete",
       "name_key": "material.slagcrete.name",
+      "description_key": "material.slagcrete.description",
       "category": "rock",
       "hardness": 3.3,
       "base_value": 0,
@@ -107,6 +114,7 @@
     {
       "id": "material.voidshale",
       "name_key": "material.voidshale.name",
+      "description_key": "material.voidshale.description",
       "category": "rock",
       "hardness": 4.2,
       "base_value": 0,
@@ -121,6 +129,7 @@
     {
       "id": "material.granite_spur",
       "name_key": "material.granite_spur.name",
+      "description_key": "material.granite_spur.description",
       "category": "structural",
       "hardness": 7.5,
       "base_value": 0,
@@ -135,6 +144,7 @@
     {
       "id": "material.ferrite",
       "name_key": "material.ferrite.name",
+      "description_key": "material.ferrite.description",
       "category": "commodity",
       "hardness": 1.15,
       "base_value": 5,
@@ -173,6 +183,7 @@
     {
       "id": "material.cuprite",
       "name_key": "material.cuprite.name",
+      "description_key": "material.cuprite.description",
       "category": "commodity",
       "hardness": 1.5,
       "base_value": 13,
@@ -208,6 +219,7 @@
     {
       "id": "material.argentine",
       "name_key": "material.argentine.name",
+      "description_key": "material.argentine.description",
       "category": "commodity",
       "hardness": 2.0,
       "base_value": 34,
@@ -243,6 +255,7 @@
     {
       "id": "material.aurelite",
       "name_key": "material.aurelite.name",
+      "description_key": "material.aurelite.description",
       "category": "commodity",
       "hardness": 2.6,
       "base_value": 72,
@@ -278,6 +291,7 @@
     {
       "id": "material.platinex",
       "name_key": "material.platinex.name",
+      "description_key": "material.platinex.description",
       "category": "commodity",
       "hardness": 3.4,
       "base_value": 148,
@@ -313,6 +327,7 @@
     {
       "id": "material.starmetal",
       "name_key": "material.starmetal.name",
+      "description_key": "material.starmetal.description",
       "category": "commodity",
       "hardness": 4.4,
       "base_value": 300,
@@ -347,6 +362,7 @@
     {
       "id": "material.prismite",
       "name_key": "material.prismite.name",
+      "description_key": "material.prismite.description",
       "category": "strategic",
       "hardness": 2.4,
       "base_value": 40,
@@ -385,6 +401,7 @@
     {
       "id": "material.mycelith",
       "name_key": "material.mycelith.name",
+      "description_key": "material.mycelith.description",
       "category": "strategic",
       "hardness": 2.1,
       "base_value": 50,
@@ -422,6 +439,7 @@
     {
       "id": "material.emberglass",
       "name_key": "material.emberglass.name",
+      "description_key": "material.emberglass.description",
       "category": "strategic",
       "hardness": 3.0,
       "base_value": 84,
@@ -457,6 +475,7 @@
     {
       "id": "material.cogsteel",
       "name_key": "material.cogsteel.name",
+      "description_key": "material.cogsteel.description",
       "category": "strategic",
       "hardness": 3.8,
       "base_value": 130,
@@ -489,6 +508,7 @@
     {
       "id": "material.riftalloy",
       "name_key": "material.riftalloy.name",
+      "description_key": "material.riftalloy.description",
       "category": "strategic",
       "hardness": 4.8,
       "base_value": 215,
@@ -521,6 +541,7 @@
     {
       "id": "material.fulmenite",
       "name_key": "material.fulmenite.name",
+      "description_key": "material.fulmenite.description",
       "category": "volatile",
       "hardness": 2.2,
       "base_value": 165,
@@ -557,6 +578,7 @@
     {
       "id": "material.voidcell",
       "name_key": "material.voidcell.name",
+      "description_key": "material.voidcell.description",
       "category": "volatile",
       "hardness": 3.2,
       "base_value": 340,
@@ -592,6 +614,7 @@
     {
       "id": "material.echo_shard",
       "name_key": "material.echo_shard.name",
+      "description_key": "material.echo_shard.description",
       "category": "artifact",
       "hardness": 2.8,
       "base_value": 0,
@@ -626,6 +649,7 @@
     {
       "id": "material.spore_codex",
       "name_key": "material.spore_codex.name",
+      "description_key": "material.spore_codex.description",
       "category": "artifact",
       "hardness": 2.6,
       "base_value": 0,
@@ -660,6 +684,7 @@
     {
       "id": "material.relic_core",
       "name_key": "material.relic_core.name",
+      "description_key": "material.relic_core.description",
       "category": "artifact",
       "hardness": 3.6,
       "base_value": 0,
@@ -694,6 +719,7 @@
     {
       "id": "material.fracture_seed",
       "name_key": "material.fracture_seed.name",
+      "description_key": "material.fracture_seed.description",
       "category": "artifact",
       "hardness": 4.6,
       "base_value": 0,
@@ -728,6 +754,7 @@
     {
       "id": "material.refined_plate",
       "name_key": "material.refined_plate.name",
+      "description_key": "material.refined_plate.description",
       "category": "strategic",
       "hardness": 0.0,
       "base_value": 90,
@@ -747,6 +774,7 @@
     {
       "id": "material.circuit_lattice",
       "name_key": "material.circuit_lattice.name",
+      "description_key": "material.circuit_lattice.description",
       "category": "strategic",
       "hardness": 0.0,
       "base_value": 170,
@@ -766,6 +794,7 @@
     {
       "id": "material.thermal_core",
       "name_key": "material.thermal_core.name",
+      "description_key": "material.thermal_core.description",
       "category": "strategic",
       "hardness": 0.0,
       "base_value": 260,
@@ -785,6 +814,7 @@
     {
       "id": "material.drive_cell",
       "name_key": "material.drive_cell.name",
+      "description_key": "material.drive_cell.description",
       "category": "strategic",
       "hardness": 0.0,
       "base_value": 420,

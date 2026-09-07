@@ -30,6 +30,7 @@ std::string_view material_category_name(MaterialCategory c);
 struct MaterialDefinition {
     StringId id;
     std::string nameKey;
+    std::string descriptionKey;
     MaterialCategory category = MaterialCategory::Rock;
     float hardness = 1.0f; ///< Drives mine time; 0 for air.
     float density = 1.0f;  ///< Cargo mass per unit.
@@ -153,6 +154,7 @@ struct RecipeIngredient {
 struct RecipeDefinition {
     StringId id;
     std::string nameKey;
+    std::string descriptionKey;
     StringId facilityId;
     i32 facilityTier = 1;
     std::vector<RecipeIngredient> inputs;

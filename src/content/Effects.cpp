@@ -14,7 +14,7 @@ struct NameEntry {
     std::string_view name;
 };
 
-constexpr std::array<NameEntry, 39> kEffectNames{{
+constexpr auto kEffectNames = std::to_array<NameEntry>({
     {EffectType::None, "none"},
     {EffectType::DrillPowerMul, "drill_power_mul"},
     {EffectType::DrillPowerAdd, "drill_power_add"},
@@ -46,6 +46,7 @@ constexpr std::array<NameEntry, 39> kEffectNames{{
     {EffectType::InsightGainMul, "insight_gain_mul"},
     {EffectType::ContractRewardMul, "contract_reward_mul"},
     {EffectType::ProtectedSampleSlots, "protected_sample_slots"},
+    {EffectType::UtilityPowerAdd, "utility_power_add"},
     {EffectType::WreckRecoveryAdd, "wreck_recovery_add"},
     {EffectType::DepthHeatMul, "depth_heat_mul"},
     {EffectType::CargoMassMul, "cargo_mass_mul"},
@@ -53,8 +54,11 @@ constexpr std::array<NameEntry, 39> kEffectNames{{
     {EffectType::VeinRevealAdd, "vein_reveal_add"},
     {EffectType::RefineYieldMul, "refine_yield_mul"},
     {EffectType::GrantFlag, "grant_flag"},
-    {EffectType::Count, "count"},
-}};
+});
+
+// Adding an EffectType without a name here would make it unparseable from JSON.
+static_assert(kEffectNames.size() == static_cast<usize>(EffectType::Count),
+              "every EffectType needs a name in kEffectNames");
 
 constexpr std::array<std::pair<RigFlag, std::string_view>, 15> kFlagNames{{
     {RigFlag::BrakeWithoutFuel, "brake_without_fuel"},
@@ -206,6 +210,9 @@ void apply_effect(StatBlock& s, const Effect& e) {
         case EffectType::ProtectedSampleSlots:
             s.protectedSampleSlots += static_cast<int>(e.a);
             break;
+        case EffectType::UtilityPowerAdd:
+            s.utilityPower += static_cast<int>(e.a);
+            break;
         case EffectType::WreckRecoveryAdd:
             s.wreckRecovery += e.a;
             break;
@@ -266,6 +273,7 @@ void StatBlock::clamp_to_caps() {
     cargoMass = clamp(cargoMass, 0.2f, 2.0f);
     refineYield = clamp(refineYield, 0.5f, 3.0f);
     protectedSampleSlots = clamp(protectedSampleSlots, 1, 12);
+    utilityPower = clamp(utilityPower, 0, 24);
     mineRadius = clamp(mineRadius, 0, 2);
     veinReveal = clamp(veinReveal, 0.0f, 1.0f);
 }

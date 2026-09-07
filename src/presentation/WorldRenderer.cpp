@@ -2,6 +2,7 @@
 
 #include "core/Hash.hpp"
 #include "core/Log.hpp"
+#include "presentation/Pretty.hpp"
 
 #include <SDL3/SDL.h>
 
@@ -20,15 +21,15 @@ float tile_shade(TileCoord t, u8 variant) {
 Color category_marker(MaterialCategory c) {
     switch (c) {
         case MaterialCategory::Commodity:
-            return palette::kCargo;
+            return theme::kCargo;
         case MaterialCategory::Strategic:
-            return palette::kAccent;
+            return theme::kAmber;
         case MaterialCategory::Volatile:
-            return palette::kDanger;
+            return theme::kDanger;
         case MaterialCategory::Artifact:
             return Color{236, 150, 236};
         default:
-            return palette::kTextDim;
+            return theme::kTextMuted;
     }
 }
 
@@ -115,7 +116,7 @@ SDL_Texture* WorldRenderer::build_chunk_texture(Draw& draw, const GameSession& s
         const float x = static_cast<float>(i % kChunkSize) * p;
         const float y = static_cast<float>(i / kChunkSize) * p;
         Color c = material_color(def, settings);
-        c = c.scaled(tile_shade(t, chunk.variant_at(i)));
+        c = c.shade(tile_shade(t, chunk.variant_at(i)));
 
         SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, 255);
         const SDL_FRect r{x, y, p, p};
@@ -245,7 +246,7 @@ void WorldRenderer::render(Draw& draw, const GameSession& session, const RenderS
         const float bandHeight = 140.0f + static_cast<float>(layer) * 60.0f;
         const float y = std::fmod(offset, bandHeight * 2.0f);
         const Color c =
-            Color{biome.fogR, biome.fogG, biome.fogB}.scaled(1.0f + 0.10f * static_cast<float>(layer + 1));
+            Color{biome.fogR, biome.fogG, biome.fogB}.shade(1.0f + 0.10f * static_cast<float>(layer + 1));
         for (float py = y - bandHeight * 2.0f; py < screenH + bandHeight; py += bandHeight * 2.0f) {
             draw.rect(0.0f, py, screenW, bandHeight, c.with_alpha(70));
             ++mDrawCalls;
@@ -332,20 +333,37 @@ void WorldRenderer::render(Draw& draw, const GameSession& session, const RenderS
         }
     }
 
-    // Landmarks the player has discovered.
+    // Landmarks the player has discovered, framed with corner brackets and a
+    // label so they read as places rather than as boxes.
     for (const auto* lm : session.world().landmarks_near(
              TileCoord{ifloor(cam.centre.x), ifloor(cam.centre.y)}, static_cast<i32>(halfTilesX) + 8)) {
         const auto& def = db.landmarks()[static_cast<usize>(lm->definition)];
         const Vec2 p = cam.world_to_screen(
             Vec2{static_cast<float>(lm->origin.x), static_cast<float>(lm->origin.y)}, screenW, screenH);
-        const Color c = lm->activated ? palette::kGood : palette::kAccent;
-        draw.rect_outline(p.x, p.y, static_cast<float>(lm->width) * cam.pixelsPerTile,
-                          static_cast<float>(lm->height) * cam.pixelsPerTile, c.with_alpha(150), 2.0f);
-        draw.text(def.nameKey.substr(def.nameKey.find_last_of('.') == std::string::npos
-                                         ? 0
-                                         : def.nameKey.rfind('.', def.nameKey.size() - 6) + 1),
-                  p.x, p.y - 16.0f, c, 12.0f);
-        ++mDrawCalls;
+        const float w = static_cast<float>(lm->width) * cam.pixelsPerTile;
+        const float h = static_cast<float>(lm->height) * cam.pixelsPerTile;
+        const Color c = lm->activated ? theme::kGood : theme::kCyan;
+        const float arm = std::min(w, h) * 0.28f;
+        const float t = 2.0f;
+        auto bracket = [&](float bx, float by, float dx, float dy) {
+            draw.rect(bx, by, arm * dx > 0 ? arm : t, t, c.with_alpha(210));
+            draw.rect(bx, by, t, arm * dy > 0 ? arm : t, c.with_alpha(210));
+        };
+        bracket(p.x, p.y, 1.0f, 1.0f);
+        draw.rect(p.x + w - arm, p.y, arm, t, c.with_alpha(210));
+        draw.rect(p.x + w - t, p.y, t, arm, c.with_alpha(210));
+        draw.rect(p.x, p.y + h - t, arm, t, c.with_alpha(210));
+        draw.rect(p.x, p.y + h - arm, t, arm, c.with_alpha(210));
+        draw.rect(p.x + w - arm, p.y + h - t, arm, t, c.with_alpha(210));
+        draw.rect(p.x + w - t, p.y + h - arm, t, arm, c.with_alpha(210));
+
+        const std::string name = pretty_key(def.nameKey);
+        const float labelW = draw.measure(name, text_style::kCaption) + 10.0f;
+        const float labelH = draw.line_height(text_style::kCaption) + 6.0f;
+        draw.rect(p.x, p.y - labelH - 3.0f, labelW, labelH, Color{10, 12, 16, 215});
+        draw.rect(p.x, p.y - labelH - 3.0f, 2.0f, labelH, c);
+        draw.text(name, p.x + 6.0f, p.y - labelH, c, text_style::kCaption);
+        mDrawCalls += 9;
     }
 
     // Mining target highlight and progress.
@@ -353,7 +371,7 @@ void WorldRenderer::render(Draw& draw, const GameSession& session, const RenderS
         const Vec2 p = cam.world_to_screen(
             Vec2{static_cast<float>(snap.mineTarget.x), static_cast<float>(snap.mineTarget.y)}, screenW,
             screenH);
-        draw.rect_outline(p.x, p.y, cam.pixelsPerTile, cam.pixelsPerTile, palette::kAccent.with_alpha(220),
+        draw.outline_xywh(p.x, p.y, cam.pixelsPerTile, cam.pixelsPerTile, theme::kAmber.with_alpha(220),
                           2.0f);
         // Crack overlay grows with progress so the player can read the timing.
         const float inset = cam.pixelsPerTile * 0.5f * (1.0f - snap.mineProgress);
@@ -370,33 +388,55 @@ void WorldRenderer::render(Draw& draw, const GameSession& session, const RenderS
     }
     mDrawCalls += static_cast<i32>(mParticles.size());
 
-    // The rig.
+    // The rig. Drawn as a small machine rather than a square: a hull with a
+    // lit cockpit, tread blocks and a drill head that points where it cuts.
     const Vec2 rigScreen = cam.world_to_screen(snap.rigPosition, screenW, screenH);
-    const float body = cam.pixelsPerTile * 0.92f;
-    draw.rect(rigScreen.x + cam.pixelsPerTile * 0.04f, rigScreen.y + cam.pixelsPerTile * 0.08f, body,
-              body * 0.86f, Color{196, 202, 214});
-    draw.rect(rigScreen.x + cam.pixelsPerTile * 0.18f, rigScreen.y + cam.pixelsPerTile * 0.20f, body * 0.5f,
-              body * 0.4f, palette::kAccent);
-    // Drill head points where the rig is cutting.
-    Vec2 drill{0.0f, 0.0f};
+    const float p = cam.pixelsPerTile;
+    const float bodyX = rigScreen.x + p * 0.07f;
+    const float bodyY = rigScreen.y + p * 0.10f;
+    const float bodyW = p * 0.86f;
+    const float bodyH = p * 0.68f;
+    // Shadow under the rig grounds it against the terrain.
+    draw.rect(bodyX + p * 0.04f, rigScreen.y + p * 0.86f, bodyW, p * 0.10f, Color{0, 0, 0, 110});
+    draw.rect(bodyX, bodyY, bodyW, bodyH, Color{150, 158, 176});
+    draw.rect(bodyX, bodyY, bodyW, bodyH * 0.30f, Color{196, 204, 220});
+    draw.rect(bodyX, bodyY + bodyH - p * 0.08f, bodyW, p * 0.08f, Color{86, 92, 106});
+    // Cockpit glass, brighter while the drill is engaged.
+    const Color glass = snap.mining ? Color{150, 226, 246} : Color{96, 168, 200};
+    draw.rect(bodyX + bodyW * 0.12f, bodyY + bodyH * 0.18f, bodyW * 0.42f, bodyH * 0.44f, glass);
+    draw.rect(bodyX + bodyW * 0.12f, bodyY + bodyH * 0.18f, bodyW * 0.42f, bodyH * 0.14f, glass.shade(1.4f));
+    // Tread blocks.
+    for (int i = 0; i < 3; ++i) {
+        draw.rect(bodyX + p * 0.06f + static_cast<float>(i) * bodyW * 0.30f, rigScreen.y + p * 0.78f,
+                  bodyW * 0.22f, p * 0.10f, Color{72, 78, 92});
+    }
+    // Drill head.
+    Vec2 drill{0.0f, 0.42f};
     switch (snap.facing) {
         case MineDirection::Left:
-            drill = Vec2{-0.42f, 0.0f};
+            drill = Vec2{-0.44f, 0.05f};
             break;
         case MineDirection::Right:
-            drill = Vec2{0.42f, 0.0f};
+            drill = Vec2{0.44f, 0.05f};
             break;
         case MineDirection::Up:
-            drill = Vec2{0.0f, -0.42f};
+            drill = Vec2{0.0f, -0.40f};
             break;
         default:
             drill = Vec2{0.0f, 0.42f};
             break;
     }
-    draw.rect(rigScreen.x + cam.pixelsPerTile * (0.5f + drill.x * 0.9f) - 4.0f,
-              rigScreen.y + cam.pixelsPerTile * (0.5f + drill.y * 0.9f) - 4.0f, 8.0f, 8.0f,
-              snap.mining ? palette::kWarn : Color{150, 156, 170});
-    mDrawCalls += 3;
+    const float dsz = p * 0.26f;
+    const float dx = rigScreen.x + p * (0.5f + drill.x) - dsz * 0.5f;
+    const float dy = rigScreen.y + p * (0.5f + drill.y) - dsz * 0.5f;
+    draw.rect(dx, dy, dsz, dsz, snap.mining ? theme::kAmberBright : Color{132, 138, 152});
+    draw.rect(dx + dsz * 0.25f, dy + dsz * 0.25f, dsz * 0.5f, dsz * 0.5f,
+              snap.mining ? theme::kWarn : Color{92, 98, 112});
+    if (snap.mining) {
+        // A soft glow at the bit while cutting.
+        draw.rect(dx - dsz * 0.3f, dy - dsz * 0.3f, dsz * 1.6f, dsz * 1.6f, theme::kAmber.with_alpha(45));
+    }
+    mDrawCalls += 12;
 }
 
 } // namespace df

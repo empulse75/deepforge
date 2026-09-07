@@ -12,6 +12,8 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <string_view>
+#include <utility>
 
 namespace {
 
@@ -149,19 +151,40 @@ int run_client(df::ContentDatabase db, const std::filesystem::path& userDir, int
 
     int result = 0;
     if (!screenshot.empty()) {
+        // Table-driven so QA can capture any screen by name.
+        static constexpr std::pair<std::string_view, df::Screen> kScreens[] = {
+            {"expedition", df::Screen::Expedition},
+            {"menu", df::Screen::MainMenu},
+            {"mainmenu", df::Screen::MainMenu},
+            {"hub", df::Screen::Hub},
+            {"map", df::Screen::Map},
+            {"garage", df::Screen::Garage},
+            {"modules", df::Screen::Modules},
+            {"skills", df::Screen::Skills},
+            {"research", df::Screen::Research},
+            {"refinery", df::Screen::Refinery},
+            {"contracts", df::Screen::Contracts},
+            {"facilities", df::Screen::Facilities},
+            {"codex", df::Screen::Codex},
+            {"pause", df::Screen::Pause},
+            {"results", df::Screen::Results},
+            {"failure", df::Screen::Failure},
+            {"settings", df::Screen::Settings},
+            {"bindings", df::Screen::Bindings},
+            {"credits", df::Screen::Credits},
+        };
         df::Screen target = df::Screen::Expedition;
-        if (screenshotScreen == "hub") {
-            target = df::Screen::Hub;
-        } else if (screenshotScreen == "menu") {
-            target = df::Screen::MainMenu;
-        } else if (screenshotScreen == "map") {
-            target = df::Screen::Map;
-        } else if (screenshotScreen == "garage") {
-            target = df::Screen::Garage;
-        } else if (screenshotScreen == "modules") {
-            target = df::Screen::Modules;
-        } else if (screenshotScreen == "skills") {
-            target = df::Screen::Skills;
+        bool known = screenshotScreen.empty();
+        for (const auto& [name, screen] : kScreens) {
+            if (name == screenshotScreen) {
+                target = screen;
+                known = true;
+                break;
+            }
+        }
+        if (!known) {
+            std::fprintf(stderr, "unknown --screenshot-screen '%s'\n", screenshotScreen.c_str());
+            return 2;
         }
         auto shot = client.capture_demo(screenshot, screenshotSeed, screenshotTicks, target);
         if (!shot) {

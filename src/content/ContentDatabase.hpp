@@ -6,6 +6,7 @@
 
 #include <filesystem>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -91,6 +92,18 @@ public:
 
     int content_schema_version() const noexcept { return mSchemaVersion; }
 
+    /// Player-facing text for a content key. Returns an empty view when the key
+    /// has no entry, so callers can decide between a fallback and a hard error.
+    std::string_view text(std::string_view key) const;
+
+    /// Text for a key, or `fallback` when the table has no entry.
+    std::string_view text_or(std::string_view key, std::string_view fallback) const {
+        const auto s = text(key);
+        return s.empty() ? fallback : s;
+    }
+
+    const std::unordered_map<std::string, std::string>& strings() const noexcept { return mStrings; }
+
 private:
     friend class ContentLoader;
 
@@ -107,6 +120,7 @@ private:
     std::vector<ResearchDefinition> mResearch;
     std::vector<FactionDefinition> mFactions;
     EconomyConfig mEconomy;
+    std::unordered_map<std::string, std::string> mStrings;
     int mSchemaVersion = 0;
 
     std::unordered_map<std::string, i32> mMaterialIndex;

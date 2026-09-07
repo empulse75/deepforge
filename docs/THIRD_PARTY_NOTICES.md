@@ -43,10 +43,18 @@ and is not redistributed.
 
 ## Fonts
 
-The UI font is an original 5x7 bitmap face authored in
+Both faces are original bitmap designs, authored pixel by pixel in
 `tools/content_gen/gen_font.py` and generated into
-`src/presentation/FontData.hpp`. No third-party font file is used, embedded or
-redistributed.
+`src/presentation/FontData.hpp`:
+
+- **Ui** — proportional 7x9 with true lowercase, ascenders and descenders. The
+  generator derives every glyph's advance from its own ink, and emits a second
+  bold weight by widening each stem one pixel without closing the one-pixel
+  counters inside letters such as `m` and `W`.
+- **Micro** — a compact 4x6 uppercase face for dense numeric readouts.
+
+No third-party font file is used, referenced, embedded or redistributed, and
+neither face is traced from or derived from an existing typeface.
 
 ## Audio
 

@@ -273,7 +273,7 @@ Status Economy::install_module(i32 moduleIndex) {
         return fail(transaction_error("module already installed"));
     }
     const auto& m = mDb->modules()[static_cast<usize>(moduleIndex)];
-    if (mProgress->used_utility_power(*mDb) + m.powerCost > mProgress->maxUtilityPower) {
+    if (mProgress->used_utility_power(*mDb) + m.powerCost > max_utility_power(*mDb, *mProgress)) {
         return fail(transaction_error("not enough utility power",
                                       "remove a module or upgrade the utility power core"));
     }

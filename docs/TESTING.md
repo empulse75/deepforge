@@ -28,7 +28,7 @@ cmake --preset tsan  && cmake --build --preset tsan  && ctest --preset tsan
 
 ## What is covered
 
-70 CTest cases across five suites.
+76 CTest cases across five suites.
 
 ### `tests/unit` — core, inventory, economy, saves
 
@@ -40,7 +40,8 @@ cmake --preset tsan  && cmake --build --preset tsan  && ctest --preset tsan
 | Inventory | Capacity, stacking, removal, never negative, protected sample storage |
 | Transactions | A failed multi-step change rolls back completely |
 | Economy | Selling, equipment prerequisites and tier caps, module power budget, skill prerequisites and exclusive keystones, respec, research idempotence and sample consumption, refining, rescue cap, first-rescue-free, contract eligibility and single payout |
-| Balance invariants | Stat caps hold with every upgrade in the game bought; no recipe multiplies value without bound; every material consumed by an upgrade or recipe is re-obtainable |
+| Balance invariants | Stat caps hold with every upgrade in the game bought; no recipe multiplies value without bound; every material consumed by an upgrade or recipe is re-obtainable; every paid equipment tier has at least one effect; the power core track strictly raises the module power budget at every tier |
+| Text | Every content key has authored text; the string table has no unreachable entries; names are short, single-line and printable ASCII |
 | Saves | Full field round trip, atomic write with backup rotation, corruption detection and recovery, garbage input, migration from every released schema, refusal of a newer schema, dropping content that no longer exists |
 
 ### `tests/generation` — world

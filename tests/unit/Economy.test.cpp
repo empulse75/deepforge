@@ -445,3 +445,62 @@ TEST_CASE("selling a progression material cannot soft lock a save", "[economy][b
         }
     }
 }
+
+TEST_CASE("every equipment tier the player pays for does something", "[economy][balance]") {
+    const auto& db = dft::shipped_content();
+    for (const auto& e : db.equipment()) {
+        for (const auto& t : e.tiers) {
+            if (t.tier == 0) {
+                continue; // The starting tier is what the rig came with.
+            }
+            INFO(e.id.text() << " tier " << t.tier << " costs " << t.costCredits << " cr and has no effects");
+            CHECK_FALSE(t.effects.empty());
+        }
+    }
+}
+
+TEST_CASE("the power core track raises the module power budget", "[economy][stats]") {
+    const auto& db = dft::shipped_content();
+    const auto track = db.equipment_track("equipment.power_core");
+    REQUIRE(track.valid());
+
+    PlayerProgress p = fresh(db);
+    const i32 base = max_utility_power(db, p);
+    CHECK(base > 0);
+
+    // Each tier must be a strict improvement, or players are paying for nothing.
+    i32 previous = base;
+    const auto& def = db.equipment()[static_cast<usize>(track.index)];
+    for (usize tier = 1; tier < def.tiers.size(); ++tier) {
+        p.equipmentTier[static_cast<usize>(track.index)] = static_cast<i32>(tier);
+        const i32 now = max_utility_power(db, p);
+        INFO("power_core tier " << tier << " gives " << now << ", previous tier gave " << previous);
+        CHECK(now > previous);
+        previous = now;
+    }
+}
+
+TEST_CASE("a module that exceeds the power budget cannot be installed", "[economy][modules]") {
+    const auto& db = dft::shipped_content();
+    PlayerProgress p = fresh(db);
+    Economy economy(db, p);
+
+    // Own everything, so the only thing that can refuse an install is power.
+    i32 heaviest = -1;
+    i32 heaviestCost = 0;
+    for (usize i = 0; i < db.modules().size(); ++i) {
+        p.ownedModules.insert(static_cast<i32>(i));
+        if (db.modules()[i].powerCost > heaviestCost) {
+            heaviestCost = db.modules()[i].powerCost;
+            heaviest = static_cast<i32>(i);
+        }
+    }
+    REQUIRE(heaviest >= 0);
+
+    // Fill the budget, then confirm the next install is refused rather than
+    // silently accepted and over budget.
+    for (usize i = 0; i < db.modules().size(); ++i) {
+        (void)economy.install_module(static_cast<i32>(i));
+    }
+    CHECK(p.used_utility_power(db) <= max_utility_power(db, p));
+}

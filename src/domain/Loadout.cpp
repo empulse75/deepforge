@@ -85,6 +85,10 @@ StatBlock compute_internal(const ContentDatabase& db, const PlayerProgress& p, i
 
 } // namespace
 
+i32 max_utility_power(const ContentDatabase& db, const PlayerProgress& p) {
+    return p.maxUtilityPower + compute_stats(db, p).utilityPower;
+}
+
 StatBlock compute_stats(const ContentDatabase& db, const PlayerProgress& p) {
     return compute_internal(db, p, -1, 0, -1, -1, -1);
 }

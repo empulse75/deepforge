@@ -101,6 +101,34 @@ research, skill change or facility upgrade, before and after failure resolution,
 and on a clean quit. A save is never written part-way through a transaction: the
 economy applies changes atomically first, then the session saves.
 
+## The interface is drawn, not loaded
+
+There are no image assets. Every mark on screen is a rectangle, which is what
+keeps the look crisp at any integer UI scale and the repository asset-free. The
+presentation layer is a stack, and each level only knows the one below it:
+
+| File | Owns |
+| --- | --- |
+| `Theme.hpp` | Design tokens: colours, the spacing scale, motion rates. Screens compose tokens and never invent a colour |
+| `Draw.cpp` | Primitives: bevelled panels, inset wells, proportional bitmap text, segmented gauges, procedural icons |
+| `Ui.cpp` | Immediate-mode widgets with a small persistent store, so hover and focus ease rather than snap |
+| `Client.cpp` | Per-screen builders that fill a `MenuScreen`, and painters that lay one out |
+
+Two properties are worth keeping:
+
+- **One focus model.** A row is active if the pointer is over it *or* the focus
+  index points at it, and it commits on click or on confirm. Mouse support is a
+  second input into the same model, not a second code path, which is why no
+  screen is reachable by only one device.
+- **Screens describe, widgets lay out.** A builder fills in labels, values,
+  before/after deltas and the reason a row is unavailable; it never computes a
+  rectangle. That is what stopped the settings sliders from re-deriving their
+  own track geometry and drifting out of alignment with where they were drawn.
+
+A row that is merely unaffordable stays focusable and explains itself in the
+inspector. Only pure readouts (a results total, a codex entry) set `inert` and
+drop out of navigation.
+
 ## Terrain is not entities
 
 A chunk is three parallel fixed arrays of 1024 entries (material index, cosmetic

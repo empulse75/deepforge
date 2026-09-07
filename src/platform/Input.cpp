@@ -45,6 +45,13 @@ void InputSystem::handle_event(const SDL_Event& e) {
                 mGamepad = nullptr;
             }
             break;
+        case SDL_EVENT_MOUSE_MOTION:
+            mMousePresent = true;
+            break;
+        case SDL_EVENT_MOUSE_WHEEL:
+            mWheelAccum += e.wheel.y;
+            mMousePresent = true;
+            break;
         case SDL_EVENT_KEY_DOWN:
             if (mCapturing && !e.key.repeat) {
                 mCapturedBinding = Binding{BindingDevice::Keyboard, static_cast<i32>(e.key.scancode), 0};
@@ -89,6 +96,30 @@ bool InputSystem::binding_down(const Binding& b) const {
         }
     }
     return false;
+}
+
+void InputSystem::sample_pointer(SDL_Renderer* renderer) {
+    float wx = 0.0f;
+    float wy = 0.0f;
+    const auto buttons = SDL_GetMouseState(&wx, &wy);
+    float rx = wx;
+    float ry = wy;
+    if (renderer != nullptr) {
+        // Window coordinates are logical; the UI works in render pixels, which
+        // differ on a high-DPI display.
+        SDL_RenderCoordinatesFromWindow(renderer, wx, wy, &rx, &ry);
+    }
+    mMousePosition = Vec2{rx, ry};
+    const bool down = (buttons & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) != 0;
+    mMousePressed = down && !mMouseWasDown;
+    mMouseReleased = !down && mMouseWasDown;
+    mMouseDown = down;
+    mMouseWasDown = down;
+    if (down) {
+        mMousePresent = true;
+    }
+    mWheel = mWheelAccum;
+    mWheelAccum = 0.0f;
 }
 
 void InputSystem::update(const Settings& settings) {

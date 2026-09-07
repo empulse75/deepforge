@@ -442,6 +442,7 @@ public:
     void load_research(const json& root, const std::string& file);
     void load_factions(const json& root, const std::string& file);
     void load_economy(const json& root, const std::string& file);
+    void load_strings(const json& root, const std::string& file);
     void validate();
 
     void note_schema_version(int v) { mDb.mSchemaVersion = std::max(mDb.mSchemaVersion, v); }
@@ -503,6 +504,7 @@ void ContentLoader::load_materials(const json& root, const std::string& file) {
         }
         check_duplicate(mDb.mMaterials, m.id, c);
         m.nameKey = opt_string(j, "name_key", m.id.text() + ".name");
+        m.descriptionKey = opt_string(j, "description_key", m.id.text() + ".description");
         m.category = material_category_from_string(opt_string(j, "category", "rock"));
         m.hardness = opt_float(j, "hardness", 1.0f);
         m.density = opt_float(j, "density", 1.0f);
@@ -738,6 +740,7 @@ void ContentLoader::load_recipes(const json& root, const std::string& file) {
         }
         check_duplicate(mDb.mRecipes, r.id, c);
         r.nameKey = opt_string(j, "name_key", r.id.text() + ".name");
+        r.descriptionKey = opt_string(j, "description_key", r.id.text() + ".description");
         r.facilityId = StringId{opt_string(j, "facility", "facility.refinery")};
         r.facilityTier = opt_int(j, "facility_tier", 1);
         r.inputs = read_ingredients(j, "inputs");
@@ -984,6 +987,35 @@ void ContentLoader::load_factions(const json& root, const std::string& file) {
     mDb.build_indices();
 }
 
+void ContentLoader::load_strings(const json& root, const std::string& file) {
+    if (!root.contains("strings") || !root["strings"].is_object()) {
+        mErrors.add(Error{"expected a \"strings\" object",
+                          file,
+                          {},
+                          "strings",
+                          "the file maps content keys to player-facing text"});
+        return;
+    }
+    for (const auto& [key, value] : root["strings"].items()) {
+        if (!value.is_string()) {
+            mErrors.add(Error{"string table entries must be strings", file, {}, key, {}});
+            continue;
+        }
+        auto text = value.get<std::string>();
+        if (text.empty()) {
+            mErrors.add(Error{"string table entry is empty",
+                              file,
+                              {},
+                              key,
+                              "write the player-facing text, or remove the key"});
+            continue;
+        }
+        if (!mDb.mStrings.emplace(key, std::move(text)).second) {
+            mErrors.add(Error{"duplicate string key", file, {}, key, {}});
+        }
+    }
+}
+
 void ContentLoader::load_economy(const json& root, const std::string& file) {
     if (!root.contains("economy")) {
         return;
@@ -1039,6 +1071,70 @@ void ContentLoader::load_economy(const json& root, const std::string& file) {
 }
 
 void ContentLoader::validate() {
+    // Every player-facing key must have authored text. Without this check a
+    // missing string degrades silently into a title-cased identifier on screen,
+    // which is exactly the kind of defect nobody notices until a player does.
+    {
+        Ctx c{"strings.en.json", "strings", &mErrors};
+        auto require_text = [&](const std::string& key, const char* where) {
+            if (!key.empty() && mDb.text(key).empty()) {
+                c.err(where, "no text for key '" + key + "'", "add it to strings.en.json");
+            }
+        };
+        for (const auto& m : mDb.mMaterials) {
+            require_text(m.nameKey, "material");
+            require_text(m.descriptionKey, "material");
+        }
+        for (const auto& b : mDb.mBiomes) {
+            require_text(b.nameKey, "biome");
+            require_text(b.descriptionKey, "biome");
+        }
+        for (const auto& e : mDb.mEquipment) {
+            require_text(e.nameKey, "equipment");
+            require_text(e.descriptionKey, "equipment");
+            for (const auto& t : e.tiers) {
+                require_text(t.nameKey, "equipment tier");
+                require_text(t.summaryKey, "equipment tier");
+            }
+        }
+        for (const auto& m : mDb.mModules) {
+            require_text(m.nameKey, "module");
+            require_text(m.descriptionKey, "module");
+        }
+        for (const auto& x : mDb.mSkills) {
+            require_text(x.nameKey, "skill");
+            require_text(x.descriptionKey, "skill");
+        }
+        for (const auto& x : mDb.mRecipes) {
+            require_text(x.nameKey, "recipe");
+            require_text(x.descriptionKey, "recipe");
+        }
+        for (const auto& x : mDb.mFacilities) {
+            require_text(x.nameKey, "facility");
+            require_text(x.descriptionKey, "facility");
+        }
+        for (const auto& x : mDb.mContracts) {
+            require_text(x.nameKey, "contract");
+            require_text(x.descriptionKey, "contract");
+        }
+        for (const auto& x : mDb.mLandmarks) {
+            require_text(x.nameKey, "landmark");
+            require_text(x.descriptionKey, "landmark");
+        }
+        for (const auto& x : mDb.mHazards) {
+            require_text(x.nameKey, "hazard");
+            require_text(x.descriptionKey, "hazard");
+        }
+        for (const auto& x : mDb.mResearch) {
+            require_text(x.nameKey, "research");
+            require_text(x.descriptionKey, "research");
+        }
+        for (const auto& x : mDb.mFactions) {
+            require_text(x.nameKey, "faction");
+            require_text(x.descriptionKey, "faction");
+        }
+    }
+
     // Cross-table reference resolution and structural invariants.
     for (const auto& b : mDb.mBiomes) {
         Ctx c{"biomes.json", b.id.text(), &mErrors};
@@ -1406,6 +1502,13 @@ BiomeHandle ContentDatabase::biome_at_depth(i64 depthTiles) const {
                                                  : BiomeHandle{static_cast<i32>(mBiomes.size() - 1)};
 }
 
+std::string_view ContentDatabase::text(std::string_view key) const {
+    // Heterogeneous lookup would avoid this allocation, but the table is only
+    // consulted when a screen is built, never inside the simulation loop.
+    const auto it = mStrings.find(std::string(key));
+    return it == mStrings.end() ? std::string_view{} : std::string_view{it->second};
+}
+
 namespace {
 
 Result<ContentDatabase> build_database(const std::unordered_map<std::string, std::string>& files,
@@ -1434,6 +1537,7 @@ Result<ContentDatabase> build_database(const std::unordered_map<std::string, std
         {"factions.json", &ContentLoader::load_factions, false},
         {"contracts.json", &ContentLoader::load_contracts, true},
         {"economy.json", &ContentLoader::load_economy, false},
+        {"strings.en.json", &ContentLoader::load_strings, true},
     };
 
     for (const auto& entry : order) {

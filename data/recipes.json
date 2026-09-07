@@ -4,6 +4,7 @@
     {
       "id": "recipe.refined_plate",
       "name_key": "recipe.refined_plate.name",
+      "description_key": "recipe.refined_plate.description",
       "facility": "facility.refinery",
       "facility_tier": 0,
       "inputs": [
@@ -28,6 +29,7 @@
     {
       "id": "recipe.circuit_lattice",
       "name_key": "recipe.circuit_lattice.name",
+      "description_key": "recipe.circuit_lattice.description",
       "facility": "facility.refinery",
       "facility_tier": 1,
       "inputs": [
@@ -58,6 +60,7 @@
     {
       "id": "recipe.thermal_core",
       "name_key": "recipe.thermal_core.name",
+      "description_key": "recipe.thermal_core.description",
       "facility": "facility.refinery",
       "facility_tier": 2,
       "inputs": [
@@ -86,6 +89,7 @@
     {
       "id": "recipe.drive_cell",
       "name_key": "recipe.drive_cell.name",
+      "description_key": "recipe.drive_cell.description",
       "facility": "facility.refinery",
       "facility_tier": 3,
       "inputs": [
@@ -114,6 +118,7 @@
     {
       "id": "recipe.emberglass_ingot",
       "name_key": "recipe.emberglass_ingot.name",
+      "description_key": "recipe.emberglass_ingot.description",
       "facility": "facility.refinery",
       "facility_tier": 2,
       "inputs": [
@@ -134,6 +139,7 @@
     {
       "id": "recipe.lattice_press",
       "name_key": "recipe.lattice_press.name",
+      "description_key": "recipe.lattice_press.description",
       "facility": "facility.refinery",
       "facility_tier": 3,
       "inputs": [

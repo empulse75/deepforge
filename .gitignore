@@ -3,3 +3,4 @@ out/
 .cache/
 *.user
 compile_commands.json
+__pycache__/

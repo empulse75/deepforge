@@ -43,6 +43,7 @@ enum class EffectType : u16 {
     InsightGainMul,
     ContractRewardMul,
     ProtectedSampleSlots,
+    UtilityPowerAdd,
     WreckRecoveryAdd,
     DepthHeatMul,
     CargoMassMul,
@@ -138,6 +139,7 @@ struct StatBlock {
     float cargoMass = 1.0f;
     float refineYield = 1.0f;
     int protectedSampleSlots = 1;
+    int utilityPower = 0; ///< Added to the base module power budget.
     int mineRadius = 0;
     float veinReveal = 0.0f;
     RigFlags flags;

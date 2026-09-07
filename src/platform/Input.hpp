@@ -2,6 +2,7 @@
 // into a TickCommands buffer for the simulation.
 #pragma once
 
+#include "core/Math.hpp"
 #include "domain/Commands.hpp"
 #include "platform/Settings.hpp"
 
@@ -9,6 +10,7 @@
 #include <string>
 
 struct SDL_Gamepad;
+struct SDL_Renderer;
 union SDL_Event;
 
 namespace df {
@@ -40,6 +42,25 @@ public:
 
     /// Analogue horizontal axis, -1..1, with dead zone applied.
     float move_axis() const noexcept { return mMoveAxis; }
+
+    // --- pointer -----------------------------------------------------------
+    /// Mouse position in render pixels. `present` stays false until the mouse
+    /// actually moves, so a controller player never sees a stray hover.
+    Vec2 mouse_position() const noexcept { return mMousePosition; }
+
+    bool mouse_present() const noexcept { return mMousePresent; }
+
+    bool mouse_down() const noexcept { return mMouseDown; }
+
+    bool mouse_pressed() const noexcept { return mMousePressed; }
+
+    bool mouse_released() const noexcept { return mMouseReleased; }
+
+    float wheel() const noexcept { return mWheel; }
+
+    /// Called by the client each frame with the renderer, so window coordinates
+    /// can be converted to render pixels under high-DPI scaling.
+    void sample_pointer(SDL_Renderer* renderer);
 
     /// Converts current action state into simulation intent.
     TickCommands to_commands(const Settings& settings);
@@ -79,6 +100,15 @@ private:
     bool mMineToggle = false;
     MineDirection mToggleDirection = MineDirection::None;
     bool mThrustToggle = false;
+
+    Vec2 mMousePosition{};
+    bool mMousePresent = false;
+    bool mMouseDown = false;
+    bool mMousePressed = false;
+    bool mMouseReleased = false;
+    bool mMouseWasDown = false;
+    float mWheel = 0.0f;
+    float mWheelAccum = 0.0f;
 };
 
 } // namespace df

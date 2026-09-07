@@ -44,7 +44,39 @@ cross-table references afterwards regardless.
 materials.json -> hazards.json -> landmarks.json -> biomes.json -> equipment.json
   -> research.json -> modules.json -> skills.json -> facilities.json
   -> recipes.json -> factions.json -> contracts.json -> economy.json
+  -> strings.en.json
 ```
+
+## Player-facing text
+
+No definition file contains prose. Each one carries `name_key`,
+`description_key` and (for equipment tiers) `summary_key`, and every one of
+those keys resolves against `data/strings.en.json`:
+
+```json
+{
+  "schema_version": 1,
+  "strings": {
+    "material.ferrite.name": "Ferrite",
+    "material.ferrite.description": "Common iron ore. It will not make you rich, but a full hold of it pays for the fuel that fetched it."
+  }
+}
+```
+
+Rules the loader and the tests enforce, so a gap cannot ship unnoticed:
+
+- **Every referenced key must exist.** A missing key fails content validation
+  with the key named, rather than quietly degrading into a title-cased
+  identifier on screen.
+- **No orphans.** An entry no definition points at fails the
+  `string table has no unreferenced entries` test; delete it or wire it up.
+- **Printable ASCII only, no leading or trailing spaces**, and `.name` values
+  stay under 40 characters. The bitmap faces cover ASCII 32–126; anything
+  outside that draws as a blank.
+
+Write a description as what the thing does and costs, in the player's terms,
+using the numbers actually in the data. Nothing checks prose against numbers, so
+when a value changes, the sentence quoting it has to change with it.
 
 ## Materials
 
@@ -186,10 +218,12 @@ tradeoff.
 2. Run `python3 tools/content_gen/gen_content.py` if you used the generator, and
    review the diff.
 3. Run `deepforge-validate`.
-4. For a new ore, set a `target_density_pct` in
+4. Add the new `*_key` entries to `data/strings.en.json`. Validation fails until
+   every referenced key has authored text.
+5. For a new ore, set a `target_density_pct` in
    `tools/content_gen/vein_tuning.json` and run the calibrator (see
    `docs/BALANCE_NOTES.md`) rather than guessing `rarity_weight_bp`.
-5. Run `ctest`.
+6. Run `ctest`.
 
 ## Hot reload
 

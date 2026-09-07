@@ -62,24 +62,29 @@ if(DEEPFORGE_BUILD_CLIENT)
         BUILD_WITH_INSTALL_RPATH FALSE)
     install(TARGETS deepforge_game RUNTIME DESTINATION bin)
 
-    if(DEEPFORGE_USE_SYSTEM_SDL)
-        # An installed SDL3 is a real imported target, so its runtime artifact
-        # can be copied straight into the package.
-        install(IMPORTED_RUNTIME_ARTIFACTS SDL3::SDL3
+    # SDL3::SDL3 is an alias in both the installed package and the fetched
+    # subproject, and install() rejects aliases, so resolve it first.
+    set(_sdl_real SDL3::SDL3)
+    get_target_property(_sdl_alias SDL3::SDL3 ALIASED_TARGET)
+    if(_sdl_alias)
+        set(_sdl_real ${_sdl_alias})
+    endif()
+    get_target_property(_sdl_imported ${_sdl_real} IMPORTED)
+    if(_sdl_imported)
+        install(IMPORTED_RUNTIME_ARTIFACTS ${_sdl_real}
                 RUNTIME DESTINATION bin
                 LIBRARY DESTINATION lib)
-    elseif(TARGET SDL3-shared)
-        # A fetched SDL3 is built as a subproject: SDL3::SDL3 is an alias, which
-        # install(IMPORTED_RUNTIME_ARTIFACTS) rejects. Install the built files
-        # (and the SONAME symlink on Unix) directly instead.
-        install(FILES $<TARGET_FILE:SDL3-shared>
+    else()
+        # Built as a subproject: install the produced files, plus the SONAME
+        # symlink on Unix so the runtime loader finds it.
+        install(FILES $<TARGET_FILE:${_sdl_real}>
                 DESTINATION $<IF:$<BOOL:${WIN32}>,bin,lib>)
         if(NOT WIN32)
-            install(FILES $<TARGET_SONAME_FILE:SDL3-shared> DESTINATION lib OPTIONAL)
+            install(FILES $<TARGET_SONAME_FILE:${_sdl_real}> DESTINATION lib OPTIONAL)
         endif()
-        install(FILES "${SDL3_SOURCE_DIR}/LICENSE.txt"
-                DESTINATION share/deepforge/licenses
-                RENAME SDL3-LICENSE.txt
-                OPTIONAL)
     endif()
+    install(FILES "${SDL3_SOURCE_DIR}/LICENSE.txt"
+            DESTINATION share/deepforge/licenses
+            RENAME SDL3-LICENSE.txt
+            OPTIONAL)
 endif()
