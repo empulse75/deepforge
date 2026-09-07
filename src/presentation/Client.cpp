@@ -306,9 +306,9 @@ std::string Client::humanise(std::string_view reason) const {
     // knowing display names. The translation happens here, at the one layer that
     // does: "requires research research.field_metallurgy" becomes
     // "Requires research Field Metallurgy".
-    static constexpr std::string_view kPrefixes[] = {
-        "material.", "research.", "skill.",    "module.", "equipment.", "recipe.",
-        "facility.", "contract.", "landmark.", "hazard.", "biome.",     "faction."};
+    static constexpr std::string_view kPrefixes[] = {"material.",  "research.", "skill.",    "module.",
+                                                     "equipment.", "recipe.",   "facility.", "contract.",
+                                                     "landmark.",  "hazard.",   "biome.",    "faction."};
 
     std::string out;
     std::string token;
@@ -836,8 +836,7 @@ void Client::build_skills() {
         item.value = std::format("{} pt", s.cost);
         // The three trees are interleaved in one list, so every row names its own
         // branch: "Row 2" alone is ambiguous the moment you are past the first tree.
-        item.detail = std::format("{}   row {}", pretty_key(std::string(skill_branch_name(s.branch))),
-                                  s.row);
+        item.detail = std::format("{}   row {}", pretty_key(std::string(skill_branch_name(s.branch))), s.row);
         if (s.keystone) {
             item.status = "keystone";
             item.statusColor = theme::kAmber;

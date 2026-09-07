@@ -4,3 +4,6 @@ out/
 *.user
 compile_commands.json
 __pycache__/
+
+# The original build brief; kept local, not part of the project.
+goal.md

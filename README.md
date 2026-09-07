@@ -70,7 +70,7 @@ To use an SDL3 you already have installed, configure with
 ### Quick start
 
 ```sh
-git clone <repository-url> deepforge
+git clone https://github.com/empulse75/deepforge.git
 cd deepforge
 
 cmake --preset dev-release
@@ -115,6 +115,11 @@ cmake --preset headless && cmake --build --preset headless && ctest --preset hea
 
 # Package
 cmake --build --preset release --target package
+
+# The whole verification gate: 5 presets, 3 sanitizers, headless smoke test.
+# Configures whatever it needs, so it works from a fresh clone.
+tools/verify.sh
+tools/verify.sh --quick   # headless build and tests only
 ```
 
 If the game cannot find its data it says so and exits with a usable message
@@ -175,14 +180,16 @@ menu says so and offers the backup; the damaged file is never deleted.
 
 | Document | Contents |
 | --- | --- |
+| [docs/INSTALL.md](docs/INSTALL.md) | Prerequisites per platform, building, running, packaging, troubleshooting |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to work on this: the verification gate, house style, what a good change looks like |
 | [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md) | The implemented loop, mechanics, progression and balance philosophy |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers, dependency direction, update order, ownership, threading |
 | [docs/CONTENT_AUTHORING.md](docs/CONTENT_AUTHORING.md) | Data schemas, stable ids, validation, adding content |
 | [docs/SAVE_FORMAT.md](docs/SAVE_FORMAT.md) | Save schema, atomic write, backup and migration policy |
 | [docs/BALANCE_NOTES.md](docs/BALANCE_NOTES.md) | Measured figures, tuning decisions and known balance risks |
 | [docs/TESTING.md](docs/TESTING.md) | Test commands, suites, developer tools, seed sweeps |
-| [docs/THIRD_PARTY_NOTICES.md](docs/THIRD_PARTY_NOTICES.md) | Dependency licences |
-| [docs/decisions/](docs/decisions/) | Short records for consequential technical decisions |
+| [docs/THIRD_PARTY_NOTICES.md](docs/THIRD_PARTY_NOTICES.md) | Dependency licences, and why the fonts and audio are original |
+| [docs/decisions/](docs/decisions/README.md) | Nine architecture decision records, with the reasoning and the costs |
 
 ---
 
@@ -202,8 +209,14 @@ Stated honestly, because a build that oversells itself wastes your time:
 - **Transit lifts are new and lightly exercised.** Activated nodes persist and
   can launch and extract an expedition (covered by tests), but no long
   playthrough has leaned on them.
-- **Localisation is keys-only.** The UI derives readable names from stable ids;
-  there is no translation table yet.
+- **One language, and no localisation system.** All 566 player-facing strings
+  are authored in `data/strings.en.json` and the loader reads exactly that file.
+  There is no locale negotiation, no plural or gender handling, and no second
+  language. It is a strings table a localisation system could be built around,
+  not a localisation system.
+- **macOS gets the Linux user-data path.** `default_user_data_dir()` has no
+  macOS branch, so saves land in `~/.local/share/deepforge` rather than
+  `~/Library/Application Support`. A gap, not a decision.
 - **Audio is synthesised, not composed.** Every cue is generated from
   oscillators at runtime. It is functional feedback, not a soundtrack.
 - **Performance has not been profiled on a range of hardware.** The chunk

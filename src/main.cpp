@@ -98,8 +98,32 @@ int main(int argc, char** argv) {
                         df::kBuildDate);
             return 0;
         } else if (a == "--help" || a == "-h") {
-            std::puts("usage: deepforge [--data <dir>] [--user-dir <dir>] [--headless-frames N]");
+            std::puts("usage: deepforge [options]\n"
+                      "\n"
+                      "  --data <dir>              where to load game content from\n"
+                      "                            (default: next to the executable, then ./data)\n"
+                      "  --user-dir <dir>          where saves, settings and the log are written\n"
+                      "                            (default: the platform user-data directory)\n"
+                      "\n"
+                      "QA and CI options:\n"
+                      "  --headless-frames <n>     run <n> frames with no input, then exit\n"
+                      "  --screenshot <file.bmp>   play a scripted world, then write one screenshot\n"
+                      "  --screenshot-screen <s>   which screen to capture (default: expedition).\n"
+                      "                            One of: expedition, menu, hub, map, garage,\n"
+                      "                            modules, skills, research, refinery, contracts,\n"
+                      "                            facilities, codex, pause, results, failure,\n"
+                      "                            settings, bindings, credits\n"
+                      "  --screenshot-seed <n>     world seed for the capture (default: 20260905)\n"
+                      "  --screenshot-ticks <n>    simulation ticks to play first (default: 2400)\n"
+                      "\n"
+                      "  --version                 print the version and exit\n"
+                      "  -h, --help                print this message and exit");
             return 0;
+        } else {
+            // A silently ignored typo in a flag is worse than a refusal: the
+            // game would start with a default the caller did not ask for.
+            std::fprintf(stderr, "unknown option '%s' (try --help)\n", a.c_str());
+            return 2;
         }
     }
 

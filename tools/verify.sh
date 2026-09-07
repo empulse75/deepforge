@@ -1,24 +1,51 @@
 #!/usr/bin/env bash
-# Full verification pass: build every preset that guards something different,
-# run the suite under each sanitizer, and smoke-test the client headless.
 #
-# This is what "it works" means for this project; run it before every commit.
+# The full verification gate. This is what "it works" means for this project,
+# and it is what CI runs; run it before every commit.
+#
+# It configures each preset it needs, so it works from a fresh clone with no
+# prior build directories. The first run fetches and builds SDL3 and so takes
+# several minutes; later runs reuse the CMake cache and are fast.
+#
+#   tools/verify.sh            # everything
+#   tools/verify.sh --quick    # headless build + tests only, no sanitizers
+#
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-for preset in dev ci headless asan ubsan; do
-    echo "== build $preset"
-    cmake --build "build/$preset" -j8
+QUICK=0
+[[ "${1:-}" == "--quick" ]] && QUICK=1
+
+# dev-release builds the client; headless/asan/ubsan are client-free, so they
+# need no display, no GPU and no SDL at all.
+if [[ $QUICK -eq 1 ]]; then
+    BUILD_PRESETS=(headless)
+    TEST_PRESETS=(headless)
+else
+    BUILD_PRESETS=(dev-release ci headless asan ubsan)
+    TEST_PRESETS=(headless asan ubsan)
+fi
+
+for preset in "${BUILD_PRESETS[@]}"; do
+    echo "== configure and build: $preset"
+    cmake --preset "$preset" >/dev/null
+    cmake --build --preset "$preset" -j"$(nproc 2>/dev/null || echo 4)"
 done
 
-for preset in headless asan ubsan; do
-    echo "== test $preset"
-    ctest --test-dir "build/$preset" --output-on-failure
+for preset in "${TEST_PRESETS[@]}"; do
+    echo "== test: $preset"
+    ctest --preset "$preset"
 done
 
-echo "== headless client smoke test"
-rm -rf /tmp/deepforge-smoke
-SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy \
-    ./build/dev/src/deepforge --data data --user-dir /tmp/deepforge-smoke --headless-frames 300
+# The smoke test guards SDL start-up and, more importantly, teardown ordering:
+# it has caught a segfault at exit that no unit test could reach.
+if [[ $QUICK -eq 0 ]]; then
+    echo "== headless client smoke test"
+    smoke_dir="$(mktemp -d)"
+    trap 'rm -rf "$smoke_dir"' EXIT
+    SDL_VIDEODRIVER=offscreen SDL_AUDIODRIVER=dummy \
+        ./build/dev-release/src/deepforge \
+        --data data --user-dir "$smoke_dir" --headless-frames 300
+fi
 
 echo "== all green"

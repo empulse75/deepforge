@@ -6,6 +6,17 @@ there is no excuse for not running it before a commit.
 
 ## Commands
 
+The whole gate in one command, which is what CI approximates and what should
+pass before every commit. It configures whatever presets it needs, so it works
+from a fresh clone:
+
+```sh
+tools/verify.sh           # 5 presets, 3 sanitizers, headless client smoke test
+tools/verify.sh --quick   # headless build and tests only, for the inner loop
+```
+
+Or drive the pieces directly:
+
 ```sh
 # Fast loop: simulation, world, content, economy and saves, no SDL
 cmake --preset headless
