@@ -10,9 +10,7 @@
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "DEEPFORGE_BUILD_TESTS": "ON",
-        "DEEPFORGE_BUILD_TOOLS": "ON",
-        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
-        "CMAKE_C_COMPILER_LAUNCHER": "ccache"
+        "DEEPFORGE_BUILD_TOOLS": "ON"
       }
     },
     {

@@ -29,7 +29,8 @@ jobs:
             libx11-dev libxext-dev libxrandr-dev libxi-dev libxcursor-dev \
             libxfixes-dev libxss-dev libxtst-dev libxinerama-dev libxxf86vm-dev \
             libwayland-dev libxkbcommon-dev libegl1-mesa-dev libgl1-mesa-dev \
-            libasound2-dev libpulse-dev libudev-dev pkg-config
+            libasound2-dev libpulse-dev libudev-dev pkg-config \
+            ccache
 
       - name: Cache fetched dependencies
         uses: actions/cache@v4
@@ -113,6 +114,28 @@ jobs:
 
       - uses: ilammy/msvc-dev-cmd@v1
 
+      # ccache is not preinstalled on the windows runner image. Install it and
+      # pin CCACHE_DIR to a path that matches the actions/cache step below.
+      # ccache's own Windows default is %LOCALAPPDATA%\ccache (or %APPDATA% on
+      # pre-4.7 builds), which ~/.cache/ccache never matched - the old cache
+      # step was a no-op there. C:/ccache keeps install, cache and configure in
+      # agreement.
+      - name: Install ccache
+        shell: pwsh
+        run: |
+          choco install ccache --no-progress -y
+          if (-not (Get-Command ccache -ErrorAction SilentlyContinue)) {
+            Write-Host "refreshing PATH so the configure step finds ccache"
+            $machine = [Environment]::GetEnvironmentVariable('Path','Machine')
+            $user = [Environment]::GetEnvironmentVariable('Path','User')
+            $env:Path = "$machine;$user"
+          }
+          ccache --version | Select-Object -First 1
+          "CCACHE_DIR=$env:CCACHE_DIR"
+          New-Item -ItemType Directory -Force -Path C:/ccache | Out-Null
+          "CCACHE_DIR=C:/ccache" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          ccache --show-config | Select-String -Pattern "cache_dir"
+
       - name: Cache fetched dependencies
         uses: actions/cache@v4
         with:
@@ -123,7 +146,7 @@ jobs:
       - name: Cache ccache
         uses: actions/cache@v4
         with:
-          path: ~/.cache/ccache
+          path: C:/ccache
           key: ccache-windows-ci-${{ github.ref_name }}
           restore-keys: ccache-windows-ci-
 
@@ -226,7 +249,8 @@ jobs:
             libx11-dev libxext-dev libxrandr-dev libxi-dev libxcursor-dev \
             libxfixes-dev libxss-dev libxtst-dev libxinerama-dev libxxf86vm-dev \
             libwayland-dev libxkbcommon-dev libegl1-mesa-dev libgl1-mesa-dev \
-            libasound2-dev libpulse-dev libudev-dev pkg-config
+            libasound2-dev libpulse-dev libudev-dev pkg-config \
+            ccache
 
       - name: Build and package
         run: |

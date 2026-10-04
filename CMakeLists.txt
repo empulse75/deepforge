@@ -23,11 +23,54 @@ option(DEEPFORGE_BUILD_CLIENT "Build the SDL3 game client" ON)
 option(DEEPFORGE_WARNINGS_AS_ERRORS "Treat project warnings as errors" OFF)
 option(DEEPFORGE_USE_SYSTEM_SDL "Use an installed SDL3 instead of fetching it" OFF)
 option(DEEPFORGE_ENABLE_LTO "Enable interprocedural optimization (LTO) when the toolchain supports it" OFF)
+option(DEEPFORGE_DISABLE_COMPILER_CACHE "Never use a compiler cache (ccache/sccache), even if one is installed" OFF)
 set(DEEPFORGE_SANITIZER "" CACHE STRING "Sanitizer: address, undefined, thread or empty")
 
 include(DeepforgeWarnings)
 include(CheckIPOSupported)
 include(CTest)
+
+# ---------------------------------------------------------------------------
+# Compiler cache (ccache/sccache) - detected, never assumed
+#
+# CMake does NOT validate CMAKE_<LANG>_COMPILER_LAUNCHER: a launcher that does
+# not exist makes configure succeed and the first compile fail. So the presets
+# must not hard-code one (a plain GitHub runner has no ccache installed).
+# Instead we look for a known cache program here, before any target exists, and
+# set the launcher to the absolute path we actually found. No cache program is
+# a normal, working configuration - not an error.
+# ---------------------------------------------------------------------------
+set(DEEPFORGE_COMPILER_CACHE "none")
+if(NOT DEEPFORGE_DISABLE_COMPILER_CACHE)
+    find_program(DEEPFORGE_COMPILER_CACHE_PROGRAM NAMES ccache sccache)
+    if(DEEPFORGE_COMPILER_CACHE_PROGRAM)
+        set(DEEPFORGE_COMPILER_CACHE "${DEEPFORGE_COMPILER_CACHE_PROGRAM}")
+        # An explicit -DCMAKE_<LANG>_COMPILER_LAUNCHER=... from the user wins.
+        if(NOT CMAKE_CXX_COMPILER_LAUNCHER)
+            set(CMAKE_CXX_COMPILER_LAUNCHER "${DEEPFORGE_COMPILER_CACHE_PROGRAM}"
+                CACHE STRING "CXX compiler launcher" FORCE)
+        endif()
+        # The top-level project() enables CXX only, but SDL3's own
+        # project() call turns C on inside the build tree, so the cached C
+        # launcher is what covers its C translation units.
+        if(NOT CMAKE_C_COMPILER_LAUNCHER)
+            set(CMAKE_C_COMPILER_LAUNCHER "${DEEPFORGE_COMPILER_CACHE_PROGRAM}"
+                CACHE STRING "C compiler launcher" FORCE)
+        endif()
+    endif()
+else()
+    # Force it off even if a previous configure cached a launcher.
+    set(CMAKE_CXX_COMPILER_LAUNCHER "" CACHE STRING "CXX compiler launcher" FORCE)
+    set(CMAKE_C_COMPILER_LAUNCHER "" CACHE STRING "C compiler launcher" FORCE)
+endif()
+
+if(NOT DEEPFORGE_COMPILER_CACHE STREQUAL "none")
+    message(STATUS "Compiler cache: ${DEEPFORGE_COMPILER_CACHE}")
+elseif(DEEPFORGE_DISABLE_COMPILER_CACHE)
+    message(STATUS "Compiler cache: none (DEEPFORGE_DISABLE_COMPILER_CACHE=ON)")
+else()
+    message(STATUS "Compiler cache: none (no ccache or sccache found)")
+endif()
 
 # LTO is opt-in per preset (the packaging build enables it). check_ipo_supported
 # keeps toolchains without a working plugin (historically MinGW cross) from
