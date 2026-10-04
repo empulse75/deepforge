@@ -259,6 +259,15 @@ Status save_settings(const std::filesystem::path& file, const Settings& s) {
 }
 
 Result<Settings> load_settings(const std::filesystem::path& file) {
+    // The file being absent and the file being corrupt are different problems
+    // with different remedies, so they must stay different errors: a missing
+    // file means "there is nothing to load yet", a malformed one means "delete
+    // it to restore defaults". read_json_file() reports both as a read/parse
+    // failure, so the existence check comes first.
+    std::error_code ec;
+    if (!std::filesystem::exists(file, ec)) {
+        return fail(Error{"settings file not found", file.string(), {}, {}, {}});
+    }
     auto parsed = read_json_file(file);
     if (!parsed) {
         return fail(

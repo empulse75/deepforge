@@ -11,7 +11,9 @@ pass before every commit. It configures whatever presets it needs, so it works
 from a fresh clone:
 
 ```sh
-tools/verify.sh           # 5 presets, 3 sanitizers, headless client smoke test
+tools/verify.sh           # builds dev-release, ci, headless, asan, ubsan, tsan;
+                         # tests headless, asan, ubsan, tsan (the three
+                         # sanitizers); then the headless client smoke test
 tools/verify.sh --quick   # headless build and tests only, for the inner loop
 ```
 

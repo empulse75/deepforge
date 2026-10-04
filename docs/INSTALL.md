@@ -179,7 +179,9 @@ SDL at all. That is what makes the suite runnable in a container.
 ## Running the tests
 
 ```bash
-tools/verify.sh           # the whole gate: 5 presets, 3 sanitizers, smoke test
+tools/verify.sh           # the whole gate: builds dev-release, ci, headless,
+                         # asan, ubsan, tsan; tests headless, asan, ubsan, tsan;
+                         # then the smoke test
 tools/verify.sh --quick   # headless build and tests only
 ```
 
@@ -234,7 +236,10 @@ Saves, settings and the log go to the platform user-data directory, or wherever
 
 There is no macOS branch in `default_user_data_dir()`, so macOS currently gets
 the Linux path rather than `~/Library/Application Support`. That is a known gap,
-not a deliberate choice — it is listed in the README's limitations.
+not a deliberate choice — it is listed in the README's limitations. It was
+established by reading `src/app/SaveFile.cpp`, which has a `_WIN32` branch and
+an `#else` branch with no macOS case: no test asserts it, no CI job covers it,
+and it has not been run on Apple hardware.
 
 Saves are versioned, atomic and checksummed, with a rotating backup — see
 [`docs/SAVE_FORMAT.md`](SAVE_FORMAT.md).

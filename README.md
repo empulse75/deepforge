@@ -116,7 +116,9 @@ cmake --preset headless && cmake --build --preset headless && ctest --preset hea
 # Package
 cmake --build --preset release --target package
 
-# The whole verification gate: 5 presets, 3 sanitizers, headless smoke test.
+# The whole verification gate: builds dev-release, ci, headless, asan, ubsan and
+# tsan; tests headless, asan, ubsan and tsan (asan/ubsan/tsan are the three
+# sanitizers); then a headless client smoke test.
 # Configures whatever it needs, so it works from a fresh clone.
 tools/verify.sh
 tools/verify.sh --quick   # headless build and tests only
@@ -216,7 +218,9 @@ Stated honestly, because a build that oversells itself wastes your time:
   not a localisation system.
 - **macOS gets the Linux user-data path.** `default_user_data_dir()` has no
   macOS branch, so saves land in `~/.local/share/deepforge` rather than
-  `~/Library/Application Support`. A gap, not a decision.
+  `~/Library/Application Support`. A gap, not a decision. This was found by
+  reading the source: no test asserts it and no CI job covers it, so it is
+  unverified on Apple hardware.
 - **Audio is synthesised, not composed.** Every cue is generated from
   oscillators at runtime. It is functional feedback, not a soundtrack.
 - **Performance has not been profiled on a range of hardware.** The chunk
