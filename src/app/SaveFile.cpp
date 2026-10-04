@@ -182,6 +182,15 @@ void migrate_3_to_4(json& payload) {
     }
 }
 
+void migrate_4_to_5(json& payload) {
+    // v5 records which content pack generated the world, so a future expansion
+    // pack cannot reinterpret a save carved from different content. The base
+    // game has always been "base".
+    if (!payload.contains("content_pack_id")) {
+        payload["content_pack_id"] = "base";
+    }
+}
+
 } // namespace
 
 u64 SaveSystem::checksum(std::string_view payload) {
@@ -201,6 +210,7 @@ Result<std::string> SaveSystem::serialise(const ContentDatabase& db, const SaveD
     payload["world_seed"] = data.worldSeed;
     payload["world_name"] = data.worldName;
     payload["play_seconds"] = data.playSeconds;
+    payload["content_pack_id"] = data.contentPackId.empty() ? std::string("base") : data.contentPackId;
 
     const auto& p = data.progress;
     json jp;
@@ -402,6 +412,9 @@ Result<SaveData> SaveSystem::deserialise(const ContentDatabase& db, const std::s
             case 3:
                 migrate_3_to_4(payload);
                 break;
+            case 4:
+                migrate_4_to_5(payload);
+                break;
             default:
                 return fail(Error{"no migration path from save schema " + std::to_string(version),
                                   "save",
@@ -424,6 +437,7 @@ Result<SaveData> SaveSystem::deserialise(const ContentDatabase& db, const std::s
     data.worldSeed = payload.value("world_seed", static_cast<u64>(0));
     data.worldName = payload.value("world_name", std::string{});
     data.playSeconds = payload.value("play_seconds", 0.0);
+    data.contentPackId = payload.value("content_pack_id", std::string{"base"});
 
     auto& p = data.progress;
     p.initialise(db);

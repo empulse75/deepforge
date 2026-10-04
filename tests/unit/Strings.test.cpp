@@ -4,6 +4,7 @@
 #include "TestSupport.hpp"
 
 #include "content/ContentDatabase.hpp"
+#include "store/StoreCatalog.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -75,6 +76,21 @@ std::vector<std::string> referenced_keys(const ContentDatabase& db) {
     for (const auto& f : db.factions()) {
         add(f.nameKey);
         add(f.descriptionKey);
+    }
+    // The monetisation catalog reads the same table (ADR 7: a missing key is a
+    // build failure), so its keys count as referenced too.
+    {
+        ErrorList errors;
+        if (const auto store = StoreCatalog::load(DEEPFORGE_DATA_DIR, errors); store.has_value()) {
+            for (const auto& c : store->cosmetics()) {
+                add(c.nameKey);
+                add(c.descriptionKey);
+            }
+            for (const auto& e : store->entitlements()) {
+                add(e.nameKey);
+                add(e.descriptionKey);
+            }
+        }
     }
     return keys;
 }

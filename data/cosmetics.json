@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "cosmetics": [
+    {
+      "id": "cosmetic.livery_copperworks",
+      "name_key": "cosmetic.livery_copperworks.name",
+      "description_key": "cosmetic.livery_copperworks.description",
+      "family": "livery",
+      "palette": ["#8a4b2f", "#d98e4a", "#f2d3a7"]
+    },
+    {
+      "id": "cosmetic.livery_deepsea",
+      "name_key": "cosmetic.livery_deepsea.name",
+      "description_key": "cosmetic.livery_deepsea.description",
+      "family": "livery",
+      "palette": ["#123a4f", "#1f6f8b", "#7fd4c1"]
+    },
+    {
+      "id": "cosmetic.trail_emberwake",
+      "name_key": "cosmetic.trail_emberwake.name",
+      "description_key": "cosmetic.trail_emberwake.description",
+      "family": "trail",
+      "palette": ["#ff7a29", "#ffb347"]
+    },
+    {
+      "id": "cosmetic.decor_guild_banner",
+      "name_key": "cosmetic.decor_guild_banner.name",
+      "description_key": "cosmetic.decor_guild_banner.description",
+      "family": "decor",
+      "palette": ["#3d5a3a", "#9db872"]
+    }
+  ]
+}

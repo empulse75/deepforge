@@ -3,6 +3,7 @@
 #include "content/ContentDatabase.hpp"
 #include "core/Log.hpp"
 #include "core/Version.hpp"
+#include "store/StoreCatalog.hpp"
 
 #include <cstdio>
 #include <filesystem>
@@ -41,5 +42,16 @@ int main(int argc, char** argv) {
     std::printf("  landmarks  %zu\n", db->landmarks().size());
     std::printf("  hazards    %zu\n", db->hazards().size());
     std::printf("  research   %zu\n", db->research().size());
+
+    // The monetisation catalog validates through its own layer (ADR 10): the
+    // simulation closure means ContentDatabase never references it.
+    df::ErrorList storeErrors;
+    auto store = df::StoreCatalog::load(dataDir, storeErrors);
+    if (!store) {
+        std::fprintf(stderr, "store validation FAILED:\n%s\n", storeErrors.to_string().c_str());
+        return 1;
+    }
+    std::printf("  cosmetics  %zu\n", store->cosmetics().size());
+    std::printf("  store      %zu entitlements\n", store->entitlements().size());
     return 0;
 }

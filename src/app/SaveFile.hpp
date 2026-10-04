@@ -29,6 +29,10 @@ struct SaveData {
     i32 saveSchemaVersion = 0;
     i32 contentVersion = 0;
     i32 worldGenVersion = 0;
+    /// Which content pack generated this world. The base game is "base";
+    /// expansion packs record their own id so a later pack cannot silently
+    /// reinterpret a save carved from different content.
+    std::string contentPackId = "base";
     std::string buildVersion;
     i64 timestamp = 0;
     std::string summary;

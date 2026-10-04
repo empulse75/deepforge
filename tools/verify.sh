@@ -37,6 +37,11 @@ for preset in "${TEST_PRESETS[@]}"; do
     ctest --preset "$preset"
 done
 
+# The pacing gate is a release blocker (SPEC slice 1): every seed must reach a
+# first upgrade within twelve runs. The tool exits non-zero otherwise.
+echo "== pacing gate (release blocker)"
+./build/headless/tools/deepforge-balance --data data --seeds 16 --pacing
+
 # The smoke test guards SDL start-up and, more importantly, teardown ordering:
 # it has caught a segfault at exit that no unit test could reach.
 if [[ $QUICK -eq 0 ]]; then

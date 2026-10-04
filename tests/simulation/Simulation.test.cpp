@@ -1,12 +1,16 @@
 #include "TestSupport.hpp"
 
+#include "core/Hash.hpp"
 #include "domain/Expedition.hpp"
 #include "domain/Loadout.hpp"
 
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include <cmath>
+#include <cstring>
+#include <vector>
 
 using namespace df;
 
@@ -327,4 +331,111 @@ TEST_CASE("volatile material punishes careless extraction", "[simulation][volati
     cmd.mine = MineDirection::Down;
     h.step(cmd, 600);
     CHECK(h.rig.hull < hull);
+}
+
+TEST_CASE("the climb decision: anchored is cheaper per tile, flying is faster", "[simulation][fuel][climb]") {
+    // The return-plan decision (SPEC: drill-anchored ~0.15 fuel/tile vs flying
+    // ~0.28/tile at ~6x speed). Measured, not asserted from prose.
+
+    // Flying: hold thrust up an open shaft and measure fuel per tile climbed.
+    Harness fly(3407);
+    for (i64 y = -80; y <= 40; ++y) {
+        fly.map.set_material(TileCoord{0, y}, fly.db.airMaterial.index);
+    }
+    fly.teleport(0.0f, 40.0f);
+    const float flyStart = fly.rig.fuel;
+    const float flyStartY = fly.rig.position.y;
+    TickCommands up;
+    up.thrust = true;
+    fly.step(up, 600); // 10 s of climb
+    const float flyTiles = flyStartY - fly.rig.position.y;
+    REQUIRE(flyTiles > 20.0f);
+    const float flyPerTile = (flyStart - fly.rig.fuel) / flyTiles;
+
+    // Anchored: drill through identical rock and measure fuel per tile broken.
+    // The rig braces on the tile it cuts, so only the drill draws fuel.
+    Harness anchor(3407);
+    anchor.teleport(0.0f, 40.0f);
+    const float anchorStart = anchor.rig.fuel;
+    TickCommands drill;
+    drill.mine = MineDirection::Down;
+    anchor.step(drill, 600);
+    const float anchorTiles = static_cast<float>(anchor.progress.stats.tilesMined);
+    REQUIRE(anchorTiles > 1.0f);
+    const float anchorPerTile = (anchorStart - anchor.rig.fuel) / anchorTiles;
+
+    INFO("flying " << flyPerTile << " fuel/tile");
+    INFO("anchored " << anchorPerTile << " fuel/tile");
+    // The decision must be real in both directions: cheaper per tile anchored,
+    // much faster flying.
+    CHECK(anchorPerTile < flyPerTile);
+    // Both runs lasted 10 s, so tiles covered is speed: flying must be several
+    // times faster per second even though it costs more per tile.
+    CHECK(flyTiles / anchorTiles > 3.0f);
+    // And the flying figure must match the documented model (thrust 2.5/s at a
+    // ~9 tiles/s climb ceiling): a silent change to either constant moves this.
+    CHECK(flyPerTile == Catch::Approx(0.28f).epsilon(0.15f));
+}
+
+TEST_CASE("seed 3407: the same run replays bit for bit", "[simulation][determinism][seed3407]") {
+    // Host policy seed. One scripted command stream expanded tick by tick, run
+    // twice through identical worlds; the final state must hash identical, and
+    // ragged batch delivery of the same stream must match too.
+    struct Script {
+        float moveX;
+        bool thrust;
+        MineDirection mine;
+        int ticks;
+    };
+    const Script script[] = {
+        {0.0f, false, MineDirection::Down, 240},  {0.6f, false, MineDirection::Right, 120},
+        {-0.4f, true, MineDirection::None, 180},  {0.0f, true, MineDirection::Up, 300},
+        {0.8f, false, MineDirection::Down, 200},  {-0.7f, false, MineDirection::Left, 150},
+        {0.2f, true, MineDirection::None, 260},   {0.0f, false, MineDirection::Down, 320},
+        {-0.5f, true, MineDirection::Up, 200},    {0.0f, false, MineDirection::None, 120},
+    };
+    std::vector<TickCommands> stream;
+    for (const auto& s : script) {
+        for (int i = 0; i < s.ticks; ++i) {
+            TickCommands cmd;
+            cmd.moveX = s.moveX;
+            cmd.thrust = s.thrust;
+            cmd.mine = s.mine;
+            stream.push_back(cmd);
+        }
+    }
+
+    auto run = [&stream](const std::vector<int>& batches) {
+        Harness h(3407);
+        usize next = 0;
+        for (int batch : batches) {
+            for (int i = 0; i < batch && next < stream.size(); ++i, ++next) {
+                h.step(stream[next], 1);
+            }
+        }
+        REQUIRE(next == stream.size());
+        const auto bits = [](float f) {
+            u32 u = 0;
+            std::memcpy(&u, &f, sizeof(u));
+            return static_cast<u64>(u);
+        };
+        u64 hash = 0;
+        hash = hash_combine(hash, bits(h.rig.position.x));
+        hash = hash_combine(hash, bits(h.rig.position.y));
+        hash = hash_combine(hash, bits(h.rig.velocity.x));
+        hash = hash_combine(hash, bits(h.rig.velocity.y));
+        hash = hash_combine(hash, bits(h.rig.fuel));
+        hash = hash_combine(hash, bits(h.rig.hull));
+        hash = hash_combine(hash, bits(h.rig.heat));
+        hash = hash_combine(hash, static_cast<u64>(h.progress.stats.tilesMined));
+        hash = hash_combine(hash, static_cast<u64>(h.cargo.used_units(h.db) * 1000.0f));
+        return hash;
+    };
+
+    const u64 a = run({2090});
+    const u64 b = run({2090});
+    CHECK(a == b);
+    // Ragged delivery of the identical stream: same hash.
+    const u64 c = run({7, 13, 60, 1, 91, 200, 33, 500, 17, 60, 40, 3, 250, 120, 60, 100, 60, 60, 60, 355});
+    CHECK(a == c);
 }

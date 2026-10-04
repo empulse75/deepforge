@@ -1,5 +1,5 @@
 add_executable(deepforge_content_validator content_validator/main.cpp)
-target_link_libraries(deepforge_content_validator PRIVATE deepforge_content deepforge_world)
+target_link_libraries(deepforge_content_validator PRIVATE deepforge_content deepforge_world deepforge_store)
 deepforge_set_warnings(deepforge_content_validator)
 set_target_properties(deepforge_content_validator PROPERTIES OUTPUT_NAME "deepforge-validate")
 

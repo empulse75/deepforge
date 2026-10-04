@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "entitlements": [
+    {
+      "id": "store.copperworks_livery",
+      "name_key": "store.copperworks_livery.name",
+      "description_key": "store.copperworks_livery.description",
+      "kind": "cosmetic",
+      "grants": ["cosmetic.livery_copperworks"],
+      "effects": []
+    },
+    {
+      "id": "store.deepsea_livery",
+      "name_key": "store.deepsea_livery.name",
+      "description_key": "store.deepsea_livery.description",
+      "kind": "cosmetic",
+      "grants": ["cosmetic.livery_deepsea"],
+      "effects": []
+    },
+    {
+      "id": "store.emberwake_trail",
+      "name_key": "store.emberwake_trail.name",
+      "description_key": "store.emberwake_trail.description",
+      "kind": "cosmetic",
+      "grants": ["cosmetic.trail_emberwake"],
+      "effects": []
+    },
+    {
+      "id": "store.guild_banner",
+      "name_key": "store.guild_banner.name",
+      "description_key": "store.guild_banner.description",
+      "kind": "cosmetic",
+      "grants": ["cosmetic.decor_guild_banner"],
+      "effects": []
+    }
+  ]
+}

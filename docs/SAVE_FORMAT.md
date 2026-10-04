@@ -32,7 +32,7 @@ UTF-8 JSON, one space of indentation.
 
 ```jsonc
 {
-  "save_schema_version": 4,      // bumped whenever the payload layout changes
+  "save_schema_version": 5,      // bumped whenever the payload layout changes
   "content_schema_version": 1,   // shape of data/*.json when written
   "world_gen_version": 1,        // bumped when generation output changes
   "build_version": "0.4.0",
@@ -125,7 +125,7 @@ Autosaves always target slot 0.
 
 ## Migration
 
-`kSaveSchemaVersion` is the current version (4). Loading applies migration steps
+`kSaveSchemaVersion` is the current version (5). Loading applies migration steps
 in sequence until the payload reaches the current version:
 
 | From | To | What changes |
@@ -133,6 +133,7 @@ in sequence until the payload reaches the current version:
 | 1 | 2 | Adds the protected sample containers (`payload.samples`, `progress.samples`) |
 | 2 | 3 | Adds loadout presets, faction reputation, codex entries and the utility power budget, each with a working default |
 | 3 | 4 | Adds transit node positions. Older saves keep their node ids; a node becomes selectable again the next time the player visits it, so nothing is lost |
+| 4 | 5 | Adds `payload.content_pack_id`, defaulting to `base`. Mandated from slice 1 so a future content pack cannot reinterpret a save carved from different content |
 
 A save from a **newer** schema is refused with an explicit message telling the
 player to update, rather than being loaded partially.

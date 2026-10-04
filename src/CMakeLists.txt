@@ -24,6 +24,13 @@ deepforge_layer(content)
 target_link_libraries(deepforge_content PUBLIC deepforge_core PRIVATE deepforge_json_headers)
 deepforge_set_warnings(deepforge_content)
 
+# --- store (monetisation ingest; sits above the simulation closure, ADR 10) --
+# core <- content <- world <- domain never reference the store; this layer
+# parses it and is read only by presentation, tools and tests.
+deepforge_layer(store)
+target_link_libraries(deepforge_store PUBLIC deepforge_core PRIVATE deepforge_json_headers)
+deepforge_set_warnings(deepforge_store)
+
 # --- world ------------------------------------------------------------------
 deepforge_layer(world)
 target_link_libraries(deepforge_world PUBLIC deepforge_core deepforge_content)

@@ -49,6 +49,12 @@ jobs:
           BIN=build/${{ matrix.preset }}/tools/deepforge-validate
           if [ -x "$BIN" ]; then "$BIN" --data data; fi
 
+      - name: Monetisation invariant (structural half)
+        run: |
+          if grep -r "store_catalog\|entitlement" src/domain src/world src/content src/core; then
+            echo "simulation layers reference store identifiers"; exit 1
+          fi
+
       - name: Test
         run: ctest --preset ${{ matrix.preset }}
 

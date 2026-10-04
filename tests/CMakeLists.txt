@@ -1,12 +1,13 @@
 file(GLOB_RECURSE DEEPFORGE_TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 add_executable(deepforge_tests ${DEEPFORGE_TEST_SOURCES})
 target_link_libraries(deepforge_tests PRIVATE
-    deepforge_core deepforge_content deepforge_world deepforge_domain deepforge_app
+    deepforge_core deepforge_content deepforge_world deepforge_domain deepforge_app deepforge_store
     Catch2::Catch2WithMain)
 target_include_directories(deepforge_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 deepforge_set_warnings(deepforge_tests)
 target_compile_definitions(deepforge_tests PRIVATE
     DEEPFORGE_DATA_DIR="${CMAKE_SOURCE_DIR}/data"
+    DEEPFORGE_SOURCE_DIR="${CMAKE_SOURCE_DIR}/src"
     DEEPFORGE_TEST_TMP_DIR="${CMAKE_BINARY_DIR}/test-tmp")
 # Catch2's default POST_BUILD discovery runs the freshly linked test binary at
 # build time to enumerate test cases. That is impossible when cross-compiling:
@@ -21,3 +22,12 @@ endif()
 
 add_test(NAME content_validation
          COMMAND deepforge_content_validator --data "${CMAKE_SOURCE_DIR}/data")
+
+# Visual regression against committed baselines (SPEC slice 1). Skips itself
+# when the client is not built or no offscreen display is available, so it is
+# safe under every preset.
+add_test(NAME visual_regression
+         COMMAND python3 "${CMAKE_SOURCE_DIR}/tools/visual_regression.py"
+                 "${CMAKE_BINARY_DIR}/src/deepforge"
+                 "${CMAKE_SOURCE_DIR}/data"
+                 "${CMAKE_SOURCE_DIR}/tests/visual/baselines")

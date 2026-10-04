@@ -90,6 +90,32 @@ cmake --preset tsan  && cmake --build --preset tsan  && ctest --preset tsan
   simulation.
 - Mined tiles survive chunk eviction and reload.
 - Volatile material damages a rig that extracts it carelessly.
+- **The climb decision is real**: measured fuel per tile is lower drilling
+  anchored than flying, and flying is several times faster per second — the
+  return-plan trade the design promises, asserted from measurement.
+- **Seed 3407 determinism** (host policy seed): one scripted command stream
+  replays bit-for-bit across runs and across ragged batch delivery.
+
+### `tests/unit/StoreContract.test.cpp` — the monetisation invariant
+
+- Every entitlement in `data/store_catalog.json` is `kind == cosmetic` with
+  zero sim-visible effects (the loader counts effects per definition).
+- The entitlement kind enum can express expansion/convenience without a schema
+  migration, while the shipped catalog uses cosmetic only.
+- The layers the spec closes against the store (`domain`, `world`, `content`,
+  `core`) contain zero references to store identifiers; the store is parsed in
+  its own layer, `src/store` (ADR 10). CI runs the same grep.
+- Every cosmetic id the store grants exists in `data/cosmetics.json`.
+- The save records `content_pack_id` (default `base`) from schema 5, so a
+  future content pack cannot reinterpret an old world.
+
+### `tests/visual` — visual regression baselines
+
+Committed BMP baselines for hub, expedition and garage, captured offscreen at
+seed 3407 / 2400 ticks. `tools/visual_regression.py` recaptures each screen
+and fails if the mean absolute pixel difference exceeds 2%; it skips itself
+when the client is not built or no offscreen display exists, so it is safe
+under every preset. Baselines update only via reviewed commit.
 
 ### `tests/integration` — the loop
 

@@ -87,6 +87,14 @@
     "contract.survey_prismite_batch.name": "Prismite Batch",
     "contract.survey_silver_consignment.description": "A standing order for argentine. Steady work at a depth you already run.",
     "contract.survey_silver_consignment.name": "Silver Consignment",
+    "cosmetic.decor_guild_banner.description": "A banner for the hub wall. It does nothing. That is the point.",
+    "cosmetic.decor_guild_banner.name": "Guild Banner Kit",
+    "cosmetic.livery_copperworks.description": "Warm copper panels for a rig that likes to look like it works for a living.",
+    "cosmetic.livery_copperworks.name": "Copperworks Livery",
+    "cosmetic.livery_deepsea.description": "Cold blues for the rig that would rather be swimming than drilling.",
+    "cosmetic.livery_deepsea.name": "Deepsea Livery",
+    "cosmetic.trail_emberwake.description": "A spark trail that lingers a half-second longer than it should.",
+    "cosmetic.trail_emberwake.name": "Emberwake Trail",
     "equipment.cargo_bay.description": "How much ore comes home. A full bay at 300 m beats an empty one at 900.",
     "equipment.cargo_bay.name": "Cargo Bay",
     "equipment.cargo_bay.tier0": "Stock Hold",
@@ -566,6 +574,14 @@
     "skill.torque_tuning.description": "Twelve per cent more drill power. Hard rock stops being a wall and starts being a delay.",
     "skill.torque_tuning.name": "Torque Tuning",
     "skill.vein_reader.description": "Scanned veins reveal a quarter more of their extent, so you can tell a pocket from a run before committing fuel to it.",
-    "skill.vein_reader.name": "Vein Reader"
+    "skill.vein_reader.name": "Vein Reader",
+    "store.copperworks_livery.description": "A paint job. The drill does not care what colour it is.",
+    "store.copperworks_livery.name": "Copperworks Livery",
+    "store.deepsea_livery.description": "A paint job. No stats, no shortcut, nothing the simulation can see.",
+    "store.deepsea_livery.name": "Deepsea Livery",
+    "store.emberwake_trail.description": "A particle trail for the garage screen and the open shaft.",
+    "store.emberwake_trail.name": "Emberwake Trail",
+    "store.guild_banner.description": "Hub decor. Purely for show, permanently yours.",
+    "store.guild_banner.name": "Guild Banner Kit"
   }
 }

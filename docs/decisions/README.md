@@ -19,6 +19,7 @@ usually a decision that has not been thought about hard enough.
 | [7](0007-authored-string-table.md) | All player-facing text is authored content, and a missing key is a build failure | accepted |
 | [8](0008-generated-bold-font.md) | Bold is a generated table, not a runtime double-strike | accepted |
 | [9](0009-derived-power-budget.md) | Progression stats are derived, not stored | accepted |
+| [10](0010-store-closure-boundary.md) | The store-closure grep covers the layers that run the tick | accepted |
 
 ## Writing a new one
 

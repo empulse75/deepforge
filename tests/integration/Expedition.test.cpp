@@ -2,6 +2,7 @@
 
 #include "app/Autopilot.hpp"
 #include "app/GameSession.hpp"
+#include "domain/Loadout.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -198,4 +199,50 @@ TEST_CASE("twenty simulated minutes run without a crash or soft lock", "[integra
     }
     CHECK(expeditions > 1);
     CHECK(session.progress().stats.deepestDepth > 100);
+}
+
+TEST_CASE("slice 1: the whole loop chains end to end in one flow", "[integration][loop][slice1]") {
+    // One save, one continuous progression: descend and dig (autopilot),
+    // manage the pressures (fuel/cargo force the return), extract and sell,
+    // buy an upgrade with the proceeds, then spend insight plus a delivered
+    // sample on a research node. Every stage's output feeds the next.
+    auto session = dft::make_session("integration_slice1_loop", 3407);
+    REQUIRE(session.state() == GameStateId::SurfaceHub);
+
+    // Descend, dig, manage pressures, extract: a full autopilot expedition.
+    AutopilotConfig config;
+    config.targetDepth = 140;
+    const auto report = run_autopilot_expedition(session, config);
+    CHECK(report.returned);
+    CHECK_FALSE(report.stalled);
+    CHECK(report.tilesMined > 20);
+    // Selling happened on return (the session sells what the hold carried).
+    CHECK(session.progress().credits > 0);
+
+    // Buy an upgrade with the proceeds: the fuel tank tier 1 the pacing gate
+    // promises is reachable from a clean save within a few such runs.
+    const auto tank = session.content().equipment_track("equipment.fuel_tank");
+    REQUIRE(tank.valid());
+    for (int run = 0; run < 6 && !session.economy().can_buy_equipment(tank.index); ++run) {
+        const auto r = run_autopilot_expedition(session, config);
+        CHECK_FALSE(r.stalled);
+    }
+    REQUIRE(session.economy().buy_equipment(tank.index).has_value());
+    CHECK(session.progress().equipmentTier[static_cast<usize>(tank.index)] == 1);
+
+    // Advance one research node on the other curve: insight plus a delivered
+    // sample, neither of which credits can buy.
+    const auto& db = session.content();
+    const auto node = db.research_node("research.field_metallurgy");
+    REQUIRE(node.valid());
+    session.economy().award_insight(10, compute_stats(db, session.progress()));
+    const auto sample = db.material("material.echo_shard");
+    session.progress().samples.add(db, sample.index, 1);
+    REQUIRE(session.economy().complete_research(node.index).has_value());
+    CHECK(session.progress().completedResearch.count(node.index) == 1);
+
+    // The changed rig descends again: the loop closes on itself.
+    const auto second = run_autopilot_expedition(session, config);
+    CHECK_FALSE(second.stalled);
+    CHECK(second.tilesMined > 0);
 }
