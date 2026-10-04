@@ -38,6 +38,15 @@ jobs:
           key: deps-${{ runner.os }}-${{ matrix.preset }}-${{ hashFiles('CMakeLists.txt') }}
           restore-keys: deps-${{ runner.os }}-${{ matrix.preset }}-
 
+      - name: Cache ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-${{ runner.os }}-${{ matrix.preset }}-${{ github.ref_name }}
+          restore-keys: |
+            ccache-${{ runner.os }}-${{ matrix.preset }}-
+            ccache-${{ runner.os }}-
+
       - name: Configure
         run: cmake --preset ${{ matrix.preset }}
 
@@ -101,6 +110,13 @@ jobs:
           path: build/ci/_deps
           key: deps-windows-ci-${{ hashFiles('CMakeLists.txt') }}
           restore-keys: deps-windows-ci-
+
+      - name: Cache ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-windows-ci-${{ github.ref_name }}
+          restore-keys: ccache-windows-ci-
 
       - name: Configure
         run: cmake --preset ci

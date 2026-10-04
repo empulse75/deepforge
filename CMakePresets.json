@@ -10,7 +10,9 @@
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "DEEPFORGE_BUILD_TESTS": "ON",
-        "DEEPFORGE_BUILD_TOOLS": "ON"
+        "DEEPFORGE_BUILD_TOOLS": "ON",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache"
       }
     },
     {
@@ -29,7 +31,10 @@
       "name": "release",
       "inherits": "base",
       "displayName": "Optimised packaging build",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "DEEPFORGE_ENABLE_LTO": "ON"
+      }
     },
     {
       "name": "headless",

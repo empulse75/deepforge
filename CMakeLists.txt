@@ -22,10 +22,25 @@ option(DEEPFORGE_BUILD_TOOLS "Build developer tools (content validator, balance 
 option(DEEPFORGE_BUILD_CLIENT "Build the SDL3 game client" ON)
 option(DEEPFORGE_WARNINGS_AS_ERRORS "Treat project warnings as errors" OFF)
 option(DEEPFORGE_USE_SYSTEM_SDL "Use an installed SDL3 instead of fetching it" OFF)
+option(DEEPFORGE_ENABLE_LTO "Enable interprocedural optimization (LTO) when the toolchain supports it" OFF)
 set(DEEPFORGE_SANITIZER "" CACHE STRING "Sanitizer: address, undefined, thread or empty")
 
 include(DeepforgeWarnings)
+include(CheckIPOSupported)
 include(CTest)
+
+# LTO is opt-in per preset (the packaging build enables it). check_ipo_supported
+# keeps toolchains without a working plugin (historically MinGW cross) from
+# breaking the build: we simply fall back to no LTO and say so.
+if(DEEPFORGE_ENABLE_LTO)
+    check_ipo_supported(RESULT DEEPFORGE_LTO_SUPPORTED OUTPUT DEEPFORGE_LTO_CHECK_MSG)
+    if(DEEPFORGE_LTO_SUPPORTED)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+        message(STATUS "LTO: enabled")
+    else()
+        message(STATUS "LTO: requested but unsupported by this toolchain, disabled (${DEEPFORGE_LTO_CHECK_MSG})")
+    endif()
+endif()
 
 # ---------------------------------------------------------------------------
 # Sanitizers
@@ -143,7 +158,8 @@ endif()
 # Packaging
 # ---------------------------------------------------------------------------
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/data/" DESTINATION "share/deepforge/data")
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/assets/" DESTINATION "share/deepforge/assets" OPTIONAL)
+# NOTE: no assets/ install rule — the directory does not exist in the repo
+# (the old OPTIONAL rule silently installed nothing; removed by t_08f6def3).
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
               "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
               "${CMAKE_CURRENT_SOURCE_DIR}/docs/THIRD_PARTY_NOTICES.md"
