@@ -116,6 +116,32 @@ Useful options, all off by default unless stated:
 | `DEEPFORGE_USE_SYSTEM_SDL` | `OFF` | Use an installed SDL3 instead of fetching one |
 | `DEEPFORGE_WARNINGS_AS_ERRORS` | `OFF` | On in the `ci` preset |
 | `DEEPFORGE_SANITIZER` | empty | `address`, `undefined` or `thread` |
+| `DEEPFORGE_ENABLE_LTO` | `OFF` | Link-time optimisation. On in the `release` preset only |
+| `DEEPFORGE_DISABLE_COMPILER_CACHE` | `OFF` | Never use a compiler cache, even if one is installed |
+
+### Compiler cache
+
+If `ccache` or `sccache` is installed, it is detected before any target exists and
+used as the compiler launcher; that is why a second build is often near-instant.
+Nothing is hard-coded, so a machine without a cache program builds normally. Pass
+`-DCMAKE_CXX_COMPILER_LAUNCHER=...` (or the `C` equivalent) to pick your own
+launcher — yours wins over detection — or `-DDEEPFORGE_DISABLE_COMPILER_CACHE=ON`
+to force the cache off, which is what you want for a clean measurement build.
+Configure says which of the three happened:
+
+```
+-- Compiler cache: /usr/bin/ccache
+-- Compiler cache: none (no ccache or sccache found)
+-- Compiler cache: none (DEEPFORGE_DISABLE_COMPILER_CACHE=ON)
+```
+
+### Link-time optimisation
+
+`DEEPFORGE_ENABLE_LTO` is opt-in per preset; today only `release` sets it. It is
+guarded by `check_ipo_supported`, so a toolchain without a working LTO plugin —
+notably the MinGW cross-compiler — falls back to a build without LTO and says so
+(`-- LTO: requested but unsupported by this toolchain, disabled (...)`) rather
+than failing. `optimization/OPTIMIZATION-REPORT.md` has the measurements.
 
 ---
 
