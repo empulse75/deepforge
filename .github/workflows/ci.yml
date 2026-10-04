@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        preset: [ci, asan, ubsan]
+        preset: [ci, asan, ubsan, tsan]
     steps:
       - uses: actions/checkout@v4
 
@@ -66,6 +66,15 @@ jobs:
 
       - name: Test
         run: ctest --preset ${{ matrix.preset }}
+
+      - name: Clang-tidy (advisory)
+        if: matrix.preset == 'ci'
+        continue-on-error: true
+        run: |
+          sudo apt-get install -y --no-install-recommends clang-tidy
+          tidy=clang-tidy
+          if [ -x /usr/bin/clang-tidy-18 ]; then tidy=clang-tidy-18; fi
+          "$tidy" --quiet -p build/ci $(find src -name '*.cpp') || true
 
       - name: Balance regression gate
         if: matrix.preset == 'ci'
@@ -143,6 +152,59 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-ci-logs
+          path: |
+            build/ci/Testing/Temporary/LastTest.log
+            build/ci/CMakeFiles/CMakeConfigureLog.yaml
+          if-no-files-found: ignore
+
+  macos:
+    name: macOS (ci)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: brew install ninja ccache
+
+      - name: Cache fetched dependencies
+        uses: actions/cache@v4
+        with:
+          path: build/ci/_deps
+          key: deps-macos-ci-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: deps-macos-ci-
+
+      - name: Cache ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Caches/ccache
+          key: ccache-macos-ci-${{ github.ref_name }}
+          restore-keys: ccache-macos-ci-
+
+      - name: Configure
+        run: cmake --preset ci
+
+      - name: Build
+        run: cmake --build --preset ci
+
+      - name: Validate content
+        run: ./build/ci/tools/deepforge-validate --data data
+
+      - name: Test
+        run: ctest --preset ci
+
+      - name: Client smoke test
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+        run: |
+          ./build/ci/src/deepforge --version
+          ./build/ci/src/deepforge --data data --user-dir "$RUNNER_TEMP/dfuser" --headless-frames 120
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-ci-logs
           path: |
             build/ci/Testing/Temporary/LastTest.log
             build/ci/CMakeFiles/CMakeConfigureLog.yaml

@@ -17,6 +17,8 @@ deepforge_layer(core)
 target_include_directories(deepforge_core PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_BINARY_DIR}/generated")
+# core/JsonFile.hpp wraps the JSON parser used at every load boundary.
+target_link_libraries(deepforge_core PUBLIC deepforge_json_headers)
 deepforge_set_warnings(deepforge_core)
 
 # --- content ----------------------------------------------------------------

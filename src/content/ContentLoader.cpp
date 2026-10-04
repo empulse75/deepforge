@@ -1,14 +1,13 @@
 #include "content/ContentDatabase.hpp"
 
+#include "core/JsonFile.hpp"
 #include "core/Log.hpp"
 #include "core/Version.hpp"
 
 #include <nlohmann/json.hpp>
 
 #include <algorithm>
-#include <fstream>
 #include <set>
-#include <sstream>
 
 namespace df {
 namespace {
@@ -160,9 +159,10 @@ std::vector<std::pair<StringId, i32>> read_component_costs(const json& j, const 
     return out;
 }
 
-Result<json> parse_json(const std::string& text, const std::string& fileLabel, ErrorList& errors) {
-    json parsed = json::parse(text, nullptr, false, true);
-    if (parsed.is_discarded()) {
+Result<json> parse_json_with_context(const std::string& text, const std::string& fileLabel,
+                                     ErrorList& errors) {
+    auto parsed = df::parse_json(text, /*ignore_comments=*/true);
+    if (!parsed) {
         errors.add(Error{"file is not valid JSON", fileLabel, {}, {}, "check for trailing commas or quotes"});
         return fail(Error{"invalid JSON", fileLabel, {}, {}, {}});
     }
@@ -1552,7 +1552,7 @@ Result<ContentDatabase> build_database(const std::unordered_map<std::string, std
             }
             continue;
         }
-        auto parsed = parse_json(it->second, entry.name, errors);
+        auto parsed = parse_json_with_context(it->second, entry.name, errors);
         if (!parsed) {
             continue;
         }
@@ -1621,14 +1621,12 @@ Result<ContentDatabase> ContentDatabase::load(const std::filesystem::path& dataD
         if (!e.is_regular_file() || e.path().extension() != ".json") {
             continue;
         }
-        std::ifstream in(e.path(), std::ios::binary);
-        if (!in) {
+        auto text = read_text_file(e.path());
+        if (!text) {
             errors.add(Error{"could not open file", e.path().filename().string(), {}, {}, {}});
             continue;
         }
-        std::ostringstream ss;
-        ss << in.rdbuf();
-        files[e.path().filename().string()] = ss.str();
+        files[e.path().filename().string()] = std::move(*text);
     }
     DF_LOG_INFO("content", "loading {} data file(s) from {}", files.size(), dataDir.string());
     return build_database(files, errors);

@@ -1,9 +1,10 @@
 #include "store/StoreCatalog.hpp"
 
+#include "core/JsonFile.hpp"
+
 #include <nlohmann/json.hpp>
 
-#include <fstream>
-#include <sstream>
+#include <filesystem>
 
 namespace df {
 
@@ -36,10 +37,11 @@ std::string_view entitlement_kind_name(EntitlementKind k) {
 Status StoreCatalog::load_texts(const std::string& cosmeticsText, const std::string& storeText,
                                 ErrorList& errors) {
     if (!cosmeticsText.empty()) {
-        json root = json::parse(cosmeticsText, nullptr, false, true);
-        if (root.is_discarded()) {
+        auto parsed = df::parse_json(cosmeticsText, /*ignore_comments=*/true);
+        if (!parsed) {
             errors.add(Error{"file is not valid JSON", "cosmetics.json", {}, {}, {}});
-        } else if (!root.contains("cosmetics") || !root["cosmetics"].is_array()) {
+        } else if (const json& root = *parsed;
+                   !root.contains("cosmetics") || !root["cosmetics"].is_array()) {
             errors.add(Error{"expected a \"cosmetics\" array", "cosmetics.json", {}, "cosmetics", {}});
         } else {
             for (const auto& j : root["cosmetics"]) {
@@ -82,10 +84,11 @@ Status StoreCatalog::load_texts(const std::string& cosmeticsText, const std::str
     }
 
     if (!storeText.empty()) {
-        json root = json::parse(storeText, nullptr, false, true);
-        if (root.is_discarded()) {
+        auto parsed = df::parse_json(storeText, /*ignore_comments=*/true);
+        if (!parsed) {
             errors.add(Error{"file is not valid JSON", "store_catalog.json", {}, {}, {}});
-        } else if (!root.contains("entitlements") || !root["entitlements"].is_array()) {
+        } else if (const json& root = *parsed;
+                   !root.contains("entitlements") || !root["entitlements"].is_array()) {
             errors.add(
                 Error{"expected an \"entitlements\" array", "store_catalog.json", {}, "entitlements",
                       {}});
@@ -157,13 +160,11 @@ Status StoreCatalog::load_texts(const std::string& cosmeticsText, const std::str
 
 Result<StoreCatalog> StoreCatalog::load(const std::filesystem::path& dataDir, ErrorList& errors) {
     auto read = [&dataDir](const char* name) -> std::string {
-        std::ifstream in(dataDir / name, std::ios::binary);
-        if (!in) {
+        auto text = read_text_file(dataDir / name);
+        if (!text) {
             return {}; // both files are optional content; an empty catalog is valid
         }
-        std::ostringstream os;
-        os << in.rdbuf();
-        return os.str();
+        return *text;
     };
     StoreCatalog out;
     if (!out.load_texts(read("cosmetics.json"), read("store_catalog.json"), errors)) {

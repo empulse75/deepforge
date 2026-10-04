@@ -1,12 +1,12 @@
 #include "platform/Settings.hpp"
 
+#include "core/JsonFile.hpp"
 #include "core/Log.hpp"
 
 #include <SDL3/SDL.h>
 #include <nlohmann/json.hpp>
 
 #include <fstream>
-#include <sstream>
 
 namespace df {
 namespace {
@@ -259,17 +259,12 @@ Status save_settings(const std::filesystem::path& file, const Settings& s) {
 }
 
 Result<Settings> load_settings(const std::filesystem::path& file) {
-    std::ifstream in(file);
-    if (!in) {
-        return fail(Error{"settings file not found", file.string(), {}, {}, {}});
-    }
-    std::ostringstream ss;
-    ss << in.rdbuf();
-    json j = json::parse(ss.str(), nullptr, false);
-    if (j.is_discarded()) {
+    auto parsed = read_json_file(file);
+    if (!parsed) {
         return fail(
             Error{"settings file is not valid JSON", file.string(), {}, {}, "delete it to restore defaults"});
     }
+    json j = std::move(*parsed);
     Settings s = default_settings();
     if (j.contains("video")) {
         const auto& v = j["video"];

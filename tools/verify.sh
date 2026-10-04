@@ -22,8 +22,8 @@ if [[ $QUICK -eq 1 ]]; then
     BUILD_PRESETS=(headless)
     TEST_PRESETS=(headless)
 else
-    BUILD_PRESETS=(dev-release ci headless asan ubsan)
-    TEST_PRESETS=(headless asan ubsan)
+    BUILD_PRESETS=(dev-release ci headless asan ubsan tsan)
+    TEST_PRESETS=(headless asan ubsan tsan)
 fi
 
 for preset in "${BUILD_PRESETS[@]}"; do

@@ -1,6 +1,7 @@
 #include "app/SaveFile.hpp"
 
 #include "core/Hash.hpp"
+#include "core/JsonFile.hpp"
 #include "core/Log.hpp"
 #include "core/Version.hpp"
 
@@ -10,7 +11,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
-#include <sstream>
 
 namespace df {
 namespace {
@@ -368,11 +368,12 @@ Result<std::string> SaveSystem::serialise(const ContentDatabase& db, const SaveD
 }
 
 Result<SaveData> SaveSystem::deserialise(const ContentDatabase& db, const std::string& text) const {
-    json root = json::parse(text, nullptr, false);
-    if (root.is_discarded()) {
+    auto parsed = df::parse_json(text);
+    if (!parsed) {
         return fail(Error{
             "save file is not valid JSON", "save", {}, {}, "the file may be truncated; try the backup"});
     }
+    json root = std::move(*parsed);
     if (!root.contains("payload") || !root.contains("save_schema_version")) {
         return fail(Error{"save file is missing required sections",
                           "save",
@@ -667,10 +668,11 @@ Status SaveSystem::write(const ContentDatabase& db, int slot, const SaveData& da
     }
     // Validate the temp file before it is allowed to replace anything.
     {
-        std::ifstream in(temp, std::ios::binary);
-        std::ostringstream ss;
-        ss << in.rdbuf();
-        auto check = deserialise(db, ss.str());
+        auto reread = read_text_file(temp);
+        if (!reread) {
+            return fail(reread.error());
+        }
+        auto check = deserialise(db, *reread);
         if (!check) {
             std::filesystem::remove(temp, ec);
             return fail(Error{"the new save failed validation and was discarded",
@@ -704,13 +706,11 @@ Status SaveSystem::write(const ContentDatabase& db, int slot, const SaveData& da
 
 Result<SaveData> SaveSystem::read(const ContentDatabase& db, int slot, bool useBackup) const {
     const auto path = useBackup ? backup_path(slot) : slot_path(slot);
-    std::ifstream in(path, std::ios::binary);
-    if (!in) {
+    auto text = read_text_file(path);
+    if (!text) {
         return fail(Error{"save file not found", path.string(), {}, {}, {}});
     }
-    std::ostringstream ss;
-    ss << in.rdbuf();
-    return deserialise(db, ss.str());
+    return deserialise(db, *text);
 }
 
 SaveSlotInfo SaveSystem::inspect(const ContentDatabase& db, int slot) const {

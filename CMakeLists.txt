@@ -59,17 +59,17 @@ endif()
 include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
 
-set(DEEPFORGE_JSON_VERSION "3.11.3")
+set(DEEPFORGE_JSON_VERSION "3.12.0")
 FetchContent_Declare(deepforge_json
     URL "https://github.com/nlohmann/json/releases/download/v${DEEPFORGE_JSON_VERSION}/include.zip"
-    URL_HASH SHA256=a22461d13119ac5c78f205d3df1db13403e58ce1bb1794edc9313677313f4a9d
+    URL_HASH SHA256=b8cb0ef2dd7f57f18933997c9934bb1fa962594f701cd5a8d3c2c80541559372
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 
 if(DEEPFORGE_BUILD_TESTS)
     FetchContent_Declare(Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG v3.7.1
+        GIT_TAG v3.16.0
         GIT_SHALLOW TRUE
     )
 endif()
@@ -77,7 +77,7 @@ endif()
 if(DEEPFORGE_BUILD_CLIENT AND NOT DEEPFORGE_USE_SYSTEM_SDL)
     FetchContent_Declare(SDL3
         GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-        GIT_TAG release-3.4.16
+        GIT_TAG release-3.4.18
         GIT_SHALLOW TRUE
     )
 endif()
