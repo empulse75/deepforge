@@ -58,6 +58,10 @@ find src tests tools -name '*.cpp' -o -name '*.hpp' | grep -v FontData | xargs c
 `src/presentation/FontData.hpp` is generated; never format or hand-edit it. Run
 `python3 tools/content_gen/gen_font.py` instead.
 
+The command above is a gate, not a suggestion: CI runs it as
+`--dry-run --Werror` and fails. `.pre-commit-config.yaml` runs the same check
+over the files you have staged; install it once with `pre-commit install`.
+
 `.clang-tidy` carries a deliberately small, low-noise ruleset. If a check fires,
 fix the code rather than widening the suppression list.
 

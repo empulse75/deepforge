@@ -3,6 +3,7 @@
 Checks: >
   -*,
   bugprone-*,
+  bugprone-unused-return-value,
   -bugprone-easily-swappable-parameters,
   -bugprone-narrowing-conversions,
   cppcoreguidelines-pro-type-member-init,

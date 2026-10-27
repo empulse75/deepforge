@@ -11,6 +11,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  format:
+    name: Format (.clang-format)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
+
+      # The formatter version is pinned so the gate means the same thing on every
+      # machine. Measured on this tree: 18.1.8, 19.1.7 and 21.1.8 agree exactly.
+      - name: Install pinned clang-format
+        run: |
+          python3 -m venv /tmp/venv-clang-format
+          /tmp/venv-clang-format/bin/pip install clang-format==21.1.8
+          /tmp/venv-clang-format/bin/clang-format --version
+
+      - name: Format check
+        run: |
+          find src tests tools -name '*.cpp' -o -name '*.hpp' | grep -v FontData \
+            | xargs /tmp/venv-clang-format/bin/clang-format --dry-run --Werror
+
   linux:
     name: Linux (${{ matrix.preset }})
     runs-on: ubuntu-24.04
@@ -19,7 +38,7 @@ jobs:
       matrix:
         preset: [ci, asan, ubsan, tsan]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
 
       - name: Install build dependencies
         run: |
@@ -33,14 +52,14 @@ jobs:
             ccache
 
       - name: Cache fetched dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
         with:
           path: build/${{ matrix.preset }}/_deps
           key: deps-${{ runner.os }}-${{ matrix.preset }}-${{ hashFiles('CMakeLists.txt') }}
           restore-keys: deps-${{ runner.os }}-${{ matrix.preset }}-
 
       - name: Cache ccache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
         with:
           path: ~/.cache/ccache
           key: ccache-${{ runner.os }}-${{ matrix.preset }}-${{ github.ref_name }}
@@ -68,14 +87,13 @@ jobs:
       - name: Test
         run: ctest --preset ${{ matrix.preset }}
 
-      - name: Clang-tidy (advisory)
+      - name: Clang-tidy
         if: matrix.preset == 'ci'
-        continue-on-error: true
         run: |
           sudo apt-get install -y --no-install-recommends clang-tidy
           tidy=clang-tidy
           if [ -x /usr/bin/clang-tidy-18 ]; then tidy=clang-tidy-18; fi
-          "$tidy" --quiet -p build/ci $(find src -name '*.cpp') || true
+          "$tidy" --quiet -p build/ci $(find src -name '*.cpp')
 
       - name: Balance regression gate
         if: matrix.preset == 'ci'
@@ -97,7 +115,7 @@ jobs:
 
       - name: Upload logs and screenshots on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: linux-${{ matrix.preset }}-logs
           path: |
@@ -110,9 +128,9 @@ jobs:
     name: Windows (ci)
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
 
-      - uses: ilammy/msvc-dev-cmd@v1
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756  # v1.13.0
 
       # ccache is not preinstalled on the windows runner image. Install it and
       # pin CCACHE_DIR to a path that matches the actions/cache step below.
@@ -137,14 +155,14 @@ jobs:
           ccache --show-config | Select-String -Pattern "cache_dir"
 
       - name: Cache fetched dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
         with:
           path: build/ci/_deps
           key: deps-windows-ci-${{ hashFiles('CMakeLists.txt') }}
           restore-keys: deps-windows-ci-
 
       - name: Cache ccache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
         with:
           path: C:/ccache
           key: ccache-windows-ci-${{ github.ref_name }}
@@ -172,7 +190,7 @@ jobs:
 
       - name: Upload logs on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: windows-ci-logs
           path: |
@@ -184,20 +202,20 @@ jobs:
     name: macOS (ci)
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
 
       - name: Install build dependencies
         run: brew install ninja ccache
 
       - name: Cache fetched dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
         with:
           path: build/ci/_deps
           key: deps-macos-ci-${{ hashFiles('CMakeLists.txt') }}
           restore-keys: deps-macos-ci-
 
       - name: Cache ccache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
         with:
           path: ~/Library/Caches/ccache
           key: ccache-macos-ci-${{ github.ref_name }}
@@ -225,7 +243,7 @@ jobs:
 
       - name: Upload logs on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: macos-ci-logs
           path: |
@@ -239,7 +257,7 @@ jobs:
     needs: linux
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
 
       - name: Install build dependencies
         run: |
@@ -258,7 +276,7 @@ jobs:
           cmake --build --preset release
           cmake --build --preset release --target package
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: deepforge-linux
           path: build/release/deepforge-*.zip

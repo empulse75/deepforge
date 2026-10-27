@@ -1,6 +1,9 @@
 ---
 Language: Cpp
 BasedOnStyle: LLVM
+# No c++23 here on purpose: LLVM's formatter (measured on 18.1.8, 19.1.7 and
+# 21.1.8) rejects c++23, c++2b and latest as unknown values, so c++20 is the
+# ceiling. It costs nothing - the value changes no output on this tree.
 Standard: c++20
 ColumnLimit: 110
 IndentWidth: 4

@@ -112,7 +112,8 @@ FetchContent_Declare(deepforge_json
 if(DEEPFORGE_BUILD_TESTS)
     FetchContent_Declare(Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG v3.16.0
+        # = tag v3.16.0, named as a commit: tags move, SHAs do not (SEC-08).
+        GIT_TAG 317ac1ed4c0bb6e6b91eafc817e05c488feffcb3
         GIT_SHALLOW TRUE
     )
 endif()
@@ -120,7 +121,8 @@ endif()
 if(DEEPFORGE_BUILD_CLIENT AND NOT DEEPFORGE_USE_SYSTEM_SDL)
     FetchContent_Declare(SDL3
         GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-        GIT_TAG release-3.4.18
+        # = tag release-3.4.18, named as a commit: tags move, SHAs do not (SEC-08).
+        GIT_TAG 829a65d769d935c4852f8159e964312c0957260a
         GIT_SHALLOW TRUE
     )
 endif()
