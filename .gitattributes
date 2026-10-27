@@ -1,0 +1,5 @@
+# tools/content_gen/test_regeneration.py compares the generated data byte for byte, and
+# Windows checkout converts LF to CRLF by default (the runners set core.autocrlf=true), which
+# would fail that test on Windows alone. Pin what the generator owns so the comparison means
+# the same thing on every platform CI runs on.
+data/*.json text eol=lf

@@ -143,6 +143,11 @@ under every preset. Baselines update only via reviewed commit.
 `deepforge-validate` runs as a CTest case, so a bad content edit fails the
 suite rather than the game.
 
+`content_generator_no_op` runs `gen_content.py` into a scratch copy of `data/`
+and compares every file it emits, byte for byte, against what is committed: the
+generator documents "edit intent, re-run, review the diff", and a re-run that
+changes bytes means that workflow silently loses content.
+
 ## Developer tools
 
 ### Content validator

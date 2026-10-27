@@ -40,3 +40,10 @@ add_test(NAME visual_regression
                  "${CMAKE_BINARY_DIR}/src/deepforge"
                  "${CMAKE_SOURCE_DIR}/data"
                  "${CMAKE_SOURCE_DIR}/tests/visual/baselines")
+
+# Regeneration must be a no-op (FUNC-01). gen_content.py documents "edit intent, re-run,
+# review the diff", so running it into a scratch copy of the data must reproduce every file
+# it emits byte for byte; otherwise the documented workflow silently loses content.
+add_test(NAME content_generator_no_op
+         COMMAND python3 "${CMAKE_SOURCE_DIR}/tools/content_gen/check_regeneration_noop.py"
+                 "${CMAKE_SOURCE_DIR}")

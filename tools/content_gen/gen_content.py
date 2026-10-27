@@ -5,7 +5,9 @@ Balance curves in the design brief are formulas (Section 10.3). Rather than
 hand-typing hundreds of costs and hoping they stay consistent, we author the
 *intent* here and emit data/*.json. The emitted files are the source of truth
 consumed by the game; re-run this script after editing intent, then review the
-diff.
+diff. Fields that were added to the data by hand after this script last ran are
+listed here too, so a re-run reproduces the committed files byte for byte - the
+gate keeps that honest via tools/content_gen/check_regeneration_noop.py.
 
     python3 tools/content_gen/gen_content.py
 """
@@ -35,9 +37,19 @@ def cost_curve(base, growth, tiers, milestones=None):
 def write(name, obj):
     obj = {"schema_version": SCHEMA, **obj}
     path = os.path.abspath(os.path.join(OUT, name))
+    text = json.dumps(obj, indent=2, ensure_ascii=False)
+    # The committed data is canonical and a test pins regeneration as byte-for-byte, so a
+    # re-run that changes no content changes no bytes: it keeps the final-newline
+    # convention of the file it is overwriting. A file it creates still gets one.
+    trailing = "\n"
+    if os.path.exists(path):
+        with open(path, "rb") as f:
+            trailing = "\n" if f.read().endswith(b"\n") else ""
+    if os.path.exists(path) and open(path, encoding="utf-8").read() == text + trailing:
+        print(f"unchanged {path}")
+        return
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(obj, f, indent=2, ensure_ascii=False)
-        f.write("\n")
+        f.write(text + trailing)
     print(f"wrote {path}")
 
 
@@ -133,6 +145,10 @@ def mat(mid, name, cat, hardness, value, **kw):
     d = {
         "id": f"material.{mid}",
         "name_key": f"material.{mid}.name",
+        # ADR 7: every referenced key needs authored text, so every definition emits both
+        # keys; the materials and recipes were hand-edited to add this before the emitter
+        # knew about it, which is the drift the no-op test now pins.
+        "description_key": f"material.{mid}.description",
         "category": cat,
         "hardness": hardness,
         "base_value": value,
@@ -384,6 +400,22 @@ def tiers(track_id, base, growth, count, per_tier_effects, milestones):
     return out
 
 
+# ADR 9: the power core is the only thing that raises the module power budget, so every
+# tier the player pays for moves it. The ladder is +1 per tier until the top tier, which
+# is the one a full module loadout is bought for and so jumps to 7. data/strings.en.json
+# quotes these numbers in the tier summaries, so both sides move together.
+POWER_CORE_POWER = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 7}
+
+
+def power_core_effects(tier):
+    if not tier:
+        return []
+    effects = [{"type": "utility_power_add", "value": POWER_CORE_POWER[tier]}]
+    if tier % 3 == 0:  # qualitative tiers also carry a protected sample slot
+        effects.append({"type": "protected_sample_slots", "value": 1})
+    return effects
+
+
 def eq(track_id, name, base, growth, count, per_tier, milestones):
     return {
         "id": f"equipment.{track_id}",
@@ -440,7 +472,7 @@ equipment = [
         6: {"summary_key": "equipment.scanner.tier6.summary",
             "effects": [{"type": "grant_flag", "flag": "scan_through_rock"}]}}),
     eq("power_core", "Utility Power Core", 260, 1.63, 7,
-       lambda t: [{"type": "protected_sample_slots", "value": 1}] if t and t % 3 == 0 else [],
+       power_core_effects,
        {1: {"summary_key": "equipment.power_core.tier1.summary", "effects": []},
         4: {"summary_key": "equipment.power_core.tier4.summary", "effects": []}}),
 ]
@@ -821,7 +853,8 @@ facilities = [
 write("facilities.json", {"facilities": facilities})
 
 def rec(rid, facility, tier, inputs, outputs, credits=0, byproducts=(), unlock=None):
-    d = dict(id=f"recipe.{rid}", name_key=f"recipe.{rid}.name", facility=f"facility.{facility}",
+    d = dict(id=f"recipe.{rid}", name_key=f"recipe.{rid}.name",
+             description_key=f"recipe.{rid}.description", facility=f"facility.{facility}",
              facility_tier=tier,
              inputs=[{"material": f"material.{m}", "amount": a} for m, a in inputs],
              outputs=[{"material": f"material.{m}", "amount": a} for m, a in outputs],
