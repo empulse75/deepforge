@@ -1,30 +1,36 @@
 #include "core/Result.hpp"
 
+#include "core/Sanitize.hpp"
+
 #include <sstream>
 
 namespace df {
 
 std::string Error::to_string() const {
     std::ostringstream os;
+    // SEC-07: these fields carry strings that came out of data files and
+    // saves (unknown ids, bad values), and this rendering reaches terminals
+    // directly — console errors, CI logs — where a raw ESC byte or newline
+    // would forge a line. Every interpolation is JSON-encoded.
     if (!file.empty()) {
-        os << file;
+        os << json_encode(file);
         if (!definition.empty()) {
-            os << " [" << definition << "]";
+            os << " [" << json_encode(definition) << "]";
         }
         if (!field.empty()) {
-            os << " ." << field;
+            os << " ." << json_encode(field);
         }
         os << ": ";
     } else if (!definition.empty()) {
-        os << definition;
+        os << json_encode(definition);
         if (!field.empty()) {
-            os << "." << field;
+            os << "." << json_encode(field);
         }
         os << ": ";
     }
-    os << message;
+    os << json_encode(message);
     if (!suggestion.empty()) {
-        os << " (" << suggestion << ")";
+        os << " (" << json_encode(suggestion) << ")";
     }
     return os.str();
 }

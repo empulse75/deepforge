@@ -157,3 +157,32 @@ TEST_CASE("platform/Settings a settings file over its documented ceiling is refu
     CHECK(loaded.error().file == path.string());
     CHECK(loaded.error().suggestion == "delete it to restore defaults");
 }
+
+TEST_CASE("platform/Settings refuses to write through a symlinked temp file", "[platform][settings]") {
+    // SEC-06 measured: the fixed name settings.json.tmp is the seam — the
+    // open follows a planted symlink, the settings text lands wherever the
+    // link points, and the rename moves the link into place. The write must
+    // refuse; the settings file itself may legitimately be a symlink (a
+    // dotfiles repo), the temp file may not.
+    const auto dir = dft::temp_dir("settings_symlinked_temp");
+    const auto path = dir / "settings.json";
+    const auto victim = dir / "victim.txt";
+    {
+        std::ofstream v(victim, std::ios::binary | std::ios::trunc);
+        REQUIRE(v.good());
+    }
+    std::filesystem::create_symlink(victim, path.string() + ".tmp");
+
+    auto saved = save_settings(path, default_settings());
+    REQUIRE_FALSE(saved.has_value());
+    CHECK(saved.error().message == "refusing to write settings through a symlinked temp file");
+    CHECK(std::filesystem::is_symlink(path.string() + ".tmp")); // still there, untouched
+    CHECK(std::filesystem::file_size(victim) == 0);
+    REQUIRE_FALSE(std::filesystem::exists(path));
+
+    std::filesystem::remove(path.string() + ".tmp");
+    REQUIRE(save_settings(path, default_settings()).has_value()); // plain path still works
+    REQUIRE(std::filesystem::exists(path));
+    auto loaded = load_settings(path);
+    REQUIRE(loaded.has_value());
+}

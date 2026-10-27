@@ -391,6 +391,19 @@ Status save_settings(const std::filesystem::path& file, const Settings& s) {
 
     const auto temp = file.string() + ".tmp";
     {
+        // SEC-06: the temp name is fixed and predictable, so a planted
+        // symlink there is an attacker-chosen write target: the open below
+        // follows it, and the rename then moves the link into place. Refuse
+        // the link at the door; the settings file itself may legitimately
+        // be a symlink (a dotfiles repo), the temp file may not.
+        std::error_code linkEc;
+        if (std::filesystem::is_symlink(std::filesystem::symlink_status(temp, linkEc))) {
+            return fail(Error{"refusing to write settings through a symlinked temp file",
+                              temp,
+                              {},
+                              {},
+                              "delete the symlink and retry"});
+        }
         std::ofstream out(temp, std::ios::trunc);
         if (!out) {
             return fail(Error{"cannot write settings", temp, {}, {}, {}});

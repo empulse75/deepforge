@@ -713,6 +713,17 @@ Status SaveSystem::write(const ContentDatabase& db, int slot, const SaveData& da
     const auto target = slot_path(slot);
     const auto temp = mDir / ("slot" + std::to_string(slot) + ".dfsave.tmp");
     {
+        // SEC-06: predictable temp name, same trap as the settings path — a
+        // planted symlink here sends the bytes wherever it points and the
+        // rename moves the link into the slot. Refuse before opening.
+        std::error_code linkEc;
+        if (std::filesystem::is_symlink(std::filesystem::symlink_status(temp, linkEc))) {
+            return fail(Error{"refusing to write the save through a symlinked temp file",
+                              temp.string(),
+                              {},
+                              {},
+                              "delete the symlink and retry; the previous save is untouched"});
+        }
         std::ofstream out(temp, std::ios::binary | std::ios::trunc);
         if (!out) {
             return fail(Error{"cannot open temporary save file",

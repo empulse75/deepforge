@@ -1,5 +1,7 @@
 #include "core/Log.hpp"
 
+#include "core/Sanitize.hpp"
+
 #include <array>
 #include <cstdio>
 #include <mutex>
@@ -22,24 +24,6 @@ struct LogState {
 LogState& state() {
     static LogState s;
     return s;
-}
-
-constexpr std::string_view level_name(LogLevel l) {
-    switch (l) {
-        case LogLevel::Trace:
-            return "TRACE";
-        case LogLevel::Debug:
-            return "DEBUG";
-        case LogLevel::Info:
-            return "INFO";
-        case LogLevel::Warn:
-            return "WARN";
-        case LogLevel::Error:
-            return "ERROR";
-        case LogLevel::Off:
-            return "OFF";
-    }
-    return "?";
 }
 
 } // namespace
@@ -85,7 +69,13 @@ bool enabled(LogLevel level) {
 void dispatch(LogLevel level, std::string_view category, std::string message) {
     auto& s = state();
     std::lock_guard lock(s.mutex);
-    const std::string line = std::format("[{}] [{}] {}", level_name(level), category, message);
+    // SEC-07: the single choke point. Every line that leaves the process —
+    // console, ring buffer, sinks — carries escaped text, so a control byte
+    // from a data file, a save, argv or env can no longer restyle the output
+    // or forge a record boundary. \n stays reserved as the terminator.
+    const std::string safeCategory = escape_control(category);
+    const std::string safeMessage = escape_control(message);
+    const std::string line = std::format("[{}] [{}] {}", level_name(level), safeCategory, safeMessage);
     std::fputs(line.c_str(), level >= LogLevel::Warn ? stderr : stdout);
     std::fputc('\n', level >= LogLevel::Warn ? stderr : stdout);
     s.ring[s.ringNext] = line;
@@ -94,7 +84,7 @@ void dispatch(LogLevel level, std::string_view category, std::string message) {
         ++s.ringCount;
     }
     for (auto* sink : s.sinks) {
-        sink->write(level, category, message);
+        sink->write(level, safeCategory, safeMessage);
     }
 }
 

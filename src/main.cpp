@@ -1,6 +1,8 @@
 // Project Deepforge entry point.
 #include "app/SaveFile.hpp"
 #include "content/ContentDatabase.hpp"
+#include "core/CrashHook.hpp"
+#include "core/FileSink.hpp"
 #include "core/Log.hpp"
 #include "core/Version.hpp"
 #include "presentation/Client.hpp"
@@ -10,29 +12,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
-#include <fstream>
 #include <string>
 #include <string_view>
 #include <utility>
 
 namespace {
-
-/// Writes the log to the user data directory so crash reports have a location.
-class FileSink final : public df::LogSink {
-public:
-    explicit FileSink(const std::filesystem::path& path) : mOut(path, std::ios::trunc) {}
-
-    void write(df::LogLevel level, std::string_view category, std::string_view message) override {
-        if (!mOut) {
-            return;
-        }
-        mOut << "[" << static_cast<int>(level) << "] [" << category << "] " << message << '\n';
-        mOut.flush();
-    }
-
-private:
-    std::ofstream mOut;
-};
 
 std::filesystem::path find_data_dir(const std::filesystem::path& override) {
     if (!override.empty()) {
@@ -130,8 +114,12 @@ int main(int argc, char** argv) {
     const std::filesystem::path userDir = userOverride.empty() ? df::default_user_data_dir() : userOverride;
     std::error_code ec;
     std::filesystem::create_directories(userDir, ec);
-    static FileSink sink(userDir / "deepforge.log");
+    static df::FileSink sink(userDir / "deepforge.log");
     df::add_log_sink(&sink);
+    // OPS-OBS-02: installed here — the log has just been opened (and rotated
+    // from the previous session), and this is before content loads, so a
+    // FATAL line from anything that dies below lands in the log.
+    df::install_crash_hook(userDir / "deepforge.log");
     df::set_log_level(df::LogLevel::Info);
     DF_LOG_INFO("boot", "Project Deepforge {} ({}) starting", df::kBuildVersion, df::kBuildConfig);
     DF_LOG_INFO("boot", "user data directory: {}", userDir.string());

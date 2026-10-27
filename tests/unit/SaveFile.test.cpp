@@ -312,3 +312,32 @@ TEST_CASE("a wrong-typed element in a save is skipped with a warning not a crash
     REQUIRE(got != nullptr);
     CHECK(got->tiles.empty()); // the malformed entry was dropped (with a warning)
 }
+
+TEST_CASE("a symlink planted on the temp name is refused, not followed", "[save][atomic]") {
+    // SEC-06 measured: the predictable temp name is the seam — a planted
+    // symlink there decided where the save bytes landed, and the rename then
+    // moved the link into the slot. The write must name the refusal and leave
+    // the link target and the existing save untouched.
+    const auto& db = dft::shipped_content();
+    const auto dir = dft::temp_dir("save_symlinked_temp");
+    SaveSystem saves(dir);
+    SaveData data = sample_save(db);
+    REQUIRE(saves.write(db, 3, data).has_value());
+
+    const auto victim = dir / "victim.txt";
+    {
+        std::ofstream v(victim, std::ios::binary | std::ios::trunc);
+        REQUIRE(v.good());
+    }
+    std::filesystem::create_symlink(victim, dir / "slot3.dfsave.tmp");
+
+    auto refused = saves.write(db, 3, data);
+    REQUIRE_FALSE(refused.has_value());
+    CHECK(refused.error().message == "refusing to write the save through a symlinked temp file");
+    CHECK(std::filesystem::file_size(victim) == 0);             // nothing was written through the link
+    CHECK_FALSE(std::filesystem::exists(saves.backup_path(3))); // the rotation never ran
+    REQUIRE(saves.read(db, 3).has_value());                     // the previous save is intact
+
+    std::filesystem::remove(dir / "slot3.dfsave.tmp");
+    REQUIRE(saves.write(db, 3, data).has_value()); // the plain path still works
+}

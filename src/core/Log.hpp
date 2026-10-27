@@ -10,7 +10,28 @@ namespace df {
 
 enum class LogLevel { Trace, Debug, Info, Warn, Error, Off };
 
+/// The name every line format prints for a level; shared by the console
+/// dispatch and the file sink so the two stop diverging (`[LEVEL]` vs `[N]`).
+inline constexpr std::string_view level_name(LogLevel l) {
+    switch (l) {
+        case LogLevel::Trace:
+            return "TRACE";
+        case LogLevel::Debug:
+            return "DEBUG";
+        case LogLevel::Info:
+            return "INFO";
+        case LogLevel::Warn:
+            return "WARN";
+        case LogLevel::Error:
+            return "ERROR";
+        case LogLevel::Off:
+            return "OFF";
+    }
+    return "?";
+}
+
 /// Sink interface; the platform layer installs a file sink at startup.
+/// Sinks receive category and message already escaped by dispatch.
 class LogSink {
 public:
     virtual ~LogSink() = default;
