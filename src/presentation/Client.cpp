@@ -1606,7 +1606,8 @@ void Client::set_slider(int id, float fraction) {
             mSettings.access.particleDensity = v;
             break;
         case kIdTextScale:
-            mSettings.access.textScale = v;
+            // The slider snaps to whole steps so glyph cells stay whole (ADR 6).
+            mSettings.access.textScale = theme::snap_text_scale(v);
             break;
         case kIdAssistFuel:
             mSettings.assists.fuelDrainScale = v;
@@ -2187,7 +2188,15 @@ void Client::update(float frameSeconds) {
             const int dir = mInput->pressed(Action::NavRight) ? 1 : mInput->pressed(Action::NavLeft) ? -1 : 0;
             const int id = mMenu.items[static_cast<usize>(mSelected)].id;
             if (dir != 0 && slider_spec(id) != nullptr) {
-                set_slider(id, slider_fraction(id) + 0.1f * static_cast<float>(dir));
+                if (id == kIdTextScale) {
+                    // A snapped slider steps between whole steps; a tenth of
+                    // the track could never leave the first one (A11Y-01).
+                    const SliderSpec* spec = slider_spec(id);
+                    const float v = theme::next_text_scale_step(slider_value(id), dir);
+                    set_slider(id, (v - spec->min) / (spec->max - spec->min));
+                } else {
+                    set_slider(id, slider_fraction(id) + 0.1f * static_cast<float>(dir));
+                }
             }
         }
     }
@@ -2752,6 +2761,7 @@ void Client::paint_debug(Draw& d) {
 void Client::render(float alpha) {
     Draw d(mWindow.renderer());
     d.set_scale(ui_scale());
+    d.set_text_scale(mSettings.access.textScale);
 
     const float w = static_cast<float>(mWindow.width());
     const float h = static_cast<float>(mWindow.height());

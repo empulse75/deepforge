@@ -101,6 +101,13 @@ public:
 
     float scale() const noexcept { return mScale; }
 
+    /// The accessibility text-size factor (settings -> accessibility). Applied
+    /// in the one text-metric path (glyph_px), so measure, line_height,
+    /// baseline, elide and every text draw agree (A11Y-01). Snapped to steps.
+    void set_text_scale(float s) noexcept { mTextScale = s; }
+
+    float text_scale() const noexcept { return theme::snap_text_scale(mTextScale); }
+
     /// Converts a token-space length into physical pixels.
     float px(float logical) const noexcept { return std::round(logical * mScale); }
 
@@ -172,8 +179,14 @@ public:
 private:
     void glyph_runs(u8 bits, int width, float x, float y, float px_, Color c);
 
+    /// The single text-metric multiplier: integer UI scale x style scale x the
+    /// snapped accessibility text scale, with the Micro face's floor honoured
+    /// (A11Y-01/02). Rounded so bitmap glyph cells stay whole (ADR 6).
+    float glyph_px(const TextStyle& style) const;
+
     SDL_Renderer* mRenderer = nullptr;
     float mScale = 1.0f;
+    float mTextScale = 1.0f;
 };
 
 } // namespace df

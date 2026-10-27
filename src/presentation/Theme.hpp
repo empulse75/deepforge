@@ -63,10 +63,14 @@ inline constexpr Color kRule{40, 45, 57};       ///< Dividers and hairlines.
 inline constexpr Color kRuleSoft{30, 34, 43};
 
 // --- text ------------------------------------------------------------------
+// Values are the first on their hue that clear WCAG AA on every ground each
+// token is drawn on (A11Y-03; the arithmetic is a test — the audit's spreadsheet
+// is not the enforcement). kTextDisabled answers to the 3.0 bar, as WCAG
+// applies it to inactive components.
 inline constexpr Color kText{216, 222, 233};
 inline constexpr Color kTextMuted{140, 151, 170};
-inline constexpr Color kTextFaint{92, 101, 117};
-inline constexpr Color kTextDisabled{74, 81, 95};
+inline constexpr Color kTextFaint{124, 134, 152};
+inline constexpr Color kTextDisabled{96, 104, 120};
 
 // --- accents ---------------------------------------------------------------
 inline constexpr Color kAmber{240, 168, 60}; ///< Primary: focus, action, selection.
@@ -106,6 +110,49 @@ inline constexpr float kSpace7 = 36.0f;
 inline constexpr float kRowHeight = 27.0f; ///< List row, before UI scale.
 inline constexpr float kHeaderHeight = 18.0f;
 inline constexpr float kNotch = 6.0f; ///< Machined corner mark length.
+
+/// Text scale (A11Y-01). The stored setting stays continuous (the file is
+/// user-editable), but the applied factor snaps to these steps so every glyph
+/// cell lands on the integer grid (ADR 6) and the bitmap faces stay whole.
+/// Nearest step; exact ties resolve downward.
+inline constexpr float kTextScaleSteps[] = {1.0f, 1.5f, 2.0f};
+
+constexpr float snap_text_scale(float v) {
+    float best = kTextScaleSteps[0];
+    for (const float s : kTextScaleSteps) {
+        if (std::fabs(s - v) < std::fabs(best - v) || (std::fabs(s - v) == std::fabs(best - v) && s < best)) {
+            best = s;
+        }
+    }
+    return best;
+}
+
+/// The keyboard/gamepad step on the text-size slider: the nearest step in the
+/// pressed direction from the snapped position, clamped to the step set (a
+/// tenth-of-track nudge could never leave the first step once snapping is in
+/// force).
+constexpr float next_text_scale_step(float current, int dir) {
+    const float base = snap_text_scale(current);
+    if (dir == 0) {
+        return base;
+    }
+    float best = base;
+    bool found = false;
+    for (const float s : kTextScaleSteps) {
+        if (!((dir > 0 && s > base) || (dir < 0 && s < base))) {
+            continue;
+        }
+        if (!found || std::fabs(s - base) < std::fabs(best - base)) {
+            best = s;
+            found = true;
+        }
+    }
+    return best;
+}
+
+/// The most-used style must not be the smallest text in the game (A11Y-02):
+/// the Micro face's effective scale never falls below this.
+inline constexpr int kCaptionMinScale = 2;
 
 /// Motion. Every duration here is also gated by the reduce-motion setting.
 inline constexpr float kHoverRate = 16.0f; ///< Exponential approach rate.

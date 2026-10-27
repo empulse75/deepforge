@@ -174,21 +174,28 @@ void Draw::panel(const Rect& r, Surface surface, bool notches) {
 // Text
 // ---------------------------------------------------------------------------
 
+float Draw::glyph_px(const TextStyle& style) const {
+    int styleScale = style.scale;
+    if (style.face == Face::Micro) {
+        styleScale = std::max(styleScale, theme::kCaptionMinScale);
+    }
+    const float ui = std::max(1.0f, std::round(mScale));
+    return std::round(ui * static_cast<float>(styleScale) * theme::snap_text_scale(mTextScale));
+}
+
 float Draw::line_height(const TextStyle& style) const {
     const FaceInfo f = face_info(style.face, style.bold);
-    return std::round(static_cast<float>(f.height) * std::max(1.0f, std::round(mScale)) *
-                      static_cast<float>(style.scale));
+    return std::round(static_cast<float>(f.height) * glyph_px(style));
 }
 
 float Draw::baseline(const TextStyle& style) const {
     const FaceInfo f = face_info(style.face, style.bold);
-    return std::round(static_cast<float>(f.baseline) * std::max(1.0f, std::round(mScale)) *
-                      static_cast<float>(style.scale));
+    return std::round(static_cast<float>(f.baseline) * glyph_px(style));
 }
 
 float Draw::measure(std::string_view s, const TextStyle& style) const {
     const FaceInfo f = face_info(style.face, style.bold);
-    const float p = std::max(1.0f, std::round(mScale)) * static_cast<float>(style.scale);
+    const float p = glyph_px(style);
     const int tab = style.tabular ? digit_advance(f) : 0;
     float total = 0.0f;
     for (const char ch : s) {
@@ -243,7 +250,7 @@ float Draw::text(std::string_view s, float x, float y, Color c, const TextStyle&
         return 0.0f;
     }
     const FaceInfo f = face_info(style.face, style.bold);
-    const float p = std::max(1.0f, std::round(mScale)) * static_cast<float>(style.scale);
+    const float p = glyph_px(style);
     const float width = measure(s, style);
     float cursor = x;
     if (align == TextAlign::Center) {

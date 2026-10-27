@@ -71,7 +71,7 @@ client-enabled build.
 | Saves | Full field round trip, atomic write with backup rotation, corruption detection and recovery, garbage input, migration from every released schema, refusal of a newer schema, dropping content that no longer exists |
 | Focus model (TEST-01 seam) | Pointer-over takes focus, click-release commits, disabled rows refuse but stay focusable, inert rows never take focus, confirm commits through the focus index with no pointer, slider drags, wheel scroll clamps, focused row kept in view |
 | Action-state layer (TEST-01 seam) | Press/hold/release edges, hold vs. toggle accessibility modes, mining toggle latch and cancel, keyboard axis exclusivity, dead-zone rescale, out-of-range binding reads as up |
-| Theme machinery (TEST-01 seam) | Colour-vision gauge palette resolves per the setting and separates on every gauge, mix/shade/alpha endpoints and clamps, spacing scale monotonic |
+| Theme machinery (TEST-01 seam) | Colour-vision gauge palette resolves per the setting and separates on every gauge, mix/shade/alpha endpoints and clamps, spacing scale monotonic, text tokens clear WCAG AA on the grounds they are drawn on, text-size snapping to whole steps, Micro caption floor (A11Y-01/02/03) |
 
 ### `tests/generation` — world
 
