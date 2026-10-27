@@ -260,6 +260,27 @@ Saves, settings and the log go to the platform user-data directory, or wherever
 `$XDG_DATA_HOME` is honoured when set, and the fallback if neither it nor
 `$HOME` exists is `./deepforge-data`.
 
+The settings file is officially user-editable, and its limits are documented
+here. A value of the right type within its range is used as written; a value of
+the right type but outside its range falls back to the default below and says so;
+a value of the wrong type stops the load with a named error, because half a
+settings file silently ignored is worse than one that explains itself — the
+remedy in that case is the one the game offers on screen: delete the file.
+
+| Field | Range | Default |
+| --- | --- | --- |
+| `video.width` / `video.height` | 256–7680 / 256–4320 | 1600 / 900 |
+| `video.zoom` | 1.0 or 2.0 (integer steps) | 1.0 |
+| `video.ui_scale` | 0 (auto) or an integer 1–8 | 0 |
+| `audio.master` | 0.0–1.0 | 0.8 |
+| `accessibility.text_scale` | 0.7–2.0 | 1.0 |
+| `accessibility.*` sliders (shake, flash, particles, ...) | 0.0–1.0 | 1.0 |
+| `assists.*` | 0.2–1.5 | 1.0 |
+
+And the practical ceiling: a file bigger than 1 MB is refused before anything is
+read into memory. The shipped settings are around 4 KB, so this only fires on a
+file you pasted something into.
+
 There is no macOS branch in `default_user_data_dir()`, so macOS currently gets
 the Linux path rather than `~/Library/Application Support`. That is a known gap,
 not a deliberate choice — it is listed in the README's limitations. It was

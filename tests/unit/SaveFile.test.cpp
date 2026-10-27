@@ -3,6 +3,8 @@
 #include "app/SaveFile.hpp"
 #include "core/Version.hpp"
 
+#include <nlohmann/json.hpp>
+
 #include <catch2/catch_test_macros.hpp>
 
 #include <fstream>
@@ -271,4 +273,42 @@ TEST_CASE("content that disappeared is dropped rather than crashing", "[save][re
     REQUIRE(restored.has_value());
     // The unknown stack is gone; everything else survived.
     CHECK(restored->progress.credits == data.progress.credits);
+}
+
+TEST_CASE("a wrong-typed element in a save is skipped with a warning not a crash", "[save][recovery]") {
+    // SEC-01 class, one level down: the save decoder read array elements blind, and
+    // a hand-edited string there threw into std::terminate. The file's convention
+    // for data it cannot use — drop it and say so — is what the boundary follows.
+    const auto& db = dft::shipped_content();
+    SaveSystem saves(dft::temp_dir("save_wrong_type"));
+    SaveData data = sample_save(db);
+    ChunkDelta delta;
+    delta.coord = ChunkCoord{3, -4};
+    delta.tiles.push_back(ChunkDelta::TileChange{1, db.material("material.ferrite").index, 3});
+    data.worldDeltas.push_back(delta);
+    auto text = saves.serialise(db, data);
+    REQUIRE(text.has_value());
+
+    auto doc = nlohmann::json::parse(*text);
+    nlohmann::json* mine = nullptr;
+    for (auto& d : doc["payload"]["world_deltas"]) {
+        if (d["cx"] == 3) {
+            mine = &d;
+        }
+    }
+    REQUIRE(mine != nullptr);
+    REQUIRE(mine->at("tiles").size() == 1);
+    mine->at("tiles")[0][1] = "x"; // a string where the material id belongs
+    doc["checksum"] = 0;           // the loader treats a zero checksum as unverified
+
+    auto restored = saves.deserialise(db, doc.dump());
+    REQUIRE(restored.has_value()); // the load survives a hand-edit
+    const ChunkDelta* got = nullptr;
+    for (const auto& d : restored->worldDeltas) {
+        if (d.coord.x == 3) {
+            got = &d;
+        }
+    }
+    REQUIRE(got != nullptr);
+    CHECK(got->tiles.empty()); // the malformed entry was dropped (with a warning)
 }

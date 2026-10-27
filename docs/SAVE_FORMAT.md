@@ -10,9 +10,17 @@ code and covered by tests in `tests/unit/SaveFile.test.cpp`.
 3. A corrupted save is reported clearly, left on disk untouched, and a rotating
    backup is offered.
 4. Content that no longer exists is dropped with a logged warning rather than
-   crashing the load.
+   crashing the load. An element the decoders cannot read — a string where a
+   number belongs, an array member that is not an object — is dropped the same
+   way: the entry goes, the warning says so, the load continues. Structural
+   damage (a checksum mismatch, a payload that is not an object) is still a
+   whole-load failure.
 5. A save is never written part-way through a transaction or a tile-mutation
    batch.
+6. A save file bigger than the ingest ceiling — 8 MB, checked before anything is
+   read — is refused rather than parsed. A normal slot is a few KB; the ceiling
+   exists for a planted file, since reading and parsing costs roughly four times
+   the file in resident memory.
 
 ## Location
 

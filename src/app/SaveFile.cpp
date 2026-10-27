@@ -100,41 +100,106 @@ json encode_deltas(const std::vector<ChunkDelta>& deltas) {
     return arr;
 }
 
-std::vector<ChunkDelta> decode_deltas(const json& arr) {
+/// The save decoder's element read (SEC-01 class): a member the decoder cannot
+/// read used to throw straight into std::terminate. The file's convention for data
+/// it cannot use is to drop it and say so — that is what this does, reporting
+/// through the existing warnings machinery.
+i64 readJsonInt(const json& node, const char* key, ErrorList& warnings, i64 def = 0) {
+    if (!node.contains(key) || node.at(key).is_null()) {
+        return def;
+    }
+    const auto& v = node.at(key);
+    if (!matches_type(v, FieldType::Integer)) {
+        warnings.add(Error{std::string("a saved value the loader could not read and it was dropped") + " (" +
+                               std::string(field_type_name(v)) + " where an integer belongs)",
+                           "save",
+                           {},
+                           key,
+                           "the entry was skipped"});
+        return def;
+    }
+    return v.get<i64>();
+}
+
+std::vector<ChunkDelta> decode_deltas(const json& arr, ErrorList& warnings) {
     std::vector<ChunkDelta> out;
     if (!arr.is_array()) {
         return out;
     }
     for (const auto& jd : arr) {
+        if (!jd.is_object()) {
+            // SEC-01 class: a member the decoder cannot read used to throw straight
+            // into std::terminate. The save loader's convention for data it cannot
+            // use is to drop it and say so — that is what happens here.
+            warnings.add(Error{"a world delta the loader could not read and it was dropped",
+                               "save",
+                               {},
+                               "world_deltas",
+                               "the entry was skipped"});
+            continue;
+        }
         ChunkDelta d;
-        d.coord.x = jd.value("cx", static_cast<i64>(0));
-        d.coord.y = jd.value("cy", static_cast<i64>(0));
+        d.coord.x = readJsonInt(jd, "cx", warnings);
+        d.coord.y = readJsonInt(jd, "cy", warnings);
         if (jd.contains("tiles")) {
-            for (const auto& t : jd["tiles"]) {
-                if (t.is_array() && t.size() >= 2) {
+            for (const auto& t : jd.at("tiles")) {
+                if (t.is_array() && t.size() >= 2 && matches_type(t[0], FieldType::Integer) &&
+                    matches_type(t[1], FieldType::Integer) &&
+                    (t.size() < 3 || matches_type(t[2], FieldType::Integer))) {
                     d.tiles.push_back(
                         ChunkDelta::TileChange{t[0].get<i32>(), t[1].get<i32>(),
                                                t.size() > 2 ? t[2].get<u8>() : static_cast<u8>(0)});
+                } else {
+                    warnings.add(Error{"a tile change the loader could not read and it was dropped",
+                                       "save",
+                                       {},
+                                       "world_deltas",
+                                       "the entry was skipped"});
                 }
             }
         }
         if (jd.contains("mining")) {
-            for (const auto& m : jd["mining"]) {
-                if (m.is_array() && m.size() >= 2) {
+            for (const auto& m : jd.at("mining")) {
+                if (m.is_array() && m.size() >= 2 && matches_type(m[0], FieldType::Integer) &&
+                    matches_type(m[1], FieldType::Number)) {
                     d.mining.push_back(MiningProgress{m[0].get<i32>(), m[1].get<float>(), 0.0f});
+                } else {
+                    warnings.add(Error{"a mining progress the loader could not read and it was dropped",
+                                       "save",
+                                       {},
+                                       "world_deltas",
+                                       "the entry was skipped"});
                 }
             }
         }
         if (jd.contains("landmarks")) {
-            for (const auto& l : jd["landmarks"]) {
+            for (const auto& l : jd.at("landmarks")) {
+                if (!l.is_object() || (l.contains("id") && !matches_type(l.at("id"), FieldType::Integer)) ||
+                    (l.contains("a") && !matches_type(l.at("a"), FieldType::Boolean)) ||
+                    (l.contains("l") && !matches_type(l.at("l"), FieldType::Boolean))) {
+                    warnings.add(Error{"a landmark state the loader could not read and it was dropped",
+                                       "save",
+                                       {},
+                                       "world_deltas",
+                                       "the entry was skipped"});
+                    continue;
+                }
                 d.landmarks.push_back(ChunkDelta::LandmarkState{l.value("id", static_cast<u64>(0)),
                                                                 l.value("a", false), l.value("l", false)});
             }
         }
-        if (jd.contains("revealed") && jd["revealed"].is_array()) {
+        if (jd.contains("revealed") && jd.at("revealed").is_array()) {
             usize i = 0;
-            for (const auto& b : jd["revealed"]) {
+            for (const auto& b : jd.at("revealed")) {
                 if (i < d.revealed.size()) {
+                    if (!matches_type(b, FieldType::Integer)) {
+                        warnings.add(Error{"a revealed byte the loader could not read and it was dropped",
+                                           "save",
+                                           {},
+                                           "world_deltas",
+                                           "the entry was skipped"});
+                        continue;
+                    }
                     d.revealed[i++] = b.get<u8>();
                 }
             }
@@ -621,7 +686,7 @@ Result<SaveData> SaveSystem::deserialise(const ContentDatabase& db, const std::s
         decode_inventory(db, payload["samples"], data.samples, warnings);
     }
     if (payload.contains("world_deltas")) {
-        data.worldDeltas = decode_deltas(payload["world_deltas"]);
+        data.worldDeltas = decode_deltas(payload["world_deltas"], warnings);
     }
 
     for (const auto& w : warnings.all()) {

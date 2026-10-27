@@ -102,6 +102,12 @@ struct Settings {
 Settings default_settings();
 
 Status save_settings(const std::filesystem::path& file, const Settings& s);
-Result<Settings> load_settings(const std::filesystem::path& file);
+
+/// Load the user-editable settings file. A wrong type is a named failure carrying
+/// the documented remedy; a value outside its documented domain falls back to the
+/// documented default and records a warning through `warnings` (the existing
+/// Error machinery — the loader logs each one too). The default keeps existing
+/// callers unchanged.
+Result<Settings> load_settings(const std::filesystem::path& file, ErrorList* warnings = nullptr);
 
 } // namespace df

@@ -44,16 +44,38 @@ std::string opt_string(const json& j, const char* key, std::string fallback = {}
     return fallback;
 }
 
-i32 opt_int(const json& j, const char* key, i32 fallback) {
-    if (has(j, key) && j.at(key).is_number()) {
-        return j.at(key).get<i32>();
+i32 opt_int(const json& j, const char* key, i32 fallback, const Ctx* c = nullptr) {
+    if (!has(j, key)) {
+        return fallback;
     }
-    return fallback;
+    const auto& v = j.at(key);
+    if (!matches_type(v, FieldType::Integer)) {
+        // QUAL-01: a value present with the wrong type used to be reported nowhere —
+        // a float in an integer field silently truncated, a string silently fell back
+        // to the default. A caller that can name the definition now does; the rest
+        // keep the documented silent default they have always had.
+        if (c != nullptr) {
+            c->err(key,
+                   std::string("field must be ") + field_type_label(FieldType::Integer) + ", but is " +
+                       std::string(field_type_name(v)),
+                   "use a whole number, or delete the field to take the default");
+        }
+        return fallback;
+    }
+    return v.get<i32>();
 }
 
 i32 req_int(const json& j, const char* key, const Ctx& c) {
-    if (!has(j, key) || !j.at(key).is_number()) {
+    if (!has(j, key)) {
         c.err(key, "missing or non-numeric required field");
+        return 0;
+    }
+    const auto& v = j.at(key);
+    if (!matches_type(v, FieldType::Integer)) {
+        c.err(key,
+              std::string("field must be ") + field_type_label(FieldType::Integer) + ", but is " +
+                  std::string(field_type_name(v)),
+              "use a whole number for this field");
         return 0;
     }
     return j.at(key).get<i32>();
@@ -85,12 +107,29 @@ std::vector<StringId> opt_id_list(const json& j, const char* key) {
     return out;
 }
 
-void read_color(const json& j, const char* key, u8& r, u8& g, u8& b) {
-    if (has(j, key) && j.at(key).is_array() && j.at(key).size() >= 3) {
-        r = static_cast<u8>(std::clamp(j.at(key)[0].get<int>(), 0, 255));
-        g = static_cast<u8>(std::clamp(j.at(key)[1].get<int>(), 0, 255));
-        b = static_cast<u8>(std::clamp(j.at(key)[2].get<int>(), 0, 255));
+void read_color(const json& j, const char* key, u8& r, u8& g, u8& b, const Ctx& c) {
+    if (!has(j, key)) {
+        return;
     }
+    if (!j.at(key).is_array() || j.at(key).size() < 3) {
+        c.err(key, "colour must be an array of three integers",
+              "write it as [r, g, b], each one an integer 0-255");
+        return;
+    }
+    // QUAL-01: the array check was here, the element checks were not — a quoted
+    // channel aborted the process inside nlohmann.
+    for (size_t i = 0; i < 3; ++i) {
+        if (!matches_type(j.at(key)[i], FieldType::Integer)) {
+            c.err(key,
+                  std::string("colour element ") + std::to_string(i) + " must be an integer, but is " +
+                      std::string(field_type_name(j.at(key)[i])),
+                  "remove the quotes from the colour channels");
+            return;
+        }
+    }
+    r = static_cast<u8>(std::clamp(j.at(key)[0].get<int>(), 0, 255));
+    g = static_cast<u8>(std::clamp(j.at(key)[1].get<int>(), 0, 255));
+    b = static_cast<u8>(std::clamp(j.at(key)[2].get<int>(), 0, 255));
 }
 
 std::vector<Effect> read_effects(const json& j, const char* key, const Ctx& c) {
@@ -138,22 +177,23 @@ std::vector<Effect> read_effects(const json& j, const char* key, const Ctx& c) {
     return out;
 }
 
-std::vector<RecipeIngredient> read_ingredients(const json& j, const char* key) {
+std::vector<RecipeIngredient> read_ingredients(const json& j, const char* key, const Ctx* c = nullptr) {
     std::vector<RecipeIngredient> out;
     if (has(j, key) && j.at(key).is_array()) {
         for (const auto& e : j.at(key)) {
             RecipeIngredient ing;
             ing.materialId = StringId{opt_string(e, "material", opt_string(e, "id"))};
-            ing.amount = opt_int(e, "amount", 1);
+            ing.amount = opt_int(e, "amount", 1, c);
             out.push_back(ing);
         }
     }
     return out;
 }
 
-std::vector<std::pair<StringId, i32>> read_component_costs(const json& j, const char* key) {
+std::vector<std::pair<StringId, i32>> read_component_costs(const json& j, const char* key,
+                                                           const Ctx* c = nullptr) {
     std::vector<std::pair<StringId, i32>> out;
-    for (const auto& ing : read_ingredients(j, key)) {
+    for (const auto& ing : read_ingredients(j, key, c)) {
         out.emplace_back(ing.materialId, ing.amount);
     }
     return out;
@@ -508,8 +548,8 @@ void ContentLoader::load_materials(const json& root, const std::string& file) {
         m.category = material_category_from_string(opt_string(j, "category", "rock"));
         m.hardness = opt_float(j, "hardness", 1.0f);
         m.density = opt_float(j, "density", 1.0f);
-        m.baseValue = opt_int(j, "base_value", 0);
-        m.cargoUnits = opt_int(j, "cargo_units", 1);
+        m.baseValue = opt_int(j, "base_value", 0, &c);
+        m.cargoUnits = opt_int(j, "cargo_units", 1, &c);
         m.solid = opt_bool(j, "solid", m.category != MaterialCategory::Empty);
         m.mineable = opt_bool(
             j, "mineable", m.category != MaterialCategory::Boundary && m.category != MaterialCategory::Empty);
@@ -519,25 +559,25 @@ void ContentLoader::load_materials(const json& root, const std::string& file) {
         m.lightEmission = opt_float(j, "light_emission", 0.0f);
         m.tags = opt_id_list(j, "tags");
         m.breakAudioId = opt_string(j, "break_audio_id", "audio.rock_break");
-        m.patternId = static_cast<u8>(opt_int(j, "pattern_id", 0));
-        read_color(j, "color", m.colorR, m.colorG, m.colorB);
+        m.patternId = static_cast<u8>(opt_int(j, "pattern_id", 0, &c));
+        read_color(j, "color", m.colorR, m.colorG, m.colorB, c);
 
         if (has(j, "yield")) {
-            m.yieldMin = opt_int(j["yield"], "min", 1);
-            m.yieldMax = opt_int(j["yield"], "max", m.yieldMin);
+            m.yieldMin = opt_int(j["yield"], "min", 1, &c);
+            m.yieldMax = opt_int(j["yield"], "max", m.yieldMin, &c);
         }
         if (has(j, "generation")) {
             const auto& g = j["generation"];
             m.biomes = opt_id_list(g, "biomes");
-            m.minDepth = opt_int(g, "min_depth", 0);
-            m.maxDepth = opt_int(g, "max_depth", 1 << 30);
+            m.minDepth = opt_int(g, "min_depth", 0, &c);
+            m.maxDepth = opt_int(g, "max_depth", 1 << 30, &c);
             if (has(g, "vein_size") && g["vein_size"].is_array() && g["vein_size"].size() >= 2) {
                 m.veinSizeMin = g["vein_size"][0].get<i32>();
                 m.veinSizeMax = g["vein_size"][1].get<i32>();
             }
-            m.rarityWeightBp = opt_int(g, "rarity_weight_bp", 0);
-            m.fieldPeriod = opt_int(g, "field_period", 24);
-            m.fieldThresholdBp = opt_int(g, "field_threshold_bp", 0);
+            m.rarityWeightBp = opt_int(g, "rarity_weight_bp", 0, &c);
+            m.fieldPeriod = opt_int(g, "field_period", 24, &c);
+            m.fieldThresholdBp = opt_int(g, "field_threshold_bp", 0, &c);
         }
 
         if (m.hardness < 0.0f) {
@@ -580,25 +620,25 @@ void ContentLoader::load_biomes(const json& root, const std::string& file) {
         b.descriptionKey = opt_string(j, "description_key", b.id.text() + ".description");
         b.minDepth = req_int(j, "min_depth", c);
         b.maxDepth = req_int(j, "max_depth", c);
-        b.transitionBand = opt_int(j, "transition_band", 40);
+        b.transitionBand = opt_int(j, "transition_band", 40, &c);
         b.baseMaterial = StringId{req_string(j, "base_material", c)};
         b.softMaterial = StringId{opt_string(j, "soft_material", b.baseMaterial.text())};
         b.structuralMaterial = StringId{opt_string(j, "structural_material", b.baseMaterial.text())};
-        b.caveThresholdBp = opt_int(j, "cave_threshold_bp", 3000);
-        b.cavePeriod = opt_int(j, "cave_period", 20);
+        b.caveThresholdBp = opt_int(j, "cave_threshold_bp", 3000, &c);
+        b.cavePeriod = opt_int(j, "cave_period", 20, &c);
         b.ambientHeat = opt_float(j, "ambient_heat", 0.0f);
         b.hardnessScale = opt_float(j, "hardness_scale", 1.0f);
         b.landmarks = opt_id_list(j, "landmarks");
         b.musicId = opt_string(j, "music_id");
         b.gateResearch = StringId{opt_string(j, "gate_research")};
-        b.gateDepthProof = opt_int(j, "gate_depth_proof", 0);
-        read_color(j, "sky_color", b.skyR, b.skyG, b.skyB);
-        read_color(j, "fog_color", b.fogR, b.fogG, b.fogB);
+        b.gateDepthProof = opt_int(j, "gate_depth_proof", 0, &c);
+        read_color(j, "sky_color", b.skyR, b.skyG, b.skyB, c);
+        read_color(j, "fog_color", b.fogR, b.fogG, b.fogB, c);
         if (has(j, "hazards") && j["hazards"].is_array()) {
             for (const auto& h : j["hazards"]) {
                 BiomeHazardEntry e;
                 e.hazardId = StringId{opt_string(h, "id")};
-                e.weightBp = opt_int(h, "weight_bp", 0);
+                e.weightBp = opt_int(h, "weight_bp", 0, &c);
                 b.hazards.push_back(e);
             }
         }
@@ -635,9 +675,9 @@ void ContentLoader::load_equipment(const json& root, const std::string& file) {
             i32 expected = 0;
             for (const auto& t : j["tiers"]) {
                 EquipmentTier tier;
-                tier.tier = opt_int(t, "tier", expected);
-                tier.costCredits = opt_int(t, "cost_credits", 0);
-                tier.costComponents = read_component_costs(t, "cost_components");
+                tier.tier = opt_int(t, "tier", expected, &c);
+                tier.costCredits = opt_int(t, "cost_credits", 0, &c);
+                tier.costComponents = read_component_costs(t, "cost_components", &c);
                 tier.nameKey = opt_string(t, "name_key", e.id.text() + ".tier" + std::to_string(tier.tier));
                 tier.summaryKey = opt_string(t, "summary_key");
                 tier.effects = read_effects(t, "effects", c);
@@ -675,12 +715,12 @@ void ContentLoader::load_modules(const json& root, const std::string& file) {
         m.nameKey = opt_string(j, "name_key", m.id.text() + ".name");
         m.descriptionKey = opt_string(j, "description_key", m.id.text() + ".description");
         m.slot = module_slot_from_string(opt_string(j, "slot", "utility"));
-        m.powerCost = opt_int(j, "power_cost", 1);
-        m.costCredits = opt_int(j, "cost_credits", 0);
-        m.costComponents = read_component_costs(j, "cost_components");
+        m.powerCost = opt_int(j, "power_cost", 1, &c);
+        m.costCredits = opt_int(j, "cost_credits", 0, &c);
+        m.costComponents = read_component_costs(j, "cost_components", &c);
         m.unlockResearch = StringId{opt_string(j, "unlock")};
         m.unlockFaction = StringId{opt_string(j, "unlock_faction")};
-        m.unlockReputation = opt_int(j, "unlock_reputation", 0);
+        m.unlockReputation = opt_int(j, "unlock_reputation", 0, &c);
         m.effects = read_effects(j, "effects", c);
         m.tradeoffs = read_effects(j, "tradeoffs", c);
         m.tags = opt_id_list(j, "tags");
@@ -712,8 +752,8 @@ void ContentLoader::load_skills(const json& root, const std::string& file) {
         s.nameKey = opt_string(j, "name_key", s.id.text() + ".name");
         s.descriptionKey = opt_string(j, "description_key", s.id.text() + ".description");
         s.branch = skill_branch_from_string(opt_string(j, "branch", "prospector"));
-        s.row = opt_int(j, "row", 0);
-        s.cost = opt_int(j, "cost", 1);
+        s.row = opt_int(j, "row", 0, &c);
+        s.cost = opt_int(j, "cost", 1, &c);
         s.prerequisites = opt_id_list(j, "prerequisites");
         s.exclusiveGroup = StringId{opt_string(j, "exclusive_group")};
         s.keystone = opt_bool(j, "keystone", false);
@@ -742,11 +782,11 @@ void ContentLoader::load_recipes(const json& root, const std::string& file) {
         r.nameKey = opt_string(j, "name_key", r.id.text() + ".name");
         r.descriptionKey = opt_string(j, "description_key", r.id.text() + ".description");
         r.facilityId = StringId{opt_string(j, "facility", "facility.refinery")};
-        r.facilityTier = opt_int(j, "facility_tier", 1);
-        r.inputs = read_ingredients(j, "inputs");
-        r.outputs = read_ingredients(j, "outputs");
-        r.byproducts = read_ingredients(j, "byproducts");
-        r.creditCost = opt_int(j, "credit_cost", 0);
+        r.facilityTier = opt_int(j, "facility_tier", 1, &c);
+        r.inputs = read_ingredients(j, "inputs", &c);
+        r.outputs = read_ingredients(j, "outputs", &c);
+        r.byproducts = read_ingredients(j, "byproducts", &c);
+        r.creditCost = opt_int(j, "credit_cost", 0, &c);
         r.unlockResearch = StringId{opt_string(j, "unlock")};
         if (r.inputs.empty()) {
             c.err("inputs", "a recipe with no inputs would create free value", "add at least one input");
@@ -778,9 +818,9 @@ void ContentLoader::load_facilities(const json& root, const std::string& file) {
             i32 expected = 0;
             for (const auto& t : j["tiers"]) {
                 FacilityTier tier;
-                tier.tier = opt_int(t, "tier", expected);
-                tier.costCredits = opt_int(t, "cost_credits", 0);
-                tier.costComponents = read_ingredients(t, "cost_components");
+                tier.tier = opt_int(t, "tier", expected, &c);
+                tier.costCredits = opt_int(t, "cost_credits", 0, &c);
+                tier.costComponents = read_ingredients(t, "cost_components", &c);
                 tier.summaryKey = opt_string(t, "summary_key");
                 tier.effects = read_effects(t, "effects", c);
                 tier.unlocksRecipes = opt_id_list(t, "unlocks_recipes");
@@ -816,19 +856,19 @@ void ContentLoader::load_contracts(const json& root, const std::string& file) {
         t.descriptionKey = opt_string(j, "description_key", t.id.text() + ".description");
         t.kind = contract_kind_from_string(opt_string(j, "kind", "deliver_materials"));
         t.factionId = StringId{opt_string(j, "faction")};
-        t.minReputation = opt_int(j, "min_reputation", 0);
-        t.minDepthUnlocked = opt_int(j, "min_depth_unlocked", 0);
+        t.minReputation = opt_int(j, "min_reputation", 0, &c);
+        t.minDepthUnlocked = opt_int(j, "min_depth_unlocked", 0, &c);
         t.requiresResearch = StringId{opt_string(j, "requires_research")};
         t.materialPool = opt_id_list(j, "material_pool");
-        t.amountMin = opt_int(j, "amount_min", 1);
-        t.amountMax = opt_int(j, "amount_max", t.amountMin);
-        t.depthMin = opt_int(j, "depth_min", 0);
-        t.depthMax = opt_int(j, "depth_max", t.depthMin);
-        t.rewardCredits = opt_int(j, "reward_credits", 0);
-        t.rewardCreditsPerUnit = opt_int(j, "reward_credits_per_unit", 0);
-        t.rewardInsight = opt_int(j, "reward_insight", 0);
-        t.rewardReputation = opt_int(j, "reward_reputation", 0);
-        t.rewardComponents = read_ingredients(j, "reward_components");
+        t.amountMin = opt_int(j, "amount_min", 1, &c);
+        t.amountMax = opt_int(j, "amount_max", t.amountMin, &c);
+        t.depthMin = opt_int(j, "depth_min", 0, &c);
+        t.depthMax = opt_int(j, "depth_max", t.depthMin, &c);
+        t.rewardCredits = opt_int(j, "reward_credits", 0, &c);
+        t.rewardCreditsPerUnit = opt_int(j, "reward_credits_per_unit", 0, &c);
+        t.rewardInsight = opt_int(j, "reward_insight", 0, &c);
+        t.rewardReputation = opt_int(j, "reward_reputation", 0, &c);
+        t.rewardComponents = read_ingredients(j, "reward_components", &c);
         t.authored = opt_bool(j, "authored", false);
         t.repeatable = opt_bool(j, "repeatable", !t.authored);
         if (t.amountMax < t.amountMin) {
@@ -863,18 +903,18 @@ void ContentLoader::load_landmarks(const json& root, const std::string& file) {
         l.nameKey = opt_string(j, "name_key", l.id.text() + ".name");
         l.descriptionKey = opt_string(j, "description_key", l.id.text() + ".description");
         l.kind = landmark_kind_from_string(opt_string(j, "kind", "cache"));
-        l.minDepth = opt_int(j, "min_depth", 0);
-        l.maxDepth = opt_int(j, "max_depth", 1 << 30);
-        l.width = opt_int(j, "width", 7);
-        l.height = opt_int(j, "height", 5);
-        l.minSpacing = opt_int(j, "min_spacing", 220);
-        l.perRegionMin = opt_int(j, "per_region_min", 1);
-        l.perRegionMax = opt_int(j, "per_region_max", l.perRegionMin);
-        l.regionHeight = opt_int(j, "region_height", 250);
+        l.minDepth = opt_int(j, "min_depth", 0, &c);
+        l.maxDepth = opt_int(j, "max_depth", 1 << 30, &c);
+        l.width = opt_int(j, "width", 7, &c);
+        l.height = opt_int(j, "height", 5, &c);
+        l.minSpacing = opt_int(j, "min_spacing", 220, &c);
+        l.perRegionMin = opt_int(j, "per_region_min", 1, &c);
+        l.perRegionMax = opt_int(j, "per_region_max", l.perRegionMin, &c);
+        l.regionHeight = opt_int(j, "region_height", 250, &c);
         l.biomes = opt_id_list(j, "biomes");
         l.lootMaterials = opt_id_list(j, "loot_materials");
-        l.lootAmountMin = opt_int(j, "loot_amount_min", 0);
-        l.lootAmountMax = opt_int(j, "loot_amount_max", l.lootAmountMin);
+        l.lootAmountMin = opt_int(j, "loot_amount_min", 0, &c);
+        l.lootAmountMax = opt_int(j, "loot_amount_max", l.lootAmountMin, &c);
         l.grantsResearch = StringId{opt_string(j, "grants_research")};
         l.unique = opt_bool(j, "unique", false);
         if (l.width < 1 || l.height < 1) {
@@ -912,8 +952,8 @@ void ContentLoader::load_hazards(const json& root, const std::string& file) {
         h.radius = opt_float(j, "radius", 1.5f);
         h.heatPerSecond = opt_float(j, "heat_per_second", 0.0f);
         h.telegraphSeconds = opt_float(j, "telegraph_seconds", 0.6f);
-        h.minDepth = opt_int(j, "min_depth", 0);
-        read_color(j, "color", h.colorR, h.colorG, h.colorB);
+        h.minDepth = opt_int(j, "min_depth", 0, &c);
+        read_color(j, "color", h.colorR, h.colorG, h.colorB, c);
         if (has(j, "countered_by")) {
             RigFlag flag{};
             if (rig_flag_from_string(opt_string(j, "countered_by"), flag)) {
@@ -945,10 +985,10 @@ void ContentLoader::load_research(const json& root, const std::string& file) {
         check_duplicate(mDb.mResearch, r.id, c);
         r.nameKey = opt_string(j, "name_key", r.id.text() + ".name");
         r.descriptionKey = opt_string(j, "description_key", r.id.text() + ".description");
-        r.insightCost = opt_int(j, "insight_cost", 1);
+        r.insightCost = opt_int(j, "insight_cost", 1, &c);
         r.prerequisites = opt_id_list(j, "prerequisites");
         r.requiresSample = StringId{opt_string(j, "requires_sample")};
-        r.requiresSampleAmount = opt_int(j, "requires_sample_amount", 1);
+        r.requiresSampleAmount = opt_int(j, "requires_sample_amount", 1, &c);
         r.unlocksModules = opt_id_list(j, "unlocks_modules");
         r.unlocksRecipes = opt_id_list(j, "unlocks_recipes");
         r.unlocksBiomes = opt_id_list(j, "unlocks_biomes");
@@ -1054,8 +1094,8 @@ void ContentLoader::load_economy(const json& root, const std::string& file) {
     e.wreckRecoveryFraction = opt_float(j, "wreck_recovery_fraction", e.wreckRecoveryFraction);
     e.mineProgressDecayDelay = opt_float(j, "mine_progress_decay_delay", e.mineProgressDecayDelay);
     e.mineProgressDecayRate = opt_float(j, "mine_progress_decay_rate", e.mineProgressDecayRate);
-    e.startingCredits = opt_int(j, "starting_credits", e.startingCredits);
-    e.firstUpgradeTargetCost = opt_int(j, "first_upgrade_target_cost", e.firstUpgradeTargetCost);
+    e.startingCredits = opt_int(j, "starting_credits", e.startingCredits, &c);
+    e.firstUpgradeTargetCost = opt_int(j, "first_upgrade_target_cost", e.firstUpgradeTargetCost, &c);
     e.insightPerDiscovery = opt_float(j, "insight_per_discovery", e.insightPerDiscovery);
     e.sellPriceDepthBonusPer100m =
         opt_float(j, "sell_price_depth_bonus_per_100m", e.sellPriceDepthBonusPer100m);

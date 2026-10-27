@@ -176,8 +176,23 @@ Icon material_icon(MaterialCategory c) {
 
 Client::Client(ContentDatabase db, std::filesystem::path userDir)
     : mDb(std::move(db)), mUserDir(std::move(userDir)) {
-    auto loaded = load_settings(mUserDir / "settings.json");
-    mSettings = loaded ? *loaded : default_settings();
+    // The settings file is officially user-editable, so a hand-edit that puts a
+    // string where a number belongs has to produce the advice the loader already
+    // writes, not a crash: the ingest call is wrapped so nothing escapes it, and
+    // the remedy string is what the player gets to see (SEC-01).
+    ErrorList settingsWarnings;
+    auto loaded = load_settings(mUserDir / "settings.json", &settingsWarnings);
+    if (loaded) {
+        mSettings = std::move(*loaded);
+    } else {
+        DF_LOG_ERROR("settings", "{}", loaded.error().to_string());
+        push_toast(loaded.error().to_string(), theme::kWarn, Icon::Warning);
+        mSettings = default_settings();
+    }
+    for (const auto& w : settingsWarnings.all()) {
+        DF_LOG_WARN("settings", "{}", w.to_string());
+        push_toast(w.to_string(), theme::kWarn, Icon::Warning);
+    }
     mSession = std::make_unique<GameSession>(mDb, mUserDir / "saves");
     mTutorials = {
         {"move", "Piloting",

@@ -28,6 +28,19 @@ regression gate.
   the enemy: a missing string that title-cases an id, a flag typo that starts
   the game with a default, a stat that reads a stale cached field. Prefer a
   loud, named failure at load or build time.
+- **Every file boundary declares its ceiling.** Reading a whole file and parsing
+  it costs roughly four times the file in resident memory, so `core/JsonFile`
+  refuses before reading: 8 MB for machine-written ingest (data dir, store, save
+  slots) and 1 MB for the settings file. The shipped corpus (largest file 52 KB)
+  and a normal settings file (~4 KB) sit orders of magnitude under; the ceiling is
+  for a planted file, not for anything the game produces.
+- **The accessors after a parse are checked, not blind.** The parse is
+  non-throwing; it was `get<bool>` on a hand-edited string that killed the process.
+  A wrong type in content is a named load failure; in a settings file it is a named
+  failure carrying the remedy the app already offers ("delete it to restore
+  defaults"); a value of the right type but outside its documented domain falls
+  back to the documented default with a warning; in a save, where the file's
+  convention is to drop data it cannot use, the element is dropped with a warning.
 - **The comments say why, not what.** `// Clamp to the view` is noise. `// The
   builder sets this only when there is genuinely nothing to list, so an empty
   screen explains itself instead of reading as a blank panel` is worth its line.
