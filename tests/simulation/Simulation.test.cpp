@@ -387,12 +387,13 @@ TEST_CASE("seed 3407: the same run replays bit for bit", "[simulation][determini
         MineDirection mine;
         int ticks;
     };
+
     const Script script[] = {
-        {0.0f, false, MineDirection::Down, 240},  {0.6f, false, MineDirection::Right, 120},
-        {-0.4f, true, MineDirection::None, 180},  {0.0f, true, MineDirection::Up, 300},
-        {0.8f, false, MineDirection::Down, 200},  {-0.7f, false, MineDirection::Left, 150},
-        {0.2f, true, MineDirection::None, 260},   {0.0f, false, MineDirection::Down, 320},
-        {-0.5f, true, MineDirection::Up, 200},    {0.0f, false, MineDirection::None, 120},
+        {0.0f, false, MineDirection::Down, 240}, {0.6f, false, MineDirection::Right, 120},
+        {-0.4f, true, MineDirection::None, 180}, {0.0f, true, MineDirection::Up, 300},
+        {0.8f, false, MineDirection::Down, 200}, {-0.7f, false, MineDirection::Left, 150},
+        {0.2f, true, MineDirection::None, 260},  {0.0f, false, MineDirection::Down, 320},
+        {-0.5f, true, MineDirection::Up, 200},   {0.0f, false, MineDirection::None, 120},
     };
     std::vector<TickCommands> stream;
     for (const auto& s : script) {

@@ -69,8 +69,7 @@ public:
 
 private:
     /// Parses both JSON texts (invalid JSON is reported and treated as absent).
-    Status load_texts(const std::string& cosmeticsJson, const std::string& storeJson,
-                      ErrorList& errors);
+    Status load_texts(const std::string& cosmeticsJson, const std::string& storeJson, ErrorList& errors);
     std::vector<CosmeticDefinition> mCosmetics;
     std::vector<EntitlementDefinition> mEntitlements;
 };

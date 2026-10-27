@@ -58,8 +58,7 @@ TEST_CASE("every shipped entitlement is cosmetic with no sim-visible effects", "
     }
 }
 
-TEST_CASE("the entitlement type can express a non-cosmetic kind without a schema migration",
-          "[store][p2w]") {
+TEST_CASE("the entitlement type can express a non-cosmetic kind without a schema migration", "[store][p2w]") {
     // The kind enum is wider than what ships, on purpose: phase 2/3 categories
     // must be *expressible* now so a future pack does not force a content-schema
     // migration. Nothing in the shipped catalog may use them yet.

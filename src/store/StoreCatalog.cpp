@@ -40,8 +40,7 @@ Status StoreCatalog::load_texts(const std::string& cosmeticsText, const std::str
         auto parsed = df::parse_json(cosmeticsText, /*ignore_comments=*/true);
         if (!parsed) {
             errors.add(Error{"file is not valid JSON", "cosmetics.json", {}, {}, {}});
-        } else if (const json& root = *parsed;
-                   !root.contains("cosmetics") || !root["cosmetics"].is_array()) {
+        } else if (const json& root = *parsed; !root.contains("cosmetics") || !root["cosmetics"].is_array()) {
             errors.add(Error{"expected a \"cosmetics\" array", "cosmetics.json", {}, "cosmetics", {}});
         } else {
             for (const auto& j : root["cosmetics"]) {
@@ -53,9 +52,11 @@ Status StoreCatalog::load_texts(const std::string& cosmeticsText, const std::str
                 }
                 for (const auto& other : mCosmetics) {
                     if (other.id == def.id) {
-                        errors.add(
-                            Error{"duplicate cosmetic id '" + def.id.text() + "'", "cosmetics.json",
-                                  def.id.text(), "id", {}});
+                        errors.add(Error{"duplicate cosmetic id '" + def.id.text() + "'",
+                                         "cosmetics.json",
+                                         def.id.text(),
+                                         "id",
+                                         {}});
                     }
                 }
                 def.nameKey = j.value("name_key", def.id.text() + ".name");
@@ -90,8 +91,7 @@ Status StoreCatalog::load_texts(const std::string& cosmeticsText, const std::str
         } else if (const json& root = *parsed;
                    !root.contains("entitlements") || !root["entitlements"].is_array()) {
             errors.add(
-                Error{"expected an \"entitlements\" array", "store_catalog.json", {}, "entitlements",
-                      {}});
+                Error{"expected an \"entitlements\" array", "store_catalog.json", {}, "entitlements", {}});
         } else {
             for (const auto& j : root["entitlements"]) {
                 EntitlementDefinition def;
@@ -103,7 +103,10 @@ Status StoreCatalog::load_texts(const std::string& cosmeticsText, const std::str
                 for (const auto& other : mEntitlements) {
                     if (other.id == def.id) {
                         errors.add(Error{"duplicate entitlement id '" + def.id.text() + "'",
-                                         "store_catalog.json", def.id.text(), "id", {}});
+                                         "store_catalog.json",
+                                         def.id.text(),
+                                         "id",
+                                         {}});
                     }
                 }
                 def.nameKey = j.value("name_key", def.id.text() + ".name");
@@ -123,8 +126,8 @@ Status StoreCatalog::load_texts(const std::string& cosmeticsText, const std::str
                     }
                 }
                 if (def.grants.empty()) {
-                    errors.add(Error{"an entitlement must grant at least one cosmetic",
-                                     "store_catalog.json", def.id.text(), "grants",
+                    errors.add(Error{"an entitlement must grant at least one cosmetic", "store_catalog.json",
+                                     def.id.text(), "grants",
                                      "an entitlement that grants nothing is a charge for nothing"});
                 }
                 for (const auto& g : def.grants) {
@@ -143,10 +146,9 @@ Status StoreCatalog::load_texts(const std::string& cosmeticsText, const std::str
                 }
                 // The non-P2W invariant counts sim-visible effects per
                 // definition; the shipped catalog must carry none.
-                def.simVisibleEffects =
-                    (j.contains("effects") && j["effects"].is_array())
-                        ? static_cast<i32>(j["effects"].size())
-                        : 0;
+                def.simVisibleEffects = (j.contains("effects") && j["effects"].is_array())
+                                            ? static_cast<i32>(j["effects"].size())
+                                            : 0;
                 mEntitlements.push_back(std::move(def));
             }
         }
