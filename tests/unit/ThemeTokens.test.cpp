@@ -89,6 +89,28 @@ TEST_CASE("presentation/Theme text tokens clear WCAG AA on the grounds they are 
     CHECK(contrast(theme::kDanger, over(theme::kDanger.with_alpha(34), raised)) >= kBarLarge);
 }
 
+// A11Y-04 (P1-G): the caption pairs the accessibility card owns. Caption text is
+// now drawn in kText on an opaque plate (the plates went opaque so the ground is
+// the tokens themselves, not a blend of the world showing through); the hairline
+// is the kRule token so the plate separates from bright grounds. Same arithmetic
+// as the test above - SPEC:414.
+TEST_CASE("presentation/Theme captions clear AA on their opaque plates", "[presentation][theme][a11y]") {
+    CHECK(theme::kPlateEdge == theme::kRule);        // the hairline is the machined-edge token
+    CHECK(theme::kPlateOpaque == Color{10, 12, 17}); // the in-world plate ground, now opaque
+    CHECK(theme::kPlateOpaque.a == 255);
+
+    CHECK(contrast(theme::kText, theme::kPlateOpaque) >= kBarNormal); // in-world captions
+    CHECK(contrast(theme::kText, theme::kHousingHigh) >= kBarNormal); // menu-plate captions
+
+    // Separation from bright backgrounds (WCAG 1.4.11's 3.0 bar for non-text):
+    // the audit's 1.85:1 reading sat over the brightest frequent material,
+    // argentine; the opaque plate and its hairline both clear it.
+    const Color brightGround{196, 200, 208};
+    CHECK(contrast(theme::kPlateOpaque, brightGround) >= kBarLarge);
+    CHECK(contrast(theme::kPlateEdge, brightGround) >= kBarLarge);
+    CHECK(contrast(theme::kHousingHigh, brightGround) >= kBarLarge); // menu plate reads against it too
+}
+
 // A11Y-01: the text-size setting is honoured through the one text-metric path,
 // snapped to whole steps so bitmap glyph cells stay whole (ADR 6's integer
 // grid). The stored value stays continuous (the settings file is user-editable);

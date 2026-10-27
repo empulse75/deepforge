@@ -62,6 +62,12 @@ inline constexpr Color kBevelDark{4, 5, 8};     ///< Bottom and right.
 inline constexpr Color kRule{40, 45, 57};       ///< Dividers and hairlines.
 inline constexpr Color kRuleSoft{30, 34, 43};
 
+// --- plates ------------------------------------------------------------------
+// A11Y-04: caption/toast plates are opaque and edged with the hairline token so
+// they separate from bright grounds; alpha only rides during the fade transients.
+inline constexpr Color kPlateOpaque{10, 12, 17}; ///< Opaque plate ground (in-world).
+inline constexpr Color kPlateEdge = kRule;       ///< The kRule hairline around a plate (A11Y-04).
+
 // --- text ------------------------------------------------------------------
 // Values are the first on their hue that clear WCAG AA on every ground each
 // token is drawn on (A11Y-03; the arithmetic is a test — the audit's spreadsheet

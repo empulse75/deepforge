@@ -129,11 +129,14 @@ client-enabled build.
 
 ### `tests/visual` — visual regression baselines
 
-Committed BMP baselines for hub, expedition and garage, captured offscreen at
-seed 3407 / 2400 ticks. `tools/visual_regression.py` recaptures each screen
-and fails if the mean absolute pixel difference exceeds 2%; it skips itself
-when the client is not built or no offscreen display exists, so it is safe
-under every preset. Baselines update only via reviewed commit.
+Committed BMP baselines for every state the harness can name (21), captured
+offscreen at seed 3407 / 2400 ticks, each with an 8x crop of a text region and
+a gauge region (SPEC:412-414). `tools/visual_regression.py` recaptures each
+screen and fails any comparison whose mean absolute pixel difference exceeds
+2%; when nothing can be compared at all (no client binary, no offscreen
+driver) the run prints `RESULT: SKIP: ...` as its first line and CTest records
+it as *Skipped*, never as a pass. `--bless` rewrites baselines and crops from
+fresh captures; baselines update only via reviewed commit.
 
 ### `tests/integration` — the loop
 
@@ -203,8 +206,10 @@ SDL_VIDEODRIVER=offscreen ./build/dev-release/src/deepforge \
     --screenshot-screen expedition --screenshot-ticks 2400
 ```
 
-`--screenshot-screen` accepts `expedition`, `map`, `hub`, `garage`, `modules`,
-`skills` and `menu`.
+`--screenshot-screen` accepts `expedition`, `menu` (alias `mainmenu`), `hub`,
+`map`, `garage`, `modules`, `skills`, `research`, `refinery`, `contracts`,
+`facilities`, `codex`, `pause`, `results`, `failure`, `settings`, `bindings`,
+`credits`, `newworld`, `load` and `error`.
 
 ### Developer overlay
 

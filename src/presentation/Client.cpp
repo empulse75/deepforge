@@ -268,7 +268,10 @@ void Client::set_screen(Screen s) {
 
 void Client::push_toast(std::string text, Color c, Icon icon) {
     mToasts.push_back(Toast{std::move(text), icon, 4.2f, 0.0f, c});
-    while (mToasts.size() > 5) {
+    // A11Y-04: raised from 5 so a busy mining burst fits without evicting the
+    // oldest caption - for a deaf player the caption is the whole channel and
+    // a mid-read eviction loses it outright.
+    while (mToasts.size() > 8) {
         mToasts.pop_front();
     }
 }
@@ -280,7 +283,9 @@ void Client::play(Sfx s, float pitch) {
     if (mSettings.audio.subtitles) {
         const auto caption = sfx_caption(s);
         if (!caption.empty()) {
-            push_toast(std::string(caption), theme::kTextFaint);
+            // A11Y-04: the deaf channel is drawn in kText - the faint token sat at
+            // 1.85:1 on the brightest ground a caption lands on.
+            push_toast(std::string(caption), theme::kText);
         }
     }
 }
@@ -2228,11 +2233,14 @@ void Client::paint_toasts(Draw& d, float x, float bottom, bool overWorld) {
         const float w = d.measure(it->text, text_style::kBody) + d.px(theme::kSpace4) * 2.0f +
                         (it->icon != Icon::None ? iconSize + d.px(theme::kSpace2) : 0.0f);
         const Rect box{x - slide, y, w, h};
+        // A11Y-04: opaque plate (alpha only rides during the fade transients) plus
+        // the kRule hairline, so it separates from a bright in-world background.
         if (overWorld) {
-            d.rect(box, Color{10, 12, 17, static_cast<u8>(190.0f * alpha)});
+            d.rect(box, theme::kPlateOpaque.with_alpha_f(alpha));
         } else {
-            d.rect(box, theme::kHousingHigh.with_alpha_f(0.85f * alpha));
+            d.rect(box, theme::kHousingHigh.with_alpha_f(alpha));
         }
+        d.outline(box, theme::kPlateEdge.with_alpha_f(alpha), std::max(1.0f, d.scale()));
         d.rect(box.x, box.y, d.px(2.0f), box.h, it->color.with_alpha_f(alpha));
         float tx = box.x + d.px(theme::kSpace4);
         if (it->icon != Icon::None) {

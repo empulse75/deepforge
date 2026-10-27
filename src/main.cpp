@@ -94,9 +94,10 @@ int main(int argc, char** argv) {
                       "  --screenshot <file.bmp>   play a scripted world, then write one screenshot\n"
                       "  --screenshot-screen <s>   which screen to capture (default: expedition).\n"
                       "                            One of: expedition, menu, hub, map, garage,\n"
-                      "                            modules, skills, research, refinery, contracts,\n"
-                      "                            facilities, codex, pause, results, failure,\n"
-                      "                            settings, bindings, credits\n"
+                      "                            modules, skills, research, refinery,\n"
+                      "                            contracts, facilities, codex, pause,\n"
+                      "                            results, failure, settings, bindings,\n"
+                      "                            credits, newworld, load, error\n"
                       "  --screenshot-seed <n>     world seed for the capture (default: 20260905)\n"
                       "  --screenshot-ticks <n>    simulation ticks to play first (default: 2400)\n"
                       "\n"
@@ -184,6 +185,9 @@ int run_client(df::ContentDatabase db, const std::filesystem::path& userDir, int
             {"settings", df::Screen::Settings},
             {"bindings", df::Screen::Bindings},
             {"credits", df::Screen::Credits},
+            {"newworld", df::Screen::NewGame},
+            {"load", df::Screen::LoadGame},
+            {"error", df::Screen::Error},
         };
         df::Screen target = df::Screen::Expedition;
         bool known = screenshotScreen.empty();

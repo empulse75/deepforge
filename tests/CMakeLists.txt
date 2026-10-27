@@ -40,6 +40,13 @@ add_test(NAME visual_regression
                  "${CMAKE_BINARY_DIR}/src/deepforge"
                  "${CMAKE_SOURCE_DIR}/data"
                  "${CMAKE_SOURCE_DIR}/tests/visual/baselines")
+# TEST-03/QA-01: a whole-run skip (no client binary, no offscreen driver) must
+# record as Skipped, never as Passed. CTest matches this regex from the start
+# of the output buffer (verified on CMake 3.31.6); the script prints the
+# RESULT: SKIP line first on skip runs and only then. Per-screen SKIP notes are
+# informational and never read as the verdict.
+set_tests_properties(visual_regression PROPERTIES
+    SKIP_REGULAR_EXPRESSION "^RESULT: SKIP")
 
 # Regeneration must be a no-op (FUNC-01). gen_content.py documents "edit intent, re-run,
 # review the diff", so running it into a scratch copy of the data must reproduce every file
