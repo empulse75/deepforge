@@ -199,9 +199,15 @@ menu says so and offers the backup; the damaged file is never deleted.
 
 Stated honestly, because a build that oversells itself wastes your time:
 
-- **Verified on Linux only.** The Windows toolchain path is set up (presets,
-  MSVC warning flags, `%APPDATA%` paths, CI workflow) but no Windows build of
-  this revision has been run. Treat Windows as untested rather than supported.
+- **Verified on Linux only.** Verified by CI rather than by a local build: in
+  the first full pipeline run (GitHub Actions run 40566835635, push `ba3759f`,
+  2026-10-27) the format gate, the asan/ubsan/tsan matrix and the Linux test
+  suites pass; the clang-tidy step is red on pre-existing debt it was built to
+  catch. The first real Windows and macOS builds executed on that run and
+  failed (`CrashHook.cpp` uses POSIX-only `_O_NOFOLLOW` under MSVC; Apple
+  clang rejects `std::set_terminate` and the `-Wimplicit-int-float-conversion`
+  check under `-Werror`). Treat Windows and macOS as untested rather than
+  supported.
 - **No full-game playthrough has been performed.** The acceptance playthrough in
   `docs/TESTING.md` has been executed headlessly up to the first purchases and
   through failure recovery, not to an ending. There is no ending set piece yet.
