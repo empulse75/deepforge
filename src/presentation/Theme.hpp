@@ -34,6 +34,8 @@ struct Color {
                      static_cast<u8>(clamp(static_cast<float>(g) * f, 0.0f, 255.0f)),
                      static_cast<u8>(clamp(static_cast<float>(b) * f, 0.0f, 255.0f)), a};
     }
+
+    friend constexpr bool operator==(const Color&, const Color&) = default;
 };
 
 constexpr Color mix(Color a, Color b, float t) {

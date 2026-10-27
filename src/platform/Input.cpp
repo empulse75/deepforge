@@ -8,6 +8,34 @@
 #include <cmath>
 
 namespace df {
+namespace {
+
+/// Fill the SDL-backed snapshot the pure core reads. Sampling the whole code
+/// range is a few dozen calls a frame and keeps every decision in InputCore.
+input_core::DeviceSnapshot sample_device_state(SDL_Gamepad* gamepad) {
+    input_core::DeviceSnapshot snapshot;
+    const bool* keys = SDL_GetKeyboardState(nullptr);
+    if (keys != nullptr) {
+        for (usize i = 0; i < snapshot.keys.size(); ++i) {
+            snapshot.keys[i] = keys[i];
+        }
+    }
+    if (gamepad != nullptr) {
+        snapshot.gamepad_connected = true;
+        for (usize i = 0; i < snapshot.gamepad_buttons.size(); ++i) {
+            snapshot.gamepad_buttons[i] = SDL_GetGamepadButton(gamepad, static_cast<SDL_GamepadButton>(i));
+        }
+        for (usize i = 0; i < snapshot.axes.size(); ++i) {
+            snapshot.axes[i] =
+                static_cast<float>(SDL_GetGamepadAxis(gamepad, static_cast<SDL_GamepadAxis>(i))) / 32767.0f;
+        }
+        snapshot.left_stick_x = snapshot.axes[SDL_GAMEPAD_AXIS_LEFTX];
+    }
+    snapshot.mouse_buttons_mask = SDL_GetMouseState(nullptr, nullptr);
+    return snapshot;
+}
+
+} // namespace
 
 InputSystem::InputSystem() {
     int count = 0;
@@ -72,30 +100,8 @@ void InputSystem::handle_event(const SDL_Event& e) {
     }
 }
 
-bool InputSystem::binding_down(const Binding& b) const {
-    switch (b.device) {
-        case BindingDevice::Keyboard: {
-            const bool* keys = SDL_GetKeyboardState(nullptr);
-            return keys != nullptr && keys[b.code];
-        }
-        case BindingDevice::GamepadButton:
-            return mGamepad != nullptr &&
-                   SDL_GetGamepadButton(mGamepad, static_cast<SDL_GamepadButton>(b.code));
-        case BindingDevice::GamepadAxis: {
-            if (mGamepad == nullptr) {
-                return false;
-            }
-            const float v =
-                static_cast<float>(SDL_GetGamepadAxis(mGamepad, static_cast<SDL_GamepadAxis>(b.code))) /
-                32767.0f;
-            return b.axisSign < 0 ? v < -dead_zone : v > dead_zone;
-        }
-        case BindingDevice::Mouse: {
-            const auto buttons = SDL_GetMouseState(nullptr, nullptr);
-            return (buttons & SDL_BUTTON_MASK(b.code)) != 0;
-        }
-    }
-    return false;
+void InputSystem::update(const Settings& settings) {
+    mMapper.update(settings, sample_device_state(mGamepad));
 }
 
 void InputSystem::sample_pointer(SDL_Renderer* renderer) {
@@ -122,80 +128,8 @@ void InputSystem::sample_pointer(SDL_Renderer* renderer) {
     mWheelAccum = 0.0f;
 }
 
-void InputSystem::update(const Settings& settings) {
-    for (usize i = 0; i < mActions.size(); ++i) {
-        bool down = false;
-        for (const auto& b : settings.bindings[i]) {
-            if (binding_down(b)) {
-                down = true;
-                break;
-            }
-        }
-        auto& state = mActions[i];
-        state.pressed = down && !state.down;
-        state.released = !down && state.down;
-        state.down = down;
-    }
-
-    mMoveAxis = 0.0f;
-    if (mGamepad != nullptr) {
-        const float raw = static_cast<float>(SDL_GetGamepadAxis(mGamepad, SDL_GAMEPAD_AXIS_LEFTX)) / 32767.0f;
-        if (std::fabs(raw) > dead_zone) {
-            // Rescale past the dead zone so the first movement is not a jump.
-            const float sign = raw < 0.0f ? -1.0f : 1.0f;
-            mMoveAxis = sign * (std::fabs(raw) - dead_zone) / (1.0f - dead_zone);
-        }
-    }
-    if (down(Action::MoveLeft) && !down(Action::MoveRight)) {
-        mMoveAxis = -1.0f;
-    } else if (down(Action::MoveRight) && !down(Action::MoveLeft)) {
-        mMoveAxis = 1.0f;
-    }
-}
-
 TickCommands InputSystem::to_commands(const Settings& settings) {
-    TickCommands cmd;
-    cmd.moveX = clamp(mMoveAxis, -1.0f, 1.0f);
-
-    if (settings.access.holdToThrust) {
-        cmd.thrust = down(Action::Thrust);
-    } else {
-        if (pressed(Action::Thrust)) {
-            mThrustToggle = !mThrustToggle;
-        }
-        cmd.thrust = mThrustToggle;
-    }
-
-    MineDirection dir = MineDirection::None;
-    if (down(Action::MineDown)) {
-        dir = MineDirection::Down;
-    } else if (down(Action::MineLeft)) {
-        dir = MineDirection::Left;
-    } else if (down(Action::MineRight)) {
-        dir = MineDirection::Right;
-    } else if (down(Action::MineUp)) {
-        dir = MineDirection::Up;
-    }
-    if (settings.access.holdToMine) {
-        cmd.mine = dir;
-    } else {
-        if (dir != MineDirection::None && (pressed(Action::MineDown) || pressed(Action::MineLeft) ||
-                                           pressed(Action::MineRight) || pressed(Action::MineUp))) {
-            if (mMineToggle && mToggleDirection == dir) {
-                mMineToggle = false;
-            } else {
-                mMineToggle = true;
-                mToggleDirection = dir;
-            }
-        }
-        cmd.mine = mMineToggle ? mToggleDirection : MineDirection::None;
-    }
-
-    cmd.brake = down(Action::Brake);
-    cmd.interact = down(Action::Interact);
-    cmd.scan = pressed(Action::Scan);
-    cmd.unstuck = pressed(Action::Unstuck);
-    return cmd;
+    return mMapper.to_commands(settings);
 }
 
 } // namespace df

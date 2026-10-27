@@ -3,8 +3,13 @@
 # See docs/ARCHITECTURE.md.
 
 function(deepforge_layer name)
+    cmake_parse_arguments(ARGS "" "" "EXCLUDE" ${ARGN})
     file(GLOB_RECURSE _sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${name}/*.cpp")
     file(GLOB_RECURSE _headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${name}/*.hpp")
+    foreach(_drop IN LISTS ARGS_EXCLUDE)
+        list(REMOVE_ITEM _sources "${CMAKE_CURRENT_SOURCE_DIR}/${name}/${_drop}")
+        list(REMOVE_ITEM _headers "${CMAKE_CURRENT_SOURCE_DIR}/${name}/${_drop}")
+    endforeach()
     if(_sources)
         add_library(deepforge_${name} STATIC ${_sources} ${_headers})
     else()
@@ -48,17 +53,30 @@ deepforge_layer(app)
 target_link_libraries(deepforge_app PUBLIC deepforge_domain PRIVATE deepforge_json_headers)
 deepforge_set_warnings(deepforge_app)
 
+# --- platform (SDL boundary; the pure action core compiles everywhere) -----
+# The pure action-state core (InputCore) is compiled into every build so the
+# test binary links it without SDL (the seam ARCHITECTURE provides); the SDL
+# glue only where SDL exists.
 if(DEEPFORGE_BUILD_CLIENT)
-    # --- platform (SDL) -----------------------------------------------------
     deepforge_layer(platform)
     target_link_libraries(deepforge_platform PUBLIC deepforge_core PRIVATE SDL3::SDL3 deepforge_json_headers)
-    deepforge_set_warnings(deepforge_platform)
+else()
+    deepforge_layer(platform EXCLUDE Input.cpp Settings.cpp Window.cpp Audio.cpp)
+    target_link_libraries(deepforge_platform PUBLIC deepforge_core)
+endif()
+deepforge_set_warnings(deepforge_platform)
 
-    # --- presentation -------------------------------------------------------
+# --- presentation -------------------------------------------------------------
+if(DEEPFORGE_BUILD_CLIENT)
     deepforge_layer(presentation)
     target_link_libraries(deepforge_presentation PUBLIC deepforge_app deepforge_platform PRIVATE SDL3::SDL3)
-    deepforge_set_warnings(deepforge_presentation)
+else()
+    deepforge_layer(presentation EXCLUDE Client.cpp Draw.cpp WorldRenderer.cpp)
+    target_link_libraries(deepforge_presentation PUBLIC deepforge_core)
+endif()
+deepforge_set_warnings(deepforge_presentation)
 
+if(DEEPFORGE_BUILD_CLIENT)
     # --- executable ---------------------------------------------------------
     add_executable(deepforge_game main.cpp)
     target_link_libraries(deepforge_game PRIVATE deepforge_presentation deepforge_app SDL3::SDL3)

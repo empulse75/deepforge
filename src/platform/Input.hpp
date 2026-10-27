@@ -1,10 +1,10 @@
-// Input sampling. Converts SDL events and device state into action states, then
-// into a TickCommands buffer for the simulation.
+// Input sampling. Converts SDL events and device state into action states,
+// then into a TickCommands buffer for the simulation. The decisions themselves
+// (edges, dead zone, accessibility toggles) live in the SDL-free core,
+// InputCore.hpp; this file is the SDL glue: device sampling and event capture.
 #pragma once
 
-#include "core/Math.hpp"
-#include "domain/Commands.hpp"
-#include "platform/Settings.hpp"
+#include "platform/InputCore.hpp"
 
 #include <array>
 #include <string>
@@ -14,12 +14,6 @@ struct SDL_Renderer;
 union SDL_Event;
 
 namespace df {
-
-struct ActionState {
-    bool down = false;
-    bool pressed = false; ///< Went down this frame.
-    bool released = false;
-};
 
 class InputSystem {
 public:
@@ -34,14 +28,14 @@ public:
     /// Recomputes edge states. Call once per rendered frame.
     void update(const Settings& settings);
 
-    const ActionState& action(Action a) const { return mActions[static_cast<usize>(a)]; }
+    const ActionState& action(Action a) const { return mMapper.action(a); }
 
-    bool down(Action a) const { return action(a).down; }
+    bool down(Action a) const { return mMapper.down(a); }
 
-    bool pressed(Action a) const { return action(a).pressed; }
+    bool pressed(Action a) const { return mMapper.pressed(a); }
 
     /// Analogue horizontal axis, -1..1, with dead zone applied.
-    float move_axis() const noexcept { return mMoveAxis; }
+    float move_axis() const noexcept { return mMapper.move_axis(); }
 
     // --- pointer -----------------------------------------------------------
     /// Mouse position in render pixels. `present` stays false until the mouse
@@ -84,23 +78,17 @@ public:
         mCaptured = false;
     }
 
-    float dead_zone = 0.22f;
-
 private:
-    bool binding_down(const Binding& b) const;
-
-    std::array<ActionState, static_cast<usize>(Action::Count)> mActions{};
+    input_core::ActionMapper mMapper; // the single source for action state
     SDL_Gamepad* mGamepad = nullptr;
-    float mMoveAxis = 0.0f;
     bool mQuit = false;
     bool mCapturing = false;
     bool mCaptured = false;
     Binding mCapturedBinding{};
-    // Toggle state for accessibility hold/toggle options.
-    bool mMineToggle = false;
-    MineDirection mToggleDirection = MineDirection::None;
-    bool mThrustToggle = false;
 
+    // Pointer state stays here because it is sampled through SDL window
+    // coordinates; the click/release edges belong to the pointer, not to the
+    // binding map.
     Vec2 mMousePosition{};
     bool mMousePresent = false;
     bool mMouseDown = false;

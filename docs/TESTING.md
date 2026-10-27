@@ -12,7 +12,8 @@ from a fresh clone:
 
 ```sh
 tools/verify.sh           # builds dev-release, ci, headless, asan, ubsan, tsan;
-                         # tests headless, asan, ubsan, tsan (the three
+                         # tests dev-release (client-enabled, so the settings
+                         # cases run), headless, asan, ubsan, tsan (the three
                          # sanitizers); then the headless client smoke test
 tools/verify.sh --quick   # headless build and tests only, for the inner loop
 ```
@@ -39,6 +40,18 @@ cmake --preset tsan  && cmake --build --preset tsan  && ctest --preset tsan
 ./build/headless/tests/deepforge_tests --list-tests
 ```
 
+## Coverage (advisory)
+
+`tools/coverage.sh` configures the `coverage` preset (headless, `--coverage`),
+runs the suite, and prints a per-layer gcovr summary. It needs `gcovr`
+(`apt install gcovr`) and a gcov matching the compiler. Nothing gates on these
+numbers yet — they are reported so the phase-2 refactor cards can be guarded
+by something other than eyeballs. The two SDL-gated layers report what the
+extracted seams execute: `FocusModel`, `InputCore` and the `Theme` machinery
+are compiled and tested without SDL; the rest of presentation and platform is
+only exercised by the visual baselines and the smoke test, which need a
+client-enabled build.
+
 ## What is covered
 
 76 CTest cases across five suites.
@@ -56,6 +69,9 @@ cmake --preset tsan  && cmake --build --preset tsan  && ctest --preset tsan
 | Balance invariants | Stat caps hold with every upgrade in the game bought; no recipe multiplies value without bound; every material consumed by an upgrade or recipe is re-obtainable; every paid equipment tier has at least one effect; the power core track strictly raises the module power budget at every tier |
 | Text | Every content key has authored text; the string table has no unreachable entries; names are short, single-line and printable ASCII |
 | Saves | Full field round trip, atomic write with backup rotation, corruption detection and recovery, garbage input, migration from every released schema, refusal of a newer schema, dropping content that no longer exists |
+| Focus model (TEST-01 seam) | Pointer-over takes focus, click-release commits, disabled rows refuse but stay focusable, inert rows never take focus, confirm commits through the focus index with no pointer, slider drags, wheel scroll clamps, focused row kept in view |
+| Action-state layer (TEST-01 seam) | Press/hold/release edges, hold vs. toggle accessibility modes, mining toggle latch and cancel, keyboard axis exclusivity, dead-zone rescale, out-of-range binding reads as up |
+| Theme machinery (TEST-01 seam) | Colour-vision gauge palette resolves per the setting and separates on every gauge, mix/shade/alpha endpoints and clamps, spacing scale monotonic |
 
 ### `tests/generation` — world
 

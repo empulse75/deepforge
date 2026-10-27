@@ -1,6 +1,7 @@
 #include "presentation/Ui.hpp"
 
 #include "core/Hash.hpp"
+#include "presentation/FocusModel.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -239,7 +240,6 @@ void Ui::list_row(const Rect& r, const MenuItem& item, bool hovered, float t) {
 MenuResult Ui::menu_screen(const Rect& area, const MenuScreen& screen, int& selected, float& scroll,
                            bool confirmPressed) {
     Draw& d = *mDraw;
-    MenuResult result;
     const float unit = std::max(1.0f, std::round(d.scale()));
 
     // A screen that draws its own title lockup (the main menu) passes neither a
@@ -265,74 +265,39 @@ MenuResult Ui::menu_screen(const Rect& area, const MenuScreen& screen, int& sele
     if (useInspector) {
         const float inspectorW = std::min(body.w * 0.40f, d.px(320.0f));
         listRect.w = body.w - inspectorW - d.px(theme::kSpace4);
-        const Rect inspectorRect{body.x + listRect.w + d.px(theme::kSpace4), body.y, inspectorW, body.h};
+    }
+    const Rect view{listRect.x + unit * 2.0f, listRect.y + unit * 2.0f, listRect.w - unit * 4.0f,
+                    listRect.h - unit * 4.0f};
+
+    // One focus model: pointer-over-or-focus-index, commit on click or on
+    // confirm. The whole decision pass lives in FocusModel and the painter
+    // draws what it returns, so interaction and visuals cannot drift apart.
+    const focus::Decisions decisions =
+        focus::decide(screen, mPointer, selected, scroll, confirmPressed,
+                      focus::Geometry{view, d.px(theme::kRowHeight), d.scale()});
+
+    if (useInspector) {
+        const Rect inspectorRect{body.x + listRect.w + d.px(theme::kSpace4), body.y,
+                                 body.w - listRect.w - d.px(theme::kSpace4), body.h};
         d.panel(inspectorRect, Surface::Raised);
         const Rect inner{inspectorRect.x + d.px(theme::kSpace4), inspectorRect.y + d.px(theme::kSpace4),
                          inspectorRect.w - d.px(theme::kSpace4) * 2.0f,
                          inspectorRect.h - d.px(theme::kSpace4) * 2.0f};
+        // The inspector answers for the row the focus model landed on this
+        // frame; without a pointer the decision leaves `selected` where the
+        // last frame left it, exactly as before.
         if (selected >= 0 && selected < static_cast<int>(screen.items.size())) {
             inspector(inner, screen.items[static_cast<usize>(selected)]);
         }
     }
 
     d.panel(listRect, Surface::Sunken);
-    const Rect view{listRect.x + unit * 2.0f, listRect.y + unit * 2.0f, listRect.w - unit * 4.0f,
-                    listRect.h - unit * 4.0f};
 
-    const float rowH = d.px(theme::kRowHeight);
-    const int count = static_cast<int>(screen.items.size());
-    const float contentH = static_cast<float>(count) * rowH;
-    const float maxScroll = std::max(0.0f, contentH - view.h);
-
-    // Pointer wheel scrolls the list.
-    if (hit(view) && mPointer.wheel != 0.0f) {
-        scroll = clamp(scroll - mPointer.wheel * rowH * 2.0f, 0.0f, maxScroll);
-        result.scrolled = true;
-    }
-    // Keep the focused row inside the view.
-    if (selected >= 0 && count > 0) {
-        const float top = static_cast<float>(selected) * rowH;
-        scroll = clamp(scroll, top + rowH - view.h, top);
-        scroll = clamp(scroll, 0.0f, maxScroll);
-    }
-
-    for (int i = 0; i < count; ++i) {
-        const float y = view.y + static_cast<float>(i) * rowH - scroll;
-        if (y + rowH < view.y - rowH || y > view.y + view.h + rowH) {
-            continue;
-        }
-        const Rect rowRect{view.x, y, view.w, rowH};
-        // Clip: skip rows that would spill outside the well.
-        if (y < view.y - 1.0f || y + rowH > view.y + view.h + 1.0f) {
-            continue;
-        }
-        const auto& item = screen.items[static_cast<usize>(i)];
-        const bool hovered = !item.inert && hit(rowRect);
-        if (hovered) {
-            result.hovered = i;
-            if (selected != i) {
-                selected = i;
-            }
-        }
-        const bool focused = selected == i;
-        const u64 key = hash_combine(fnv1a64(screen.title), static_cast<u64>(i) + 1);
-        const float t = anim(key, hovered, focused, hovered && mPointer.down);
-        list_row(rowRect, item, hovered, clamp(t, 0.0f, 1.0f));
-
-        if (item.slider >= 0.0f && hovered && mPointer.down) {
-            const Rect track = slider_track(rowRect);
-            result.dragged = i;
-            result.dragValue = clamp((mPointer.position.x - track.x) / track.w, 0.0f, 1.0f);
-        } else if (hovered && mPointer.released) {
-            (item.enabled ? result.activated : result.rejected) = i;
-        }
-    }
-
-    if (confirmPressed && selected >= 0 && selected < count) {
-        const auto& sel = screen.items[static_cast<usize>(selected)];
-        if (!sel.inert && sel.slider < 0.0f) {
-            (sel.enabled ? result.activated : result.rejected) = selected;
-        }
+    for (const auto& row : decisions.rows) {
+        const auto& item = screen.items[static_cast<usize>(row.index)];
+        const u64 key = hash_combine(fnv1a64(screen.title), static_cast<u64>(row.index) + 1);
+        const float t = anim(key, row.hovered, row.focused, row.pressed);
+        list_row(row.rect, item, row.hovered, clamp(t, 0.0f, 1.0f));
     }
 
     // Empty state. The builder sets this only when there is genuinely nothing to
@@ -347,16 +312,17 @@ MenuResult Ui::menu_screen(const Rect& area, const MenuScreen& screen, int& sele
     }
 
     // Scrollbar, only when it means something.
-    if (maxScroll > 0.5f) {
+    if (decisions.max_scroll > 0.5f) {
+        const float contentH = view.h + decisions.max_scroll; // from FocusModel's own arithmetic
         const float trackW = d.px(3.0f);
         const float trackX = listRect.x + listRect.w - trackW - unit * 2.0f;
         d.rect(trackX, view.y, trackW, view.h, theme::kWellDeep);
         const float thumbH = std::max(d.px(14.0f), view.h * (view.h / contentH));
-        const float thumbY = view.y + (view.h - thumbH) * (scroll / maxScroll);
+        const float thumbY = view.y + (view.h - thumbH) * (scroll / decisions.max_scroll);
         d.rect(trackX, thumbY, trackW, thumbH, theme::kAmberDeep);
         d.rect(trackX, thumbY, trackW, std::max(1.0f, thumbH * 0.25f), theme::kAmber);
     }
-    return result;
+    return decisions.result;
 }
 
 // ---------------------------------------------------------------------------
@@ -554,15 +520,9 @@ void Ui::depth_tape(const Rect& r, i64 depth, i64 maxDepth, const std::vector<st
 }
 
 Rect Ui::slider_track(const Rect& row) const {
-    Draw& d = *mDraw;
-    const float pad = d.px(theme::kSpace4);
-    // The numeric column is a fixed width so the track never shifts as the
-    // reading goes from "9%" to "100%".
-    const float valueW = d.px(46.0f);
-    const float trackW = std::min(d.px(150.0f), row.w * 0.30f);
-    const float trackH = d.px(5.0f);
-    return Rect{row.x + row.w - pad - valueW - trackW, std::round(row.y + (row.h - trackH) * 0.5f), trackW,
-                trackH};
+    // The track geometry lives in the focus model so the painter and the drag
+    // decision can never disagree about where the knob is.
+    return focus::slider_track(row, mDraw->scale());
 }
 
 } // namespace df

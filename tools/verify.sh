@@ -17,13 +17,15 @@ QUICK=0
 [[ "${1:-}" == "--quick" ]] && QUICK=1
 
 # dev-release builds the client; headless/asan/ubsan are client-free, so they
-# need no display, no GPU and no SDL at all.
+# need no display, no GPU and no SDL at all. It is tested too: the settings
+# cases are the platform layer's only tests and they only exist on
+# client-enabled builds (TEST-04).
 if [[ $QUICK -eq 1 ]]; then
     BUILD_PRESETS=(headless)
     TEST_PRESETS=(headless)
 else
     BUILD_PRESETS=(dev-release ci headless asan ubsan tsan)
-    TEST_PRESETS=(headless asan ubsan tsan)
+    TEST_PRESETS=(dev-release headless asan ubsan tsan)
 fi
 
 for preset in "${BUILD_PRESETS[@]}"; do

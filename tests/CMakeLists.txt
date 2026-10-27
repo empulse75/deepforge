@@ -1,17 +1,17 @@
 file(GLOB_RECURSE DEEPFORGE_TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-# Settings.cpp lives in the platform layer, which exists only when the client is
-# built. The headless/asan/ubsan/tsan presets turn the client off, so the settings
-# cases are excluded there: without load_settings() they would not even link.
-if(NOT TARGET deepforge_platform)
+# Settings.cpp — the code Settings.test.cpp exercises — is SDL glue and is
+# only compiled when the client is built, so the cases are excluded on
+# client-off presets: without load_settings() they would not even link. The
+# pure seams (FocusModel, InputCore, Theme machinery) link and run on every
+# preset — that is what they were extracted for.
+if(NOT DEEPFORGE_BUILD_CLIENT)
     list(FILTER DEEPFORGE_TEST_SOURCES EXCLUDE REGEX "/Settings\\.test\\.cpp$")
 endif()
 add_executable(deepforge_tests ${DEEPFORGE_TEST_SOURCES})
 target_link_libraries(deepforge_tests PRIVATE
     deepforge_core deepforge_content deepforge_world deepforge_domain deepforge_app deepforge_store
+    deepforge_platform deepforge_presentation
     Catch2::Catch2WithMain)
-if(TARGET deepforge_platform)
-    target_link_libraries(deepforge_tests PRIVATE deepforge_platform)
-endif()
 target_include_directories(deepforge_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 deepforge_set_warnings(deepforge_tests)
 target_compile_definitions(deepforge_tests PRIVATE
